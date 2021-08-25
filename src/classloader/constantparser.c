@@ -157,6 +157,10 @@ ConstantPool* readConstantPool(const uint8_t** bytes) {
 	for(int i = 0; i < size-1; i++) {
 		ConstantPoolInfo* cpInfoPtr = readPoolInfo(bytes);
 		result->constantPool[i] = cpInfoPtr;
+		if(cpInfoPtr->tag == CONSTANT_DOUBLE || cpInfoPtr->tag == CONSTANT_LONG) {
+			result->constantPool[i+1] = 0;
+			i++;
+		}
 	}
 
 	return result;

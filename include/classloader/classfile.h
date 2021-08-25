@@ -12,6 +12,5 @@ typedef struct {
 	uint16_t thisClass;
 	uint16_t superClass;
 	InterfacePool* interfacePool;
-	uint16_t fieldsCount;
 } ClassFile;
 #endif

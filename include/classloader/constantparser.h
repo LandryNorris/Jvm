@@ -64,7 +64,6 @@ typedef struct {
 } MethodType;
 
 typedef union {
-	uint8_t bytes[10];
 	UTF8 utf8;
 	MethodRef methodRef;
 	Class class;

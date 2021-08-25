@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include "interfaceparser.h"
 #include "constantparser.h"
+#include "primitivereader.h"
 #include "classfile.h"
 
 int initClassFile(const uint8_t const* bytes, ClassFile* classPtr) {
-	uint8_t** content = &bytes;
+	uint8_t const** content = &bytes;
 	classPtr->magic = readuInt32(content);
 	classPtr->minor = readuInt16(content);
 	classPtr->major = readuInt16(content);
@@ -20,10 +21,66 @@ int initClassFile(const uint8_t const* bytes, ClassFile* classPtr) {
 	classPtr->thisClass = readuInt16(content);
 	classPtr->superClass = readuInt16(content);
 
+	printf("About to call readInterfacePool\n");
 	InterfacePool* ifacePtr = readInterfacePool(content);
 	classPtr->interfacePool = ifacePtr;
 
 	return 0;
+}
+
+const char* getTagName(ConstantPoolInfo* item) {
+	switch(item->tag) {
+		case CONSTANT_UTF8: return "UTF8";
+		case CONSTANT_INT: return "Integer";
+		case CONSTANT_FLOAT: return "Float";
+		case CONSTANT_LONG: return "Long";
+		case CONSTANT_DOUBLE: return "Double";
+		case CONSTANT_CLASS: return "Class";
+		case CONSTANT_STRING: return "String";
+		case CONSTANT_FIELD_REF: return "Field Ref";
+		case CONSTANT_METHOD_REF: return "Method Ref";
+		case CONSTANT_INTERFACE_METHOD_REF: return "Interface Method Ref";
+		case CONSTANT_NAME_AND_TYPE: return "Name and Type";
+		case CONSTANT_METHOD_HANDLE: return "Method Handle";
+		case CONSTANT_METHOD_TYPE: return "Method Type";
+		case CONSTANT_INVOKE_DYNAMIC: return "Invoke Dynamic";
+	}
+	return "";
+}
+
+void getConstantString(char * buffer, ConstantPoolInfo* item) {
+	Constant* constant = item->constant;
+	switch(item->tag) {
+		case CONSTANT_INT:
+			sprintf(buffer, "%d", constant->integer.value);
+			break;
+		case CONSTANT_LONG:
+			sprintf(buffer, "%ldl", constant->l.value);
+			break;
+		case CONSTANT_FLOAT:
+			sprintf(buffer, "%ff", constant->f.value);
+			break;
+		case CONSTANT_DOUBLE:
+			sprintf(buffer, "%lfd", constant->d.value);
+			break;
+		case CONSTANT_UTF8:
+			for(int i = 0; i < constant->utf8.size; i++) {
+				buffer[i] = constant->utf8.content[i];
+			}
+			break;
+		case CONSTANT_NAME_AND_TYPE:
+			sprintf(buffer, "#%d:#%d", constant->nameAndTypeIndex.nameIndex, constant->nameAndTypeIndex.descriptorIndex);
+			break;
+		case CONSTANT_CLASS:
+			sprintf(buffer, "#%d", constant->class.nameIndex);
+			break;
+		case CONSTANT_METHOD_REF:
+			sprintf(buffer, "#%d.#%d", constant->methodRef.classIndex, constant->methodRef.nameAndTypeIndex);
+			break;
+		case CONSTANT_FIELD_REF:
+			sprintf(buffer, "#%d.#%d", constant->methodRef.classIndex, constant->methodRef.nameAndTypeIndex);
+			break;
+	}
 }
 
 void printClassFile(ClassFile* classFilePtr) {
@@ -31,7 +88,27 @@ void printClassFile(ClassFile* classFilePtr) {
 	printf("Got minor version %d\n", classFilePtr->minor);
 	printf("Got major version %d\n", classFilePtr->major);
 	printf("Got Constant Pool size %d\n", classFilePtr->constantPool->constantPoolCount);
-	printf("Class name is %d, %s\n", classFilePtr->thisClass, classFilePtr->constantPool->constantPool[classFilePtr->thisClass]);
+
+	uint16_t thisNameIndex = classFilePtr->constantPool->constantPool[classFilePtr->thisClass-1]->constant->class.nameIndex;
+	UTF8 thisName = classFilePtr->constantPool->constantPool[thisNameIndex-1]->constant->utf8;
+	printf("This Class name is %d %s\n", thisNameIndex, thisName.content);
+
+	uint16_t superNameIndex = classFilePtr->constantPool->constantPool[classFilePtr->superClass-1]->constant->class.nameIndex;
+	UTF8 superName = classFilePtr->constantPool->constantPool[superNameIndex-1]->constant->utf8;
+	printf("Super Class name is %s\n", superName.content);
+
+	printf("Interface count: %d, Field count: %d, Method count: %d, attributes: %d\n\n", classFilePtr->interfacePool->size, 0, 0, 0);
+	printf("Constant Pool:\n");
+
+	ConstantPool* constantPool = classFilePtr->constantPool;
+	for(int i = 1; i <= constantPool->constantPoolCount-1; i++) {
+		ConstantPoolInfo* item = constantPool->constantPool[i-1];
+		if(item) {
+			char* constantString = calloc(60, sizeof(char));
+			getConstantString(constantString, item);
+			printf("%5d %-20s %s\n", i, getTagName(item), constantString);
+		}
+	}
 }
 
 int main(int argc, char* argv[]) {
