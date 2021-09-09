@@ -12,7 +12,7 @@ Constant* readUtf8(const uint8_t** bytes) {
 		utf8->content[i] = readuInt8(bytes);
 	}
 	Constant* result = malloc(sizeof(Constant));
-	result->utf8 = *utf8;
+	result->utf8 = utf8;
 	return result;
 }
 
@@ -21,7 +21,7 @@ Constant* readMethodRef(const uint8_t** bytes) {
 	methodRef->classIndex = readuInt16(bytes);
 	methodRef->nameAndTypeIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->methodRef = *methodRef;
+	result->methodRef = methodRef;
 	return result;
 }
 
@@ -29,7 +29,7 @@ Constant* readClass(const uint8_t** bytes) {
 	Class* class = malloc(sizeof(Class));
 	class->nameIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->class = *class;
+	result->class = class;
 	return result;
 }
 
@@ -38,7 +38,7 @@ Constant* readNameAndType(const uint8_t** bytes) {
 	nameAndTypeIndex->nameIndex = readuInt16(bytes);
 	nameAndTypeIndex->descriptorIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->nameAndTypeIndex = *nameAndTypeIndex;
+	result->nameAndTypeIndex = nameAndTypeIndex;
 	return result;
 }
 
@@ -46,7 +46,7 @@ Constant* readInt(const uint8_t** bytes) {
 	Integer* i = malloc(sizeof(Integer));
 	i->value = readuInt32(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->integer = *i;
+	result->integer = i;
 	return result;
 }
 
@@ -54,7 +54,7 @@ Constant* readConstantFloat(const uint8_t** bytes) {
 	Float* f = malloc(sizeof(Float));
 	f->value = readFloat(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->f = *f;
+	result->f = f;
 	return result;
 }
 
@@ -62,7 +62,7 @@ Constant* readLong(const uint8_t** bytes) {
 	Long* l = malloc(sizeof(Long));
 	l->value = readuInt64(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->l = *l;
+	result->l = l;
 	return result;
 }
 
@@ -70,7 +70,7 @@ Constant* readConstantDouble(const uint8_t** bytes) {
 	Double* d = malloc(sizeof(Double));
 	d->value = readDouble(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->d = *d;
+	result->d = d;
 	return result;
 }
 
@@ -78,7 +78,7 @@ Constant* readString(const uint8_t** bytes) {
 	String* i = malloc(sizeof(String));
 	i->index = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->string = *i;
+	result->string = i;
 	return result;
 }
 
@@ -87,7 +87,7 @@ Constant* readMethodHandle(const uint8_t** bytes) {
 	ref->referenceKind = readuInt8(bytes);
 	ref->referenceType = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->methodHandle = *ref;
+	result->methodHandle = ref;
 	return result;
 }
 
@@ -95,8 +95,17 @@ Constant* readMethodType(const uint8_t** bytes) {
 	MethodType* type = malloc(sizeof(MethodType));
 	type->descriptorIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->methodType = *type;
+	result->methodType = type;
 	return result;
+}
+
+Constant* readInvokeDynamic(const uint8_t** bytes) {
+    InvokeDynamic* invokeDynamic = malloc(sizeof(InvokeDynamic));
+    invokeDynamic->bootstrapMethodAttrIndex = readuInt16(bytes);
+    invokeDynamic->nameAndTypeIndex = readuInt16(bytes);
+    Constant* result = malloc(sizeof(Constant));
+    result->invokeDynamic = invokeDynamic;
+    return result;
 }
 
 ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
@@ -125,7 +134,7 @@ ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
 		case CONSTANT_STRING:
 			constantPtr = readString(bytes);
 			break;
-		//These all have the same format. I'll save some code and parse all the same. It's all going into a byte array anyways.
+		//These all have the same format. I'll save some byteCode and parse all the same. It's all going into a byte array anyways.
 		case CONSTANT_FIELD_REF:
 		case CONSTANT_METHOD_REF:
 		case CONSTANT_INTERFACE_METHOD_REF:
@@ -140,7 +149,9 @@ ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
 		case CONSTANT_METHOD_TYPE:
 			constantPtr = readMethodType(bytes);
 			break;
-		//Add support for invokeDynamic later.
+        case CONSTANT_INVOKE_DYNAMIC:
+            constantPtr = readInvokeDynamic(bytes);
+            break;
 	}
 	ConstantPoolInfo* result = malloc(sizeof(ConstantPoolInfo));
 	result->tag = tag;
@@ -151,14 +162,15 @@ ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
 ConstantPool* readConstantPool(const uint8_t** bytes) {
 	uint16_t size = readuInt16(bytes);
 
-	ConstantPool* result = malloc(sizeof(ConstantPool)+size*sizeof(ConstantPoolInfo*));
+	ConstantPool* result = malloc(sizeof(ConstantPool));
 	result->constantPoolCount = size;
+    result->pool = malloc(size * sizeof(ConstantPoolInfo*));
 
 	for(int i = 0; i < size-1; i++) {
 		ConstantPoolInfo* cpInfoPtr = readPoolInfo(bytes);
-		result->constantPool[i] = cpInfoPtr;
+		result->pool[i] = cpInfoPtr;
 		if(cpInfoPtr->tag == CONSTANT_DOUBLE || cpInfoPtr->tag == CONSTANT_LONG) {
-			result->constantPool[i+1] = 0;
+			result->pool[i + 1] = 0;
 			i++;
 		}
 	}

@@ -1,3 +1,6 @@
+#ifndef JVM_PROJECT_CONSTANT_PARSER_H
+#define JVM_PROJECT_CONSTANT_PARSER_H
+
 #include<stdint.h>
 
 #define CONSTANT_UTF8 1
@@ -63,18 +66,24 @@ typedef struct {
 	uint16_t descriptorIndex;
 } MethodType;
 
+typedef struct {
+    uint16_t bootstrapMethodAttrIndex;
+    uint16_t nameAndTypeIndex;
+} InvokeDynamic;
+
 typedef union {
-	UTF8 utf8;
-	MethodRef methodRef;
-	Class class;
-	NameAndTypeIndex nameAndTypeIndex;
-	Integer integer;
-	Float f;
-	Long l;
-	Double d;
-	String string;
-	MethodHandle methodHandle;
-	MethodType methodType;
+	UTF8* utf8;
+	MethodRef* methodRef;
+	Class* class;
+	NameAndTypeIndex* nameAndTypeIndex;
+	Integer* integer;
+	Float* f;
+	Long* l;
+	Double* d;
+	String* string;
+	MethodHandle* methodHandle;
+	MethodType* methodType;
+    InvokeDynamic* invokeDynamic;
 } Constant;
 
 typedef struct {
@@ -84,7 +93,9 @@ typedef struct {
 
 typedef struct {
 	uint16_t constantPoolCount;
-	ConstantPoolInfo* constantPool[];
+	ConstantPoolInfo** pool;
 } ConstantPool;
 
 ConstantPool* readConstantPool(const uint8_t** bytes);
+
+#endif

@@ -1,6 +1,10 @@
 #ifndef CLASSFILE_H
 #define CLASSFILE_H
 
+#include "constantparser.h"
+#include "interfaceparser.h"
+#include "fieldpoolloader.h"
+#include "methodparser.h"
 #include<stdint.h>
 
 typedef struct {
@@ -12,5 +16,8 @@ typedef struct {
 	uint16_t thisClass;
 	uint16_t superClass;
 	InterfacePool* interfacePool;
+    FieldPool* fieldPool;
+    MethodPool* methodPool;
 } ClassFile;
+
 #endif

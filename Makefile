@@ -15,6 +15,8 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
+all: $(BUILD_DIR)/$(TARGET_EXEC)
+
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
@@ -29,7 +31,7 @@ $(BUILD_DIR)/%.c.o: %.c
 .PHONY: debug
 .PHONY: clean
 
-debug: CPPFLAGS += -g
+debug: CPPFLAGS += -g -O0
 debug: $(BUILD_DIR)/$(TARGET_EXEC)
 
 clean:
