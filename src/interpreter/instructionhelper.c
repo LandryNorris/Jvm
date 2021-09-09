@@ -2,14 +2,16 @@
 #include "instructionhelper.h"
 #include <stdio.h>
 #include <primitivereader.h>
+#include <malloc.h>
 
 void printProgram(Code* code) {
-    uint8_t* pc = code->program->byteCode;
-    uint8_t start = pc;
-    uint8_t* end = pc + code->program->length;
+    const uint8_t* pc = code->program->byteCode;
+    const uint8_t* start = pc;
+    const uint8_t* end = pc + code->program->length;
 
     while(pc < end) {
         uint8_t instruction = *pc;
+        long index = pc-start;
         char* name = instructionNames[instruction];
         switch(instruction) {
             //1 param
@@ -26,7 +28,7 @@ void printProgram(Code* code) {
             case INSTR_LLOAD:
             case INSTR_LSTORE:
             case INSTR_RET:
-                printf("\t%s %d\n", name, *++pc);
+                printf("\t%5ld: %s %d\n", index, name, *++pc);
                 break;
 
             //2 params
@@ -62,18 +64,61 @@ void printProgram(Code* code) {
             case INSTR_PUTFIELD:
             case INSTR_PUTSTATIC:
             case INSTR_SIPUSH:
-                printf("\t%s %d %d\n", name, *++pc, *++pc);
+                printf("\t%5ld: %s %d %d\n", index, name, *++pc, *++pc);
                 break;
 
             //these are variable size. How should I handle them?
-            case INSTR_TABLESWITCH:
-            case INSTR_LOOKUPSWITCH: {
-                uint8_t offset = 4-((long)(pc-start) & 100); //align to 4 spots.
+            case INSTR_TABLESWITCH: {
+                uint32_t currentInstruction = pc-start;
+                uint8_t instructionOffset = currentInstruction & 0b11; //how far above a multiple of 4 our first instruction is.
+                uint8_t offset = 4-(instructionOffset); //align to 4 spots.
                 if(offset != 4) {
                     pc += offset;
                 }
-                uint32_t defaultByte = readuInt32(&pc);
+                int32_t defaultByte = readInt32(&pc);
+                int32_t low = readInt32(&pc);
+                int32_t high = readInt32(&pc);
+
+                int32_t numOffsets = high - low + 1;
+
+                int32_t* offsets = malloc(sizeof(int32_t) * numOffsets);
+                int j = 0;
+
+                for(int i = 0; i < numOffsets; i++) {
+                    offsets[j++] = readInt32(&pc) + currentInstruction;
+                }
+                printf("\t%5ld %s {\n", index, name);
+
+                for(int i = 0; i < numOffsets; i++) {
+                    printf("\t\t%12d: %d\n", i, offsets[i]);
+                }
+                printf("\t\t     default: %d\n\t       }\n", defaultByte);
+                free(offsets);
+                break;
+            }
+
+            case INSTR_LOOKUPSWITCH: {
+                uint32_t currentInstruction = pc-start;
+                uint8_t instructionOffset = currentInstruction & 0b11; //how far above a multiple of 4 our first instruction is.
+                uint8_t offset = 4-(instructionOffset); //align to 4 spots.
+                pc += offset;
+                uint32_t defaultByte = readuInt32(&pc) + currentInstruction;
                 uint32_t numPairs = readuInt32(&pc);
+
+                int32_t* matches = malloc(sizeof(int32_t) * numPairs);
+                int32_t* offsets = malloc(sizeof(int32_t) * numPairs);;
+                int j = 0;
+                for(int i = 0; i < numPairs; i++) {
+                    matches[j] = readInt32(&pc);
+                    offsets[j] = readInt32(&pc) + currentInstruction;
+                    j++;
+                }
+                printf("\t%5ld: %s { //%d\n", index, name, numPairs);
+                for(int i = 0; i < numPairs; i++) {
+                    printf("\t\t%12d: %d\n", matches[i], offsets[i]);
+                }
+                printf("\t\t     default: %d\n\t       }\n", defaultByte);
+                free(offsets);
                 break;
             }
             case INSTR_WIDE: {
@@ -93,7 +138,7 @@ void printProgram(Code* code) {
                         uint8_t byte1 = *++pc;
                         uint8_t byte2 = *++pc;
                         uint16_t value = byte2 << 8 & byte1;
-                        printf("\t%s %d\n", name, value);
+                        printf("\t%5ld: %s %d\n", index, name, value);
                     }
                 }
                 break;
@@ -101,19 +146,19 @@ void printProgram(Code* code) {
 
             //3 params
             case INSTR_MULTIANEWARRAY:
-                printf("\t%s %d %d %d", name, *++pc, *++pc, *++pc);
+                printf("\t%5ld: %s %d %d %d", index, name, *++pc, *++pc, *++pc);
 
             //4 params
             case INSTR_GOTO_W:
             case INSTR_INVOKEDYNAMIC:
             case INSTR_INVOKEINTERFACE:
             case INSTR_JSR_W:
-                printf("\t%s %d %d %d %d\n", name, *++pc, *++pc, *++pc, *++pc);
+                printf("\t%5ld: %s %d %d %d %d\n", index, name, *++pc, *++pc, *++pc, *++pc);
                 break;
 
             //no params
             default:
-                printf("\t%s\n", name);
+                printf("\t%5ld: %s\n", index, name);
         }
         pc++;
     }

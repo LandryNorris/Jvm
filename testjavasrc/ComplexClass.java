@@ -27,6 +27,48 @@ class ComplexJavaClass implements AJavaInterface {
     static void aStaticMethod(int anInt, String aString) {
         System.out.println(aString + " Appending to aString");
     }
+
+    void methodWithAnIntSwitch() {
+        int x = 0;
+        int result;
+        switch(x) {
+            case 0:
+                result = 1;
+                break;
+            case 1:
+                result = 5;
+                break;
+            case 3:
+                result = 27;
+                break;
+            case 4:
+                result = 12345;
+            case 25:
+                result = -2;
+                break;
+            case 28:
+                result = -20;
+                break;
+            case 48:
+                result = 100-x;
+        }
+    }
+
+    String methodWithAStringSwitch(String s) {
+        switch(s) {
+            case "":
+                return "Empty String";
+            case "A":
+                return "Letter A";
+            case "b":
+                return "Letter b";
+            case "c":
+            case "d":
+            case "abcd":
+                return "abcd";
+        }
+        return "No cases hit";
+    }
 }
 
 interface AJavaInterface {

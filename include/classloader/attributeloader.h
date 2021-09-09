@@ -182,6 +182,7 @@ typedef struct {
     uint16_t maxLocals;
     Program* program;
     ExceptionTable* exceptionTable;
+    uint16_t numAttributes;
     CodeAttributes** attributeInfo;
 } Code;
 

@@ -22,7 +22,7 @@ LineNumberTable* parseLineNumberTable(const uint8_t **content) {
     uint16_t size = readuInt16(content);
     table->size = size;
 
-    table->entries = malloc(size * sizeof(LineNumberElement));;
+    table->entries = malloc(size * sizeof(LineNumberElement*));;
 
     for(int i = 0; i < size; i++) {
         LineNumberElement* entry = malloc(sizeof(LineNumberElement));
@@ -87,6 +87,7 @@ StackMapTable* parseStackMapTable(const uint8_t** content) {
     StackMapTable* table = malloc(sizeof(StackMapTable));
 
     uint16_t numEntries = readuInt16(content);
+    table->size = numEntries;
     table->entries = malloc(numEntries * sizeof(StackMapTable));
 
     for(int i = 0; i < numEntries; i++) {
@@ -170,6 +171,7 @@ CodeAttributes* parseCodeAttributes(ConstantPool* constantPool, const uint8_t** 
         case ATTRIBUTE_STACK_MAP_TABLE: {
             StackMapTable* table = parseStackMapTable(content);
             attribute->tables.stackMapTable = table;
+            break;
         }
         default: {
             printf("Unrecognized CodeAttribute type with name index %d and type %d\n", attribute->nameIndex, attribute->type);
@@ -211,6 +213,7 @@ Code* parseCode(ConstantPool* constantPool, const uint8_t** content) {
     }
 
     uint16_t attributeLength = readuInt16(content);
+    code->numAttributes = attributeLength;
     code->attributeInfo = malloc(attributeLength * sizeof(CodeAttributes*));
     for(int i = 0; i < attributeLength; i++) {
         CodeAttributes* attributes = parseCodeAttributes(constantPool, content);

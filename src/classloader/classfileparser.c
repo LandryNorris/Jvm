@@ -169,6 +169,8 @@ void printClassFile(ClassFile* classFilePtr) {
                     Code* code = attribute->info->code;
                     printf("Stack size: %d, Local size: %d\n", code->maxStack, code->maxLocals);
                     printProgram(code);
+
+                    printCodeAttributes(code);
                     break;
                 }
                 case ATTRIBUTE_DEPRECATED: {
