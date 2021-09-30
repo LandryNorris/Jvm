@@ -1,5 +1,4 @@
 #include <malloc.h>
-#include <classfile.h>
 #include <constantparser.h>
 #include "attributeloader.h"
 #include "primitivereader.h"
@@ -7,13 +6,16 @@
 
 int getAttributeType(UTF8* utf8) {
     if(isEqual(utf8, "ConstantValue")) return ATTRIBUTE_CONSTANT_VALUE;
-    else if(isEqual(utf8, "Synthetic")) return ATTRIBUTE_SYNTHETIC;
-    else if(isEqual(utf8, "Deprecated")) return ATTRIBUTE_DEPRECATED;
-    else if(isEqual(utf8, "Code")) return ATTRIBUTE_CODE;
-    else if(isEqual(utf8, "LineNumberTable")) return ATTRIBUTE_LINE_NUMBER_TABLE;
-    else if(isEqual(utf8, "LocalVariableTable")) return ATTRIBUTE_LOCAL_VARIABLE_TABLE;
-    else if(isEqual(utf8, "LocalVariableTypeTable")) return ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE;
-    else if(isEqual(utf8, "StackMapTable")) return ATTRIBUTE_STACK_MAP_TABLE;
+    if(isEqual(utf8, "Synthetic")) return ATTRIBUTE_SYNTHETIC;
+    if(isEqual(utf8, "Deprecated")) return ATTRIBUTE_DEPRECATED;
+    if(isEqual(utf8, "Code")) return ATTRIBUTE_CODE;
+    if(isEqual(utf8, "LineNumberTable")) return ATTRIBUTE_LINE_NUMBER_TABLE;
+    if(isEqual(utf8, "LocalVariableTable")) return ATTRIBUTE_LOCAL_VARIABLE_TABLE;
+    if(isEqual(utf8, "LocalVariableTypeTable")) return ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE;
+    if(isEqual(utf8, "StackMapTable")) return ATTRIBUTE_STACK_MAP_TABLE;
+    if(isEqual(utf8, "BootstrapMethods")) return ATTRIBUTE_BOOTSTRAP_METHODS;
+    if(isEqual(utf8, "NestHost")) return ATTRIBUTE_NEST_HOST;
+    if(isEqual(utf8, "NestMembers")) return ATTRIBUTE_NEST_MEMBERS;
     else return -1;
 }
 
@@ -21,17 +23,31 @@ LineNumberTable* parseLineNumberTable(const uint8_t **content) {
     LineNumberTable* table = malloc(sizeof(LineNumberTable));
     uint16_t size = readuInt16(content);
     table->size = size;
-
-    table->entries = malloc(size * sizeof(LineNumberElement*));;
+    table->entries = malloc(size * sizeof(LineNumberElement));
 
     for(int i = 0; i < size; i++) {
-        LineNumberElement* entry = malloc(sizeof(LineNumberElement));
+        LineNumberElement* entry = &table->entries[i];
         entry->startPC = readuInt16(content);
         entry->lineNumber = readuInt16(content);
-        table->entries[i] = entry;
     }
 
     return table;
+}
+
+NestHost* parseNestHost(const uint8_t** content) {
+    NestHost* result = malloc(sizeof(NestHost));
+    result->hostClassIndex = readuInt16(content);
+    return result;
+}
+
+NestMembers* parseNestMembers(const uint8_t** content) {
+    NestMembers* result = malloc(sizeof(NestMembers));
+
+    result->numClasses = readuInt16(content);
+    for(int i = 0; i < result->numClasses; i++) {
+        result->classes[i] = readuInt16(content);
+    }
+    return result;
 }
 
 LocalVariableTable* parseLocalVariableTable(const uint8_t** contents) {
@@ -222,6 +238,26 @@ Code* parseCode(ConstantPool* constantPool, const uint8_t** content) {
     return code;
 }
 
+BootstrapMethodsList* parseBootstrapMethodsList(const uint8_t** content) {
+    uint16_t count = readuInt16(content);
+    BootstrapMethodsList* result = malloc(sizeof(BootstrapMethodsList));
+    result->count = count;
+
+    result->methods = malloc(count * sizeof(BootstrapMethod));
+
+    for(int i = 0; i < count; i++) {
+        result->methods[i].methodRef = readuInt16(content);
+        result->methods[i].numArguments = readuInt16(content);
+
+        result->methods[i].arguments = malloc(result->methods[i].numArguments * sizeof(uint16_t));
+
+        for(int j = 0; j < result->methods[i].numArguments; i++) {
+            result->methods[i].arguments[j] = readuInt16(content);
+        }
+    }
+    return result;
+}
+
 AttributePool* parseAttributes(ConstantPool* constantPool, const uint8_t** content) {
     AttributePool* attributePool = malloc(sizeof(AttributePool));
 
@@ -255,6 +291,20 @@ AttributePool* parseAttributes(ConstantPool* constantPool, const uint8_t** conte
                 attribute->info = malloc(sizeof(AttributeInfo));
                 attribute->info->code = code;
                 break;
+            }
+            case ATTRIBUTE_BOOTSTRAP_METHODS: {
+                BootstrapMethodsList* bootstrapMethodsList = parseBootstrapMethodsList(content);
+                attribute->info = malloc(sizeof(AttributeInfo));
+                attribute->info->bootstrapMethods = bootstrapMethodsList;
+                break;
+            }
+            case ATTRIBUTE_NEST_HOST: {
+                attribute->info = malloc(sizeof(AttributeInfo));
+                attribute->info->nestHost = parseNestHost(content);
+            }
+            case ATTRIBUTE_NEST_MEMBERS: {
+                attribute->info = malloc(sizeof(AttributeInfo));
+                attribute->info->nestMembers = parseNestMembers(content);
             }
             default: {
                 printf("Unrecognized Attribute type with name index %d and type %d\n", attribute->nameIndex, attribute->type);

@@ -13,7 +13,7 @@ typedef struct {
 } FieldPoolItem;
 
 typedef struct {
-	uint16_t fieldsCount;
+	uint16_t size;
 	FieldPoolItem** pool;
 } FieldPool;
 

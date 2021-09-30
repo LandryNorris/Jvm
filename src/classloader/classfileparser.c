@@ -11,6 +11,7 @@
 #include "constantparser.h"
 #include "primitivereader.h"
 #include "classfile.h"
+#include "attributehelper.h"
 
 int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 	const uint8_t ** content = &bytes;
@@ -34,6 +35,8 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 
     MethodPool* methodPool = parseMethodPool(classPtr->constantPool, content);
     classPtr->methodPool = methodPool;
+
+    classPtr->attributePool = parseAttributes(classPtr->constantPool, content);
 
 	return 0;
 }
@@ -95,37 +98,37 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
 	}
 }
 
-void printClassFile(ClassFile* classFilePtr) {
-	printf("Got magic value %x\n", classFilePtr->magic);
-	printf("Got minor version %d\n", classFilePtr->minor);
-	printf("Got major version %d\n", classFilePtr->major);
-	printf("Got Constant Pool size %d\n", classFilePtr->constantPool->constantPoolCount);
-    printf("Got Access Flags %d\n", classFilePtr->accessFlags);
 
-	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClass - 1]->constant->class->nameIndex;
-	UTF8* thisName = classFilePtr->constantPool->pool[thisNameIndex - 1]->constant->utf8;
-	printf("This Class name is %d //%s\n", thisNameIndex, thisName->content);
+void printMethodPool(const ConstantPool *constantPool, const MethodPool *pool) {
+    printf("\nMethod Pool\n");
+    for(int i = 0; i < pool->size; i++) {
+        MethodInfo* method = pool->pool[i];
+        printf("\nMethod #%d\n", i+1);
+        printf("%s\n", utf82cstring(constantPool->pool[method->nameIndex-1]->constant->utf8));
+        printf("%s\n", utf82cstring(constantPool->pool[method->descriptorIndex-1]->constant->utf8));
 
-	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClass - 1]->constant->class->nameIndex;
-	UTF8* superName = classFilePtr->constantPool->pool[superNameIndex - 1]->constant->utf8;
-	printf("Super Class name is //%s\n", superName->content);
+        for(int j = 0; j < method->attributePool->size; j++) {
+            Attribute* attribute = method->attributePool->attributes[j];
+            switch(attribute->type) {
+                case ATTRIBUTE_CODE: {
+                    Code* code = attribute->info->code;
+                    printf("Stack size: %d, Local size: %d\n", code->maxStack, code->maxLocals);
+                    printProgram(code);
 
-	printf("Interface count: %d, Field count: %d, Method count: %d, attributes: %d\n", classFilePtr->interfacePool->size, 0, 0, 0);
-	printf("\nConstant Pool:\n");
+                    printCodeAttributes(code);
+                    break;
+                }
+                case ATTRIBUTE_DEPRECATED: {
+                    printf("\tDeprecated\n");
+                }
+            }
+        }
+    }
+}
 
-	ConstantPool* constantPool = classFilePtr->constantPool;
-	for(int i = 1; i <= constantPool->constantPoolCount-1; i++) {
-		ConstantPoolInfo* item = constantPool->pool[i - 1];
-		if(item) {
-			char* constantString = calloc(60, sizeof(char));
-			getConstantString(constantString, item);
-			printf("%5d %-20s %s\n", i, getTagName(item), constantString);
-		}
-	}
-
+void printFieldPool(const ConstantPool *constantPool, const FieldPool *fieldPool) {
     printf("\nField Pool:\n");
-    FieldPool* fieldPool = classFilePtr->fieldPool;
-    for(int i = 0; i < fieldPool->fieldsCount; i++) {
+    for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
         printf("\nField #%d:\n", i+1);
         printf("%s\n", utf82cstring(constantPool->pool[field->nameIndex-1]->constant->utf8));
@@ -153,69 +156,46 @@ void printClassFile(ClassFile* classFilePtr) {
             }
         }
     }
+}
 
-    printf("\nMethod Pool\n");
-    MethodPool* pool = classFilePtr->methodPool;
-    for(int i = 0; i < pool->size; i++) {
-        MethodInfo* method = pool->pool[i];
-        printf("\nMethod #%d\n", i+1);
-        printf("%s\n", utf82cstring(constantPool->pool[method->nameIndex-1]->constant->utf8));
-        printf("%s\n", utf82cstring(constantPool->pool[method->descriptorIndex-1]->constant->utf8));
-
-        for(int j = 0; j < method->attributePool->size; j++) {
-            Attribute* attribute = method->attributePool->attributes[j];
-            switch(attribute->type) {
-                case ATTRIBUTE_CODE: {
-                    Code* code = attribute->info->code;
-                    printf("Stack size: %d, Local size: %d\n", code->maxStack, code->maxLocals);
-                    printProgram(code);
-
-                    printCodeAttributes(code);
-                    break;
-                }
-                case ATTRIBUTE_DEPRECATED: {
-                    printf("\tDeprecated\n");
-                }
-            }
+void printConstantPool(const ConstantPool *constantPool) {
+    printf("\nConstant Pool:\n");
+    for(int i = 1; i <= constantPool->constantPoolCount - 1; i++) {
+        ConstantPoolInfo* item = constantPool->pool[i - 1];
+        if(item) {
+            char* constantString = calloc(60, sizeof(char));
+            getConstantString(constantString, item);
+            printf("%5d %-20s %s\n", i, getTagName(item), constantString);
         }
     }
 }
 
-int main(int argc, char* argv[]) {
-	if(argc < 2) {
-		printf("no class file given.\n");
-		return EINVAL;
-	}
-	const char* classFilePath = argv[1];
-	printf("Trying to open file at %s\n", classFilePath);
-	FILE* file = fopen(classFilePath, "r");
+void printClassFile(ClassFile* classFilePtr) {
+	printf("Got magic value %x\n", classFilePtr->magic);
+	printf("Got minor version %d\n", classFilePtr->minor);
+	printf("Got major version %d\n", classFilePtr->major);
+	printf("Got Constant Pool size %d\n", classFilePtr->constantPool->constantPoolCount);
+    printf("Got Access Flags %d\n", classFilePtr->accessFlags);
 
-	if(file == NULL) {
-		printf("No such file\n");
-		return ENOENT;
-	}
+	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClass - 1]->constant->class->nameIndex;
+	UTF8* thisName = classFilePtr->constantPool->pool[thisNameIndex - 1]->constant->utf8;
+	printf("This Class name is %d //%s\n", thisNameIndex, thisName->content);
 
-	//Read length
-	fseek(file, 0L, SEEK_END);
-	long lengthBytes = ftell(file);
-	fseek(file, 0L, SEEK_SET);
+	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClass - 1]->constant->class->nameIndex;
+	UTF8* superName = classFilePtr->constantPool->pool[superNameIndex - 1]->constant->utf8;
+	printf("Super Class name is //%s\n", superName->content);
 
-	uint8_t* content = malloc(lengthBytes+1);
+	printf("Interface count: %d, Field count: %d, Method count: %d, attributes: %d\n",
+           classFilePtr->interfacePool->size, classFilePtr->fieldPool->size, classFilePtr->methodPool->size,
+           classFilePtr->attributePool->size);
 
-	fread(content, lengthBytes, 1, file);
+	ConstantPool* constantPool = classFilePtr->constantPool;
+    printConstantPool(constantPool);
 
-	ClassFile* classFilePtr = malloc(sizeof(ClassFile));
-	initClassFile(content, classFilePtr);
+    FieldPool* fieldPool = classFilePtr->fieldPool;
+    printFieldPool(constantPool, fieldPool);
 
-	printClassFile(classFilePtr);
-
-	fclose(file);
-	free(content);
-	free(classFilePtr);
-
-    for(int i = 0; i < 256; i++) {
-        //printf("instruction: %s %d\n", instructionNames[i], numParams[i]);
-    }
-
-	return 0;
+    MethodPool* pool = classFilePtr->methodPool;
+    printMethodPool(constantPool, pool);
+    printFileAttributes(classFilePtr->constantPool, classFilePtr->attributePool);
 }

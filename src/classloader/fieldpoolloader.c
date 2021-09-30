@@ -8,7 +8,7 @@ FieldPool* parseFieldPool(ConstantPool* constantPool, const uint8_t** content) {
     FieldPool* fieldPool = malloc(sizeof(FieldPool));
 
     uint16_t fieldCount = readuInt16(content);
-    fieldPool->fieldsCount = fieldCount;
+    fieldPool->size = fieldCount;
     fieldPool->pool = malloc(sizeof(FieldPoolItem*) * fieldCount);
 
     for(int i = 0; i < fieldCount; i++) {

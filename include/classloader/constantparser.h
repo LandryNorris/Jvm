@@ -59,7 +59,7 @@ typedef struct {
 
 typedef struct {
 	uint8_t referenceKind;
-	uint16_t referenceType;
+	uint16_t referenceIndex;
 } MethodHandle;
 
 typedef struct {

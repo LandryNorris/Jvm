@@ -85,7 +85,7 @@ Constant* readString(const uint8_t** bytes) {
 Constant* readMethodHandle(const uint8_t** bytes) {
 	MethodHandle* ref = malloc(sizeof(MethodHandle));
 	ref->referenceKind = readuInt8(bytes);
-	ref->referenceType = readuInt16(bytes);
+	ref->referenceIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
 	result->methodHandle = ref;
 	return result;

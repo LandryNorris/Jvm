@@ -64,8 +64,12 @@ void printProgram(Code* code) {
             case INSTR_PUTFIELD:
             case INSTR_PUTSTATIC:
             case INSTR_SIPUSH:
-                printf("\t%5ld: %s %d %d\n", index, name, *++pc, *++pc);
+            case INSTR_INVOKESTATIC: {
+                uint8_t byte1 = *++pc;
+                uint8_t byte2 = *++pc;
+                printf("\t%5ld: %s %d %d\n", index, name, byte1, byte2);
                 break;
+            }
 
             //these are variable size. How should I handle them?
             case INSTR_TABLESWITCH: {
@@ -85,7 +89,7 @@ void printProgram(Code* code) {
                 int j = 0;
 
                 for(int i = 0; i < numOffsets; i++) {
-                    offsets[j++] = readInt32(&pc) + currentInstruction;
+                    offsets[j++] = readInt32(&pc) + (int32_t) currentInstruction;
                 }
                 printf("\t%5ld %s {\n", index, name);
 

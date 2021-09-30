@@ -21,3 +21,12 @@ int isEqual(UTF8* utf8, const char* cstring) {
     }
     return 1; //all characters matched.
 }
+
+int isEqualUtf8(UTF8* utf1, UTF8* utf2) {
+    if(utf1->size != utf2->size) return 0;
+
+    for(int i = 0; i < utf1->size; i++) {
+        if(utf1->content[i] != utf2->content[i]) return 0;
+    }
+    return 1;
+}

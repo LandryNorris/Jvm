@@ -86,6 +86,26 @@ typedef struct {
 } RuntimeAnnotations;
 
 typedef struct {
+    uint16_t methodRef;
+    uint16_t numArguments;
+    uint16_t* arguments;
+} BootstrapMethod;
+
+typedef struct {
+    uint16_t count;
+    BootstrapMethod* methods;
+} BootstrapMethodsList;
+
+typedef struct {
+    uint16_t hostClassIndex;
+} NestHost;
+
+typedef struct {
+    uint16_t numClasses;
+    uint16_t* classes;
+} NestMembers;
+
+typedef struct {
 	uint32_t length;
 	uint8_t* byteCode;
 } Program;
@@ -109,7 +129,7 @@ typedef struct {
 
 typedef struct {
     uint16_t size;
-    LineNumberElement** entries;
+    LineNumberElement* entries;
 } LineNumberTable;
 
 typedef struct {
@@ -191,6 +211,9 @@ typedef union {
 	Code* code;
     RuntimeAnnotations* runtimeVisibleAnnotations;
     Signature* signature;
+    BootstrapMethodsList* bootstrapMethods;
+    NestHost* nestHost;
+    NestMembers* nestMembers;
 } AttributeInfo;
 
 typedef struct {

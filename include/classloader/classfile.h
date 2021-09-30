@@ -18,6 +18,10 @@ typedef struct {
 	InterfacePool* interfacePool;
     FieldPool* fieldPool;
     MethodPool* methodPool;
+    AttributePool* attributePool;
 } ClassFile;
 
+int initClassFile(const uint8_t * bytes, ClassFile* classPtr);
+
+void printClassFile(ClassFile* classFilePtr);
 #endif

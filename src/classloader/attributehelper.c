@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "codeattributehelper.h"
+#include <utf8utils.h>
+#include "attributehelper.h"
 
 char* getVerificationTypeString(uint8_t tag) {
     switch(tag) {
@@ -21,7 +22,7 @@ void printLineNumberTable(LineNumberTable* table) {
 
     printf("\tLine Number Table\n");
     for(int i = 0; i < size; i++) {
-        LineNumberElement* entry = table->entries[i];
+        LineNumberElement* entry = &table->entries[i];
         printf("\t\tline %d: %d\n", entry->lineNumber, entry->startPC);
     }
 }
@@ -108,6 +109,46 @@ void printCodeAttributes(Code* code) {
                 break;
             case ATTRIBUTE_STACK_MAP_TABLE:
                 printStackMapTable(attributes->tables.stackMapTable);
+        }
+    }
+}
+
+void printFileAttributes(ConstantPool* constantPool, AttributePool* attributePool) {
+    uint16_t size = attributePool->size;
+
+    for(int i = 0; i < size; i++) {
+        Attribute* attribute = attributePool->attributes[i];
+
+        switch(attribute->type) {
+            case ATTRIBUTE_NEST_HOST:
+                printf("Nest Host:\n\tclass is %d", attribute->info->nestHost->hostClassIndex);
+                break;
+            case ATTRIBUTE_NEST_MEMBERS:
+                printf("Nest Members:\n");
+            case ATTRIBUTE_BOOTSTRAP_METHODS: {
+                BootstrapMethodsList* bootstrapMethodsList = attribute->info->bootstrapMethods;
+                printf("Bootstrap Methods:\n");
+
+                for(int j = 0; j < bootstrapMethodsList->count; j++) {
+                    BootstrapMethod* method = &bootstrapMethodsList->methods[j];
+                    MethodHandle * methodHandle = constantPool->pool[method->methodRef-1]->constant->methodHandle;
+                    MethodRef* methodRef = constantPool->pool[methodHandle->referenceIndex-1]->constant->methodRef;
+                    Class* class = constantPool->pool[methodRef->classIndex-1]->constant->class;
+                    NameAndTypeIndex* nameAndTypeIndex = constantPool->pool[methodRef->nameAndTypeIndex - 1]->constant->nameAndTypeIndex;
+                    UTF8* className = constantPool->pool[class->nameIndex - 1]->constant->utf8;
+                    UTF8* methodName = constantPool->pool[nameAndTypeIndex->nameIndex - 1]->constant->utf8;
+                    UTF8* typeName = constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
+                    printf("\t%d: #%d %s.%s:%s\n\t\tMethod Arguments:\n", j, method->methodRef, utf82cstring(className),
+                           utf82cstring(methodName), utf82cstring(typeName));
+
+                    for(int k = 0; k < method->numArguments; k++) {
+                        uint16_t argIndex = method->arguments[k];
+                        String* argString = constantPool->pool[argIndex-1]->constant->string;
+                        UTF8* argName = constantPool->pool[argString->index-1]->constant->utf8;
+                        printf("\t\t\t%d %s\n", argIndex, utf82cstring(argName));
+                    }
+                }
+            }
         }
     }
 }
