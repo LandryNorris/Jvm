@@ -1,6 +1,5 @@
 #include "constantparser.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include "primitivereader.h"
 
 Constant* readUtf8(const uint8_t** bytes) {
@@ -28,6 +27,7 @@ Constant* readMethodRef(const uint8_t** bytes) {
 Constant* readClass(const uint8_t** bytes) {
 	Class* class = malloc(sizeof(Class));
 	class->nameIndex = readuInt16(bytes);
+    class->classFile = NULL;
 	Constant* result = malloc(sizeof(Constant));
 	result->class = class;
 	return result;
@@ -44,7 +44,7 @@ Constant* readNameAndType(const uint8_t** bytes) {
 
 Constant* readInt(const uint8_t** bytes) {
 	Integer* i = malloc(sizeof(Integer));
-	i->value = readuInt32(bytes);
+	i->value = readInt32(bytes);
 	Constant* result = malloc(sizeof(Constant));
 	result->integer = i;
 	return result;
@@ -110,7 +110,7 @@ Constant* readInvokeDynamic(const uint8_t** bytes) {
 
 ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
 	uint8_t tag = readuInt8(bytes);
-	Constant* constantPtr = malloc(sizeof(Constant));
+	Constant* constantPtr = NULL;
 
 	switch(tag) {
 		case CONSTANT_UTF8:
@@ -160,18 +160,17 @@ ConstantPoolInfo* readPoolInfo(const uint8_t** bytes) {
 }
 
 ConstantPool* readConstantPool(const uint8_t** bytes) {
-	uint16_t size = readuInt16(bytes);
+	uint16_t size = readuInt16(bytes)-1; //The JVM spec says the given size is actual size+1
 
 	ConstantPool* result = malloc(sizeof(ConstantPool));
-	result->constantPoolCount = size;
+	result->size = size;
     result->pool = malloc(size * sizeof(ConstantPoolInfo*));
 
-	for(int i = 0; i < size-1; i++) {
+	for(int i = 0; i < size; i++) {
 		ConstantPoolInfo* cpInfoPtr = readPoolInfo(bytes);
 		result->pool[i] = cpInfoPtr;
 		if(cpInfoPtr->tag == CONSTANT_DOUBLE || cpInfoPtr->tag == CONSTANT_LONG) {
-			result->pool[i + 1] = 0;
-			i++;
+			result->pool[++i] = NULL; //we want to skip a spot for doubles and longs.
 		}
 	}
 

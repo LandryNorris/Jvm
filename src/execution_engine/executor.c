@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <utf8utils.h>
+#include <stdio.h>
 #include "executor.h"
 
 int execute(MethodInfo* method, ClassFile* classFile, FrameStack* frameStack) {
@@ -199,6 +200,9 @@ void executeProgram(Program* program, FrameStack* frameStack, ClassFile* classFi
                 executeByNameUtf8(classFile, methodName, frameStack);
                 break;
             }
+            default:
+                printf("Unrecognized instruction %d (%s)", instruction, instructionNames[instruction]);
+                break;
         }
         pc++;
     }

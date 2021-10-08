@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <primitivereader.h>
 #include <malloc.h>
+#include <constantpoolhelper.h>
 
-void printProgram(Code* code) {
+void printProgram(Code* code, const ConstantPool* constantPool) {
     const uint8_t* pc = code->program->byteCode;
-    const uint8_t* start = pc;
-    const uint8_t* end = pc + code->program->length;
+    const uint8_t* const start = pc;
+    const uint8_t* const end = pc + code->program->length;
 
     while(pc < end) {
         uint8_t instruction = *pc;
@@ -32,11 +33,18 @@ void printProgram(Code* code) {
                 break;
 
             //2 params
-            case INSTR_ANEWARRAY:
+            case INSTR_IINC: {
+                uint8_t byte1 = *++pc;
+                uint8_t byte2 = *++pc;
+                printf("\t%5ld: %s %d %d\n", index, name, byte1, byte2);
+                break;
+            }
+
+            //2 params, 1 value
             case INSTR_CHECKCAST:
             case INSTR_GETFIELD:
-            case INSTR_GETSTATIC:
-            case INSTR_GOTO:
+            case INSTR_INSTANCEOF:
+            case INSTR_ANEWARRAY:
             case INSTR_IFEQ:
             case INSTR_IFGE:
             case INSTR_IFGT:
@@ -53,25 +61,34 @@ void printProgram(Code* code) {
             case INSTR_IF_ICMPLE:
             case INSTR_IF_ICMPLT:
             case INSTR_IF_ICMPNE:
-            case INSTR_IINC:
-            case INSTR_INSTANCEOF:
-            case INSTR_INVOKESPECIAL:
-            case INSTR_INVOKEVIRTUAL:
             case INSTR_JSR:
-            case INSTR_LDCW:
-            case INSTR_LDC2W:
             case INSTR_NEW:
             case INSTR_PUTFIELD:
             case INSTR_PUTSTATIC:
             case INSTR_SIPUSH:
-            case INSTR_INVOKESTATIC: {
+            case INSTR_LDCW:
+            case INSTR_LDC2W:
+            case INSTR_GETSTATIC:
+            case INSTR_GOTO: {
                 uint8_t byte1 = *++pc;
                 uint8_t byte2 = *++pc;
-                printf("\t%5ld: %s %d %d\n", index, name, byte1, byte2);
+                uint16_t value = (byte1 << 8) | byte2;
+                printf("\t%5ld: %s %d\n", index, name, value);
                 break;
             }
 
-            //these are variable size. How should I handle them?
+            case INSTR_INVOKESPECIAL:
+            case INSTR_INVOKESTATIC:
+            case INSTR_INVOKEVIRTUAL: {
+                uint8_t byte1 = *++pc;
+                uint8_t byte2 = *++pc;
+                uint16_t value = (byte1 << 8) | byte2;
+                char* s = parseMethodRefByIndex(value, constantPool);
+                printf("\t%5ld: %s %d //%s\n", index, name, value, s);
+                free(s);
+                break;
+            }
+
             case INSTR_TABLESWITCH: {
                 uint32_t currentInstruction = pc-start;
                 uint8_t instructionOffset = currentInstruction & 0b11; //how far above a multiple of 4 our first instruction is.
@@ -91,7 +108,7 @@ void printProgram(Code* code) {
                 for(int i = 0; i < numOffsets; i++) {
                     offsets[j++] = readInt32(&pc) + (int32_t) currentInstruction;
                 }
-                printf("\t%5ld %s {\n", index, name);
+                printf("\t%5ld: %s {\n", index, name);
 
                 for(int i = 0; i < numOffsets; i++) {
                     printf("\t\t%12d: %d\n", i, offsets[i]);
@@ -110,12 +127,10 @@ void printProgram(Code* code) {
                 uint32_t numPairs = readuInt32(&pc);
 
                 int32_t* matches = malloc(sizeof(int32_t) * numPairs);
-                int32_t* offsets = malloc(sizeof(int32_t) * numPairs);;
-                int j = 0;
+                int32_t* offsets = malloc(sizeof(int32_t) * numPairs);
                 for(int i = 0; i < numPairs; i++) {
-                    matches[j] = readInt32(&pc);
-                    offsets[j] = readInt32(&pc) + currentInstruction;
-                    j++;
+                    matches[i] = readInt32(&pc);
+                    offsets[i] = readInt32(&pc) + currentInstruction;
                 }
                 printf("\t%5ld: %s { //%d\n", index, name, numPairs);
                 for(int i = 0; i < numPairs; i++) {
@@ -149,16 +164,25 @@ void printProgram(Code* code) {
             }
 
             //3 params
-            case INSTR_MULTIANEWARRAY:
-                printf("\t%5ld: %s %d %d %d", index, name, *++pc, *++pc, *++pc);
+            case INSTR_MULTIANEWARRAY: {
+                uint8_t byte1 = *++pc;
+                uint8_t byte2 = *++pc;
+                uint8_t byte3 = *++pc;
+                printf("\t%5ld: %s %d %d %d", index, name, byte1, byte2, byte3);
+            }
 
             //4 params
             case INSTR_GOTO_W:
             case INSTR_INVOKEDYNAMIC:
             case INSTR_INVOKEINTERFACE:
-            case INSTR_JSR_W:
-                printf("\t%5ld: %s %d %d %d %d\n", index, name, *++pc, *++pc, *++pc, *++pc);
+            case INSTR_JSR_W: {
+                uint8_t byte1 = *++pc;
+                uint8_t byte2 = *++pc;
+                uint8_t byte3 = *++pc;
+                uint8_t byte4 = *++pc;
+                printf("\t%5ld: %s %d %d %d %d\n", index, name, byte1, byte2, byte3, byte4);
                 break;
+            }
 
             //no params
             default:

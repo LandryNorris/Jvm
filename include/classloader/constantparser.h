@@ -18,6 +18,8 @@
 #define CONSTANT_METHOD_TYPE 16
 #define CONSTANT_INVOKE_DYNAMIC 18
 
+typedef struct ClassFile ClassFile;
+
 typedef struct {
 	uint16_t size;
 	uint8_t* content;
@@ -30,6 +32,7 @@ typedef struct {
 
 typedef struct {
 	uint16_t nameIndex;
+    ClassFile* classFile;
 } Class;
 
 typedef struct {
@@ -38,7 +41,7 @@ typedef struct {
 } NameAndTypeIndex;
 
 typedef struct {
-	uint32_t value;
+	int32_t value;
 } Integer;
 
 typedef struct {
@@ -92,7 +95,7 @@ typedef struct {
 } ConstantPoolInfo;
 
 typedef struct {
-	uint16_t constantPoolCount;
+	uint16_t size;
 	ConstantPoolInfo** pool;
 } ConstantPool;
 

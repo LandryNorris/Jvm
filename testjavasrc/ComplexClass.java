@@ -4,6 +4,10 @@ class ComplexJavaClass implements AJavaInterface {
 
     static final float staticFinalVariable = 123.456f;
     int internalInt;
+    long classLevelLong = 1234567L;
+    long negativeLong = -1234567L;
+    int negativeInt = -100;
+    double aDouble = -123.456;
     double internalDouble;
 
     @Deprecated

@@ -1,5 +1,5 @@
 #include <malloc.h>
-#include <constantparser.h>
+#include "constantparser.h"
 #include "attributeloader.h"
 #include "primitivereader.h"
 #include "utf8utils.h"
@@ -104,56 +104,55 @@ StackMapTable* parseStackMapTable(const uint8_t** content) {
 
     uint16_t numEntries = readuInt16(content);
     table->size = numEntries;
-    table->entries = malloc(numEntries * sizeof(StackMapTable));
+    table->entries = malloc(numEntries * sizeof(StackMapFrame));
 
     for(int i = 0; i < numEntries; i++) {
-        StackMapFrame* frame = malloc(sizeof(StackMapFrame));
+        StackMapFrame* frame = &table->entries[i];
         uint8_t frameType = readuInt8(content);
         frame->frameType = frameType;
         frame->numLocals = 0;
         frame->stackSize = 0;
+        frame->localVariables = NULL;
+        frame->stack = NULL;
 
         if(frameType < 64) {
             //we do nothing here.
+            continue;
         } else if(frameType < 128) {
             frame->offsetDelta = frameType - 64;
             frame->stackSize = 1;
-            frame->stack = malloc(sizeof(VerificationType));
-            VerificationType* verificationType = parseVerificationType(content);
-            frame->stack[0] = verificationType;
+            frame->stack = malloc(sizeof(VerificationType*));
+            frame->stack[0] = parseVerificationType(content);
         } else if(frameType < 247) {
             //reserved for future use in the JVM spec.
         } else if(frameType == 247) {
             frame->offsetDelta = readuInt16(content);
             frame->stackSize = 1;
-            frame->stack = malloc(sizeof(VerificationType));
-            VerificationType* verificationType = parseVerificationType(content);
-            frame->stack[0] = verificationType;
-        }else if(frameType < 251) {
+            frame->stack = malloc(sizeof(VerificationType*));
+            frame->stack[0] = parseVerificationType(content);
+        } else if(frameType < 251) {
             frame->offsetDelta = readuInt16(content);
-        } else if(frameType < 254) {
+        } else if(frameType < 255) {
             frame->offsetDelta = readuInt16(content);
             frame->numLocals = frameType - 251;
-            frame->localVariables = malloc(frame->numLocals * sizeof(VerificationType));
+            frame->localVariables = malloc(frame->numLocals * sizeof(VerificationType*));
             for(int j = 0; j < frame->numLocals; j++) {
                 frame->localVariables[j] = parseVerificationType(content);
             }
         } else if(frameType == 255) {
             frame->offsetDelta = readuInt16(content);
             frame->numLocals = readuInt16(content);
-            frame->localVariables = malloc(frame->numLocals * sizeof(VerificationType));
+            frame->localVariables = malloc(frame->numLocals * sizeof(VerificationType*));
             for(int j = 0; j < frame->numLocals; j++) {
                 frame->localVariables[j] = parseVerificationType(content);
             }
 
             frame->stackSize = readuInt16(content);
-            frame->stack = malloc(frame->stackSize * sizeof(VerificationType));
+            frame->stack = malloc(frame->stackSize * sizeof(VerificationType*));
             for(int j = 0; j < frame->stackSize; j++) {
                 frame->stack[j] = parseVerificationType(content);
             }
         }
-
-        table->entries[i] = frame;
     }
     return table;
 }
@@ -170,23 +169,19 @@ CodeAttributes* parseCodeAttributes(ConstantPool* constantPool, const uint8_t** 
 
     switch(attribute->type) {
         case ATTRIBUTE_LINE_NUMBER_TABLE: {
-            LineNumberTable* table = parseLineNumberTable(content);
-            attribute->tables.lineNumberTable = table;
+            attribute->tables.lineNumberTable = parseLineNumberTable(content);
             break;
         }
         case ATTRIBUTE_LOCAL_VARIABLE_TABLE: {
-            LocalVariableTable* table = parseLocalVariableTable(content);
-            attribute->tables.localVariableTable = table;
+            attribute->tables.localVariableTable = parseLocalVariableTable(content);
             break;
         }
         case ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE: {
-            LocalVariableTypeTable* table = parseLocalVariableTypeTable(content);
-            attribute->tables.localVariableTypeTable = table;
+            attribute->tables.localVariableTypeTable = parseLocalVariableTypeTable(content);
             break;
         }
         case ATTRIBUTE_STACK_MAP_TABLE: {
-            StackMapTable* table = parseStackMapTable(content);
-            attribute->tables.stackMapTable = table;
+            attribute->tables.stackMapTable = parseStackMapTable(content);
             break;
         }
         default: {
@@ -216,24 +211,22 @@ Code* parseCode(ConstantPool* constantPool, const uint8_t** content) {
     }
 
     uint16_t exceptionTableLength = readuInt16(content);
-    code->exceptionTable = malloc(sizeof(ExceptionTable));
+    code->exceptionTable = malloc(sizeof(ExceptionTable) + exceptionTableLength*sizeof(ExceptionAttributes*));
     code->exceptionTable->length = exceptionTableLength;
 
     for(int i = 0; i < exceptionTableLength; i++) {
-        ExceptionAttributes* attributes = malloc(sizeof(ExceptionAttributes));
+        ExceptionAttributes* attributes = &code->exceptionTable->exception[i];
         attributes->startpc = readuInt16(content);
         attributes->endpc = readuInt16(content);
         attributes->handlerpc = readuInt16(content);
         attributes->catchType = readuInt16(content);
-        code->exceptionTable->exception[i] = attributes;
     }
 
     uint16_t attributeLength = readuInt16(content);
     code->numAttributes = attributeLength;
     code->attributeInfo = malloc(attributeLength * sizeof(CodeAttributes*));
     for(int i = 0; i < attributeLength; i++) {
-        CodeAttributes* attributes = parseCodeAttributes(constantPool, content);
-        code->attributeInfo[i] = attributes;
+        code->attributeInfo[i] = parseCodeAttributes(constantPool, content);
     }
     return code;
 }
@@ -307,6 +300,7 @@ AttributePool* parseAttributes(ConstantPool* constantPool, const uint8_t** conte
                 attribute->info->nestMembers = parseNestMembers(content);
             }
             default: {
+                attribute->info = NULL;
                 printf("Unrecognized Attribute type with name index %d and type %d\n", attribute->nameIndex, attribute->type);
                 for(int j = 0; j < attributeLength; j++) {
                     readuInt8(content); //read the values, but ignore them for now.

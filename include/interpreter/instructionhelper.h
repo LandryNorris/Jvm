@@ -284,6 +284,6 @@
 extern char* instructionNames[];
 extern int numParams[];
 
-void printProgram(Code* code);
+void printProgram(Code* code, const ConstantPool*);
 
 #endif

@@ -50,7 +50,7 @@ void printStackMapTable(StackMapTable* table) {
 
     printf("\tStackMapTable: number of entries: %d\n", size);
     for(int i = 0; i < size; i++) {
-        StackMapFrame* frame = table->entries[i];
+        StackMapFrame* frame = &table->entries[i];
         uint8_t frameType = frame->frameType;
         printf("\t\tframeType = %d\n", frameType);
 
@@ -64,7 +64,7 @@ void printStackMapTable(StackMapTable* table) {
             printf("\t\t\toffsetDelta = %d\n\t\t\tstack = [ %s ]\n", frame->offsetDelta, getVerificationTypeString(frame->stack[0]->tag));
         }else if(frameType < 251) {
             printf("\t\t\toffsetDelta = %d\n", frame->offsetDelta);
-        } else if(frameType < 254) {
+        } else if(frameType < 255) {
             uint16_t numLocals = frame->numLocals;
 
             printf("\t\t\toffsetDelta = %d\n\t\t\tlocals = [ ", frame->offsetDelta);

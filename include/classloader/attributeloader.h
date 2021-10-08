@@ -119,7 +119,7 @@ typedef struct {
 
 typedef struct {
 	uint16_t length;
-	ExceptionAttributes** exception;
+	ExceptionAttributes exception[];
 } ExceptionTable;
 
 typedef struct {
@@ -182,7 +182,7 @@ typedef struct {
 
 typedef struct {
     uint16_t size;
-    StackMapFrame** entries;
+    StackMapFrame* entries;
 } StackMapTable;
 
 typedef struct {

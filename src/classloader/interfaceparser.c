@@ -5,7 +5,6 @@
 
 InterfacePool* readInterfacePool(const uint8_t** content) {
 	uint16_t size = readuInt16(content);
-	printf("Got interface count: %d\n", size);
 	InterfacePool* result = malloc(sizeof(InterfacePool)+size*sizeof(uint16_t));
 
 	result->size = size;

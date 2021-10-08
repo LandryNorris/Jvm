@@ -5,9 +5,11 @@
 #include "interfaceparser.h"
 #include "fieldpoolloader.h"
 #include "methodparser.h"
-#include<stdint.h>
+#include <stdint.h>
+#include "constantparser.h"
 
-typedef struct {
+//we predefined the ClassFile in constantparser.h
+struct ClassFile {
 	uint32_t magic;
 	uint16_t minor;
 	uint16_t major;
@@ -19,7 +21,7 @@ typedef struct {
     FieldPool* fieldPool;
     MethodPool* methodPool;
     AttributePool* attributePool;
-} ClassFile;
+};
 
 int initClassFile(const uint8_t * bytes, ClassFile* classPtr);
 
