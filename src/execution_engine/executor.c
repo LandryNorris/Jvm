@@ -243,6 +243,26 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 executeByNameUtf8(executor, otherClass, methodName, frameStack);
                 break;
             }
+            case INSTR_ALOAD_0: {
+                int32_t local = locals[0];
+                push32(operandStack, local);
+                break;
+            }
+            case INSTR_ALOAD_1: {
+                int32_t local = locals[1];
+                push32(operandStack, local);
+                break;
+            }
+            case INSTR_ALOAD_2: {
+                int32_t local = locals[2];
+                push32(operandStack, local);
+                break;
+            }
+            case INSTR_ALOAD_3: {
+                int32_t local = locals[3];
+                push32(operandStack, local);
+                break;
+            }
             case INSTR_INVOKESTATIC: {
                 int8_t high = *((int8_t*)(++pc));
                 int8_t low = *((int8_t*)(++pc));
