@@ -10,6 +10,7 @@
 
 //we predefined the ClassFile in constantparser.h
 struct ClassFile {
+    int size;
 	uint32_t magic;
 	uint16_t minor;
 	uint16_t major;

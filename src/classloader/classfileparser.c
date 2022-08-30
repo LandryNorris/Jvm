@@ -12,6 +12,8 @@
 #include "classfile.h"
 #include "attributehelper.h"
 
+int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool);
+
 int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 	const uint8_t ** content = &bytes;
 	classPtr->magic = readuInt32(content);
@@ -25,12 +27,11 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 	classPtr->superClass = readuInt16(content);
 
 	classPtr->interfacePool = readInterfacePool(content);
-
     classPtr->fieldPool = parseFieldPool(classPtr->constantPool, content);
-
     classPtr->methodPool = parseMethodPool(classPtr->constantPool, content);
-
     classPtr->attributePool = parseAttributes(classPtr->constantPool, content);
+
+    classPtr->size = getClassSize(classPtr->constantPool, classPtr->fieldPool);
 
 	return 0;
 }
@@ -201,4 +202,32 @@ void printClassFile(ClassFile* classFilePtr) {
     MethodPool* pool = classFilePtr->methodPool;
     printMethodPool(constantPool, pool);
     printFileAttributes(classFilePtr->constantPool, classFilePtr->attributePool);
+}
+
+/**
+ * @param descriptor String descriptor of the type
+ * @return size in bytes of the primitive or reference
+ */
+int getSizeFromDescriptor(char* descriptor) {
+    if(strcmp(descriptor, "B") == 0 || strcmp(descriptor, "Z") == 0) return 1;
+    if(strcmp(descriptor, "C") == 0 || strcmp(descriptor, "S") == 0) return 2;
+    if(strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0) return 4;
+    if(strcmp(descriptor, "J") == 0 || strcmp(descriptor, "D") == 0) return 8;
+    return 4;
+}
+
+int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool) {
+    int sum = 0;
+    for(int i = 0; i < fieldPool->size; i++) {
+        FieldPoolItem* field = fieldPool->pool[i];
+        int index = field->descriptorIndex;
+
+        ConstantPoolInfo* constant = constantPool->pool[index-1];
+        char name[512];
+        getConstantString(name, constant);
+
+        sum += getSizeFromDescriptor(name);
+    }
+
+    return sum;
 }

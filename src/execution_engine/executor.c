@@ -206,6 +206,14 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 if(value1 > value2) pc += branchOffset - 3; //we read 2 bytes in this instruction. The pc++ will add another.
                 break;
             }
+            case INSTR_NEW: {
+                uint8_t high = *(++pc);
+                uint8_t low = *(++pc);
+                int index = high << 8 | low;
+                ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
+
+                break;
+            }
             case INSTR_INVOKESTATIC: {
                 int8_t high = *((int8_t*)(++pc));
                 int8_t low = *((int8_t*)(++pc));

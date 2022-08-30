@@ -38,3 +38,7 @@ void* allocate(MemoryRegion* region, uint32_t size) {
 void freeMemory(MemoryRegion* region, void* ptr) {
     //no-op on a rolling pointer region
 }
+
+ObjHeader* createObjectHeader(ClassFile* classFile) {
+
+}
