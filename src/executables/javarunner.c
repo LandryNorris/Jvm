@@ -14,15 +14,9 @@ int main(int argc, char** argv) {
     const char* mainClass = argv[1];
     const char* classPath = argv[2];
 
-    GarbageCollector* gc = createGarbageCollector();
-    ClassLoader* classLoader = createClassLoader(classPath, mainClass);
+    Executor* executor = createExecutor(classPath, mainClass);
 
-    ClassFile* classFile = getClassFile(classLoader, "Averager");
+    runMain(executor);
 
-    printf("Class for Averager is %p\n", classFile);
-
-    FrameStack* frameStack = allocFrameStack(100);
-    executeByName(classLoader->mainClass, "main", frameStack);
-
-    freeClassLoader(classLoader);
+    freeExecutor(executor);
 }

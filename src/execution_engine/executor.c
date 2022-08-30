@@ -7,9 +7,29 @@
 #include <string.h>
 #include <utf8utils.h>
 #include <stdio.h>
+#include <malloc.h>
 #include "executor.h"
 
-int execute(MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack) {
+Executor* createExecutor(const char* classPath, const char* mainClassName) {
+    Executor* executor = malloc(sizeof(Executor));
+    executor->gc = createGarbageCollector();
+    executor->loader = createClassLoader(classPath, mainClassName);
+
+    return executor;
+}
+
+void freeExecutor(Executor* executor) {
+    freeClassLoader(executor->loader);
+    //ToDo: free GC
+    free(executor);
+}
+
+int runMain(Executor* executor) {
+    FrameStack* frameStack = allocFrameStack(100);
+    return executeByName(executor, executor->loader->mainClass, "main", frameStack);
+}
+
+int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack) {
     Code* code = NULL;
     StackFrame* frame;
 
@@ -31,24 +51,24 @@ int execute(MethodInfo* method, const ClassFile* classFile, FrameStack* frameSta
 
     if(code == NULL) return EINVAL;
 
-    executeProgram(code->program, frameStack, classFile);
+    executeProgram(executor, code->program, frameStack, classFile);
     return 0;
 }
 
-int executeByNameUtf8(const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack) {
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
         UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
 
         if(isEqualUtf8(methodNameUtf8, methodName)) {
-            return execute(info, classFile, frameStack);
+            return execute(executor, info, classFile, frameStack);
         }
     }
     return EINVAL;
 }
 
-int executeByName(const ClassFile *classFile, char* methodName, FrameStack* frameStack) {
+int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
@@ -56,13 +76,13 @@ int executeByName(const ClassFile *classFile, char* methodName, FrameStack* fram
         char* currentMethodName = utf82cstring(methodNameUtf8);
 
         if(strcmp(currentMethodName, methodName) == 0) {
-            return execute(info, classFile, frameStack);
+            return execute(executor, info, classFile, frameStack);
         }
     }
     return EINVAL;
 }
 
-void executeProgram(Program* program, FrameStack* frameStack, const ClassFile *classFile) {
+void executeProgram(Executor* executor, Program* program, FrameStack* frameStack, const ClassFile *classFile) {
     uint8_t* pc = program->byteCode;
     StackFrame* stackFrame = peekFrame(frameStack);
     Stack32* operandStack = &stackFrame->operandStack;
@@ -194,7 +214,7 @@ void executeProgram(Program* program, FrameStack* frameStack, const ClassFile *c
                 //Add getting the ClassFile index later.
                 uint16_t methodNameIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
-                executeByNameUtf8(classFile, methodName, frameStack);
+                executeByNameUtf8(executor, classFile, methodName, frameStack);
                 break;
             }
             default:
