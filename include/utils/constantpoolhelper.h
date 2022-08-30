@@ -1,6 +1,8 @@
 #ifndef JVM_PROJECT_CONSTANTPOOLHELPER_H
 #define JVM_PROJECT_CONSTANTPOOLHELPER_H
 
+#include "constantparser.h"
+
 char* parseUTF8(UTF8* utf8);
 
 char* parseUTF8ByIndex(int index, const ConstantPool* constantPool);

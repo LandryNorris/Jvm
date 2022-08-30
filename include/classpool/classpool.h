@@ -6,10 +6,11 @@
 typedef struct {
     ClassFile** classFiles;
     int size;
+    int numAllocated;
 } ClassPool;
 
-ClassPool* loadClassPool(const char* mainClass, const char* classpath);
-
+ClassPool* createClassPool();
+ClassFile * addClass(ClassPool* classPool, const char* name);
 void freeClassPool(ClassPool* classPool);
 
 #endif //JVM_PROJECT_CLASSPOOL_H

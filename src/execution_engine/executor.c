@@ -16,7 +16,6 @@ int execute(MethodInfo* method, ClassFile* classFile, FrameStack* frameStack) {
     for(int i = 0; i < method->attributePool->size; i++) {
         Attribute* attributeInfo = method->attributePool->attributes[i];
         if(attributeInfo->type == ATTRIBUTE_CODE) {
-            //printf("Found code for method");
             code = attributeInfo->info->code;
             frame = allocStackFrame(code->maxLocals, code->maxStack, classFile->constantPool);
             StackFrame* lastFrame = peekFrame(frameStack);
@@ -43,7 +42,6 @@ int executeByNameUtf8(ClassFile* classFile, UTF8* methodName, FrameStack* frameS
         UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
 
         if(isEqualUtf8(methodNameUtf8, methodName)) {
-            //printf("Found method %s\n", currentMethodName);
             return execute(info, classFile, frameStack);
         }
     }
@@ -72,7 +70,6 @@ void executeProgram(Program* program, FrameStack* frameStack, ClassFile* classFi
 
     while(1) {
         uint8_t instruction = *pc;
-        //printf("%s\n", instructionNames[instruction]);
         switch(instruction) {
             case INSTR_NOP: break;
             case INSTR_ACONST_NULL:

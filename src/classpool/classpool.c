@@ -5,56 +5,12 @@
 #include "classpool.h"
 #include "classfileloader.h"
 
-ClassFile* findClassFileByName(ClassPool* classPool, UTF8* targetName) {
-    for(int i = 0; i < classPool->size; i++) {
-        UTF8* className = parseClassToUTF8ByIndex(classPool->classFiles[i]->thisClass, classPool->classFiles[i]->constantPool);
-
-        if(isEqualUtf8(className, targetName)) {
-            char* cstring = utf82cstring(className);
-            printf("Found class with name %s\n", cstring);
-            return classPool->classFiles[i];
-        }
-    }
-    return NULL;
-}
-
-ClassPool* loadClassPool(const char* mainClass, const char* const classpath) {
-    if(!mainClass) return NULL;
-
-    ClassFile* mainClassFile = loadClassFile(mainClass);
-
-    CStringArray* dependencies = getDependencyClasses(mainClassFile);
-
+ClassPool* createClassPool() {
     ClassPool* classPool = malloc(sizeof(ClassPool));
-    classPool->classFiles = malloc((1+dependencies->size)*sizeof(ClassFile*));
-    classPool->size = 1+dependencies->size;
-
-    classPool->classFiles[0] = mainClassFile;
-
-    for(int i = 0; i < dependencies->size; i++) {
-        char classFilePath[1000];
-        strcpy(classFilePath, classpath);
-        strcat(classFilePath, "/");
-        strcat(classFilePath, dependencies->values[i]);
-        strcat(classFilePath, ".class");
-        classPool->classFiles[i + 1] = loadClassFile(classFilePath);
-    }
-
-    for(int i = 0; i < dependencies->size+1; i++) {
-        ClassFile* classFile = classPool->classFiles[i];
-        for(int j = 0; j < classFile->constantPool->size; j++) {
-            ConstantPoolInfo* constantPoolInfo = classFile->constantPool->pool[j];
-            if(constantPoolInfo == NULL) continue;
-            if(constantPoolInfo->tag == CONSTANT_CLASS) {
-                ClassFile* otherClass = findClassFileByName(classPool, parseClassToUTF8(constantPoolInfo->constant->class, classFile->constantPool));
-                constantPoolInfo->constant->class->classFile = otherClass;
-            }
-        }
-    }
-
-    freeCStringArray(dependencies);
-
-    return classPool;
+    int numToAllocate = 10;
+    classPool->classFiles = malloc(numToAllocate*sizeof(ClassFile*));
+    classPool->size = 0;
+    classPool->numAllocated = numToAllocate;
 }
 
 void freeClassPool(ClassPool* classPool) {
@@ -63,4 +19,30 @@ void freeClassPool(ClassPool* classPool) {
     }
     free(classPool->classFiles);
     free(classPool);
+}
+
+void increaseSize(ClassPool* classPool, int newSize) {
+    ClassFile** newContent = malloc(newSize* sizeof(ClassFile*));
+
+    for(int i = 0; i < classPool->size; i++) {
+        newContent[i] = classPool->classFiles[i];
+    }
+
+    classPool->classFiles = newContent;
+    classPool->numAllocated = newSize;
+}
+
+void addClassFile(ClassPool* classPool, ClassFile* file) {
+    classPool->classFiles[classPool->size++] = file;
+}
+
+ClassFile* addClass(ClassPool* classPool, const char* name) {
+    if(classPool->size + 1 > classPool->numAllocated) {
+        int newSize = (int) (classPool->numAllocated * 1.5);
+        increaseSize(classPool, newSize);
+    }
+
+    ClassFile* classFile = loadClassFile(name);
+    addClassFile(classPool, classFile);
+    return classFile;
 }

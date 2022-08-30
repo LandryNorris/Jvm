@@ -39,6 +39,8 @@ ClassFile* loadClassFile(const char* classFilePath) {
 CStringArray* getDependencyClasses(ClassFile* classFile) {
     int thisIndex = classFile->thisClass;
     ConstantPool* constantPool = classFile->constantPool;
+
+    //number of classes referenced in the constant pool of the given classFile
     int numClasses = 0;
     for(int i = 0; i < constantPool->size; i++) {
         if(!constantPool->pool[i]) continue;
@@ -46,19 +48,22 @@ CStringArray* getDependencyClasses(ClassFile* classFile) {
         int tag = constantPool->pool[i]->tag;
         if(tag == CONSTANT_CLASS) numClasses++;
     }
+
     CStringArray* result = allocCStringArray(numClasses);
-    int j = 0;
+    int numResultsWritten = 0;
     for(int i = 0; i < constantPool->size; i++) {
         if(!constantPool->pool[i]) continue; //spot is empty
         if(i == thisIndex-1) continue; //the 'this' class name
         if(constantPool->pool[i]->tag == CONSTANT_CLASS) {
-            UTF8* nameUtf8 = parseClassToUTF8ByIndex(i, constantPool);
+            //We need to add 1 to the index because class files are 1-indexed
+            UTF8* nameUtf8 = parseClassToUTF8ByIndex(i+1, constantPool);
 
-            if(containsUtf8(result, nameUtf8)) continue;
+            CStringArray* subList = malloc(sizeof(CStringArray));
+            subList->values = result->values;
+            subList->size = numResultsWritten;
+            if(containsUtf8(subList, nameUtf8)) continue;
             char* name = utf82cstring(nameUtf8);
-            result->values[j++] = name;
-
-
+            result->values[numResultsWritten++] = name;
         }
     }
     return result;

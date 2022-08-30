@@ -1,9 +1,6 @@
 #include <errno.h>
 #include <stdio.h>
-#include <classfile.h>
-#include <dirent.h>
-#include <classpool/classpool.h>
-#include "classloader/classfileloader.h"
+#include <classloader.h>
 
 int main(int argc, char** argv) {
     if(argc < 2) {
@@ -12,9 +9,15 @@ int main(int argc, char** argv) {
     }
 
     const char* mainClass = argv[1];
-    const char* classFilePath = argv[2];
+    const char* classPath = argv[2];
 
-    ClassPool* classPool = loadClassPool(mainClass, classFilePath);
+    ClassLoader* classLoader = createClassLoader(classPath, mainClass);
 
-    freeClassPool(classPool);
+    ClassFile* classFile = getClassFile(classLoader, "Averager");
+
+    printf("Class for Averager is %p", classFile);
+
+
+
+    freeClassLoader(classLoader);
 }
