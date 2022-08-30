@@ -35,7 +35,7 @@ int execute(MethodInfo* method, const ClassFile* classFile, FrameStack* frameSta
     return 0;
 }
 
-int executeByNameUtf8(ClassFile* classFile, UTF8* methodName, FrameStack* frameStack) {
+int executeByNameUtf8(const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
@@ -48,7 +48,7 @@ int executeByNameUtf8(ClassFile* classFile, UTF8* methodName, FrameStack* frameS
     return EINVAL;
 }
 
-int executeByName(ClassFile* classFile, char* methodName, FrameStack* frameStack) {
+int executeByName(const ClassFile *classFile, char* methodName, FrameStack* frameStack) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
@@ -62,7 +62,7 @@ int executeByName(ClassFile* classFile, char* methodName, FrameStack* frameStack
     return EINVAL;
 }
 
-void executeProgram(Program* program, FrameStack* frameStack, ClassFile* classFile) {
+void executeProgram(Program* program, FrameStack* frameStack, const ClassFile *classFile) {
     uint8_t* pc = program->byteCode;
     StackFrame* stackFrame = peekFrame(frameStack);
     Stack32* operandStack = &stackFrame->operandStack;
