@@ -3,6 +3,7 @@
 #include <classloader.h>
 #include <executor.h>
 #include <stackframe.h>
+#include <garbagecollector.h>
 
 int main(int argc, char** argv) {
     if(argc < 2) {
@@ -13,6 +14,7 @@ int main(int argc, char** argv) {
     const char* mainClass = argv[1];
     const char* classPath = argv[2];
 
+    GarbageCollector* gc = createGarbageCollector();
     ClassLoader* classLoader = createClassLoader(classPath, mainClass);
 
     ClassFile* classFile = getClassFile(classLoader, "Averager");

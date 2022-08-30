@@ -5,8 +5,14 @@
 #ifndef JVM_PROJECT_GARBAGECOLLECTOR_H
 #define JVM_PROJECT_GARBAGECOLLECTOR_H
 
-typedef struct {
+#include <stdint.h>
+#include "memory.h"
 
+typedef struct {
+    MemoryRegion* memoryRegion;
 } GarbageCollector;
+
+GarbageCollector* createGarbageCollector();
+void* allocateNew(GarbageCollector* gc, uint32_t size);
 
 #endif //JVM_PROJECT_GARBAGECOLLECTOR_H
