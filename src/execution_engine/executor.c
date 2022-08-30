@@ -226,6 +226,23 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, top);
                 break;
             }
+            case INSTR_INVOKESPECIAL: {
+                uint8_t high = *(++pc);
+                uint8_t low = *(++pc);
+                int index = high << 8 | low;
+                ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
+                MethodRef* method = constant->constant->methodRef;
+                uint16_t methodNameIndex = classFile->constantPool->pool[method->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
+                UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
+                uint16_t otherClassIndex = classFile->constantPool->pool[method->classIndex - 1]->constant->class->nameIndex;
+                UTF8* otherClassName = classFile->constantPool->pool[otherClassIndex - 1]->constant->utf8;
+                char* otherClassString = utf82cstring(otherClassName);
+
+                ClassFile* otherClass = getClassFile(executor->loader, otherClassString);
+
+                executeByNameUtf8(executor, otherClass, methodName, frameStack);
+                break;
+            }
             case INSTR_INVOKESTATIC: {
                 int8_t high = *((int8_t*)(++pc));
                 int8_t low = *((int8_t*)(++pc));
