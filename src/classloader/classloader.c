@@ -9,14 +9,16 @@
 #include <classfileloader.h>
 #include "classloader.h"
 
-ClassLoader* createClassLoader(const char* classPath, const char* mainFilePath) {
+ClassLoader* createClassLoader(const char* classPath, const char* javaClassPath, const char* mainFilePath) {
     ClassLoader* classLoader = malloc(sizeof(ClassLoader));
 
     ClassPool* classPool = createClassPool();
-    classLoader->mainClass = addClass(classPool, mainFilePath);
+    ClassFile* mainClass = loadClassFile(mainFilePath);
+    classLoader->mainClass = addClass(classPool, mainClass);
 
     classLoader->classPool = classPool;
     classLoader->classPath = classPath;
+    classLoader->javaClassPath = javaClassPath;
 }
 
 int indexOfClassFile(ClassLoader* classLoader, const char* classFileName) {
@@ -34,7 +36,13 @@ ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName) {
 
     if(index == -1) {
         const char* classPath = getPath(classLoader->classPath, classFileName);
-        ClassFile* class = addClass(classLoader->classPool, classPath);
+
+        ClassFile* classFile = loadClassFile(classPath);
+        if(!classFile) {
+            const char* javaClassPath = getPath(classLoader->javaClassPath, classFileName);
+            classFile = loadClassFile(javaClassPath);
+        }
+        ClassFile* class = addClass(classLoader->classPool, classFile);
         return class;
     } else {
         return classLoader->classPool->classFiles[index];

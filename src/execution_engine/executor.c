@@ -16,7 +16,7 @@
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
     executor->gc = createGarbageCollector();
-    executor->loader = createClassLoader(classPath, mainClassName);
+    executor->loader = createClassLoader(classPath, "java-prebuilt/", mainClassName);
 
     return executor;
 }

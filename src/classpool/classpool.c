@@ -36,13 +36,12 @@ void addClassFile(ClassPool* classPool, ClassFile* file) {
     classPool->classFiles[classPool->size++] = file;
 }
 
-ClassFile* addClass(ClassPool* classPool, const char* name) {
+ClassFile* addClass(ClassPool* classPool, ClassFile* classFile) {
     if(classPool->size + 1 > classPool->numAllocated) {
         int newSize = (int) (classPool->numAllocated * 1.5);
         increaseSize(classPool, newSize);
     }
 
-    ClassFile* classFile = loadClassFile(name);
     addClassFile(classPool, classFile);
     return classFile;
 }
