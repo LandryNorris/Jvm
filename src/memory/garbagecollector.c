@@ -12,6 +12,6 @@ GarbageCollector* createGarbageCollector() {
     return gc;
 }
 
-void* allocateNew(GarbageCollector* gc, uint32_t size) {
-    allocate(gc->memoryRegion, size);
+int allocateNew(GarbageCollector* gc, uint32_t size) {
+    return allocate(gc->memoryRegion, size);
 }

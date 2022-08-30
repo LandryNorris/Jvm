@@ -18,7 +18,7 @@ MemoryRegion* createMemoryRegion(uint64_t size) {
 
     memoryRegion->memory = memory;
     memoryRegion->size = size;
-    memoryRegion->reserved = memory;
+    memoryRegion->reserved = 1; //start at 1, so we can save 0 for null
 
     return memoryRegion;
 }
@@ -28,17 +28,17 @@ MemoryRegion* createMemoryRegion(uint64_t size) {
  * @param region
  * @param size size of memory to allocate in the region
  */
-void* allocate(MemoryRegion* region, uint32_t size) {
-    if(region->reserved + size >= region->memory + region->size) return 0;
+int allocate(MemoryRegion* region, uint32_t size) {
+    if(region->reserved + size >= region->size) return 0;
     void* allocated = region->reserved;
     region->reserved += size;
     return allocated;
 }
 
-void freeMemory(MemoryRegion* region, void* ptr) {
-    //no-op on a rolling pointer region
+void* getValue(MemoryRegion* region, int index) {
+    return region->memory + index;
 }
 
-ObjHeader* createObjectHeader(ClassFile* classFile) {
-
+void freeMemory(MemoryRegion* region, void* ptr) {
+    //no-op on a rolling pointer region
 }

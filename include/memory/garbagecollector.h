@@ -13,6 +13,6 @@ typedef struct {
 } GarbageCollector;
 
 GarbageCollector* createGarbageCollector();
-void* allocateNew(GarbageCollector* gc, uint32_t size);
+int allocateNew(GarbageCollector* gc, uint32_t size);
 
 #endif //JVM_PROJECT_GARBAGECOLLECTOR_H

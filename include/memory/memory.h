@@ -14,14 +14,8 @@ typedef struct {
 } MemoryRegion;
 
 MemoryRegion* createMemoryRegion(uint64_t size);
-void* allocate(MemoryRegion* region, uint32_t size);
+int allocate(MemoryRegion* region, uint32_t size);
+void* getValue(MemoryRegion* region, int index);
 void freeMemory(MemoryRegion* region, void* ptr);
-
-typedef struct {
-    ClassFile* class;
-    void* data;
-} ObjHeader;
-
-ObjHeader* createObject(ClassFile class);
 
 #endif //JVM_PROJECT_MEMORY_H

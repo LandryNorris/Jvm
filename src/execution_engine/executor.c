@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "executor.h"
+#include "memory.h"
+#include "constantpoolhelper.h"
+#include "objheader.h"
 
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
@@ -211,7 +214,16 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 uint8_t low = *(++pc);
                 int index = high << 8 | low;
                 ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
-
+                char* name = parseClass(constant->constant->class, classFile->constantPool);
+                ClassFile* file = getClassFile(executor->loader, name);
+                int obj = createObject(executor->gc, file);
+                push32(operandStack, obj);
+                break;
+            }
+            case INSTR_DUP: {
+                int top = pop32(operandStack);
+                push32(operandStack, top);
+                push32(operandStack, top);
                 break;
             }
             case INSTR_INVOKESTATIC: {
