@@ -1,6 +1,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include <classloader.h>
+#include <executor.h>
+#include <stackframe.h>
 
 int main(int argc, char** argv) {
     if(argc < 2) {
@@ -15,9 +17,10 @@ int main(int argc, char** argv) {
 
     ClassFile* classFile = getClassFile(classLoader, "Averager");
 
-    printf("Class for Averager is %p", classFile);
+    printf("Class for Averager is %p\n", classFile);
 
-
+    FrameStack* frameStack = allocFrameStack(100);
+    executeByName(classLoader->mainClass, "main", frameStack);
 
     freeClassLoader(classLoader);
 }

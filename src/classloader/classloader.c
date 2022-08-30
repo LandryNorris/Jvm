@@ -13,7 +13,7 @@ ClassLoader* createClassLoader(const char* classPath, const char* mainFilePath) 
     ClassLoader* classLoader = malloc(sizeof(ClassLoader));
 
     ClassPool* classPool = createClassPool();
-    addClass(classPool, mainFilePath);
+    classLoader->mainClass = addClass(classPool, mainFilePath);
 
     classLoader->classPool = classPool;
     classLoader->classPath = classPath;

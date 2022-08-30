@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "executor.h"
 
-int execute(MethodInfo* method, ClassFile* classFile, FrameStack* frameStack) {
+int execute(MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack) {
     Code* code = NULL;
     StackFrame* frame;
 
@@ -198,7 +198,7 @@ void executeProgram(Program* program, FrameStack* frameStack, ClassFile* classFi
                 break;
             }
             default:
-                printf("Unrecognized instruction %d (%s)", instruction, instructionNames[instruction]);
+                printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
                 break;
         }
         pc++;
