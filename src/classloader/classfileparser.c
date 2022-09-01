@@ -7,10 +7,10 @@
 #include <instructionhelper.h>
 #include <constantpoolhelper.h>
 #include "interfaceparser.h"
-#include "constantparser.h"
 #include "primitivereader.h"
 #include "classfile.h"
 #include "attributehelper.h"
+#include "objheader.h"
 
 int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool);
 
@@ -202,18 +202,6 @@ void printClassFile(ClassFile* classFilePtr) {
     MethodPool* pool = classFilePtr->methodPool;
     printMethodPool(constantPool, pool);
     printFileAttributes(classFilePtr->constantPool, classFilePtr->attributePool);
-}
-
-/**
- * @param descriptor String descriptor of the type
- * @return size in bytes of the primitive or reference
- */
-int getSizeFromDescriptor(char* descriptor) {
-    if(strcmp(descriptor, "B") == 0 || strcmp(descriptor, "Z") == 0) return 1;
-    if(strcmp(descriptor, "C") == 0 || strcmp(descriptor, "S") == 0) return 2;
-    if(strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0) return 4;
-    if(strcmp(descriptor, "J") == 0 || strcmp(descriptor, "D") == 0) return 8;
-    return 4;
 }
 
 int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool) {

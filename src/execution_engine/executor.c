@@ -226,6 +226,27 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, top);
                 break;
             }
+            case INSTR_PUTFIELD: {
+                uint8_t high = *(++pc);
+                uint8_t low = *(++pc);
+                int index = high << 8 | low;
+
+                MethodRef* method = classFile->constantPool->pool[index-1]->constant->methodRef;
+                NameAndTypeIndex* nameAndType = classFile->constantPool->pool[method->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                UTF8* nameUtf = classFile->constantPool->pool[nameAndType->nameIndex-1]->constant->utf8;
+
+                char* nameString = utf82cstring(nameUtf);
+
+                uint32_t value = pop32(operandStack);
+                uint32_t objRef = pop32(operandStack);
+
+                if(objRef == 0) printf("Object was null. ToDo: Handle this properly");
+
+                ObjHeader* obj = getValue(executor->gc->memoryRegion, (int) objRef);
+
+                setFieldValue32(obj, nameString, value);
+                break;
+            }
             case INSTR_INVOKESPECIAL: {
                 uint8_t high = *(++pc);
                 uint8_t low = *(++pc);
@@ -261,6 +282,26 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ALOAD_3: {
                 int32_t local = locals[3];
                 push32(operandStack, local);
+                break;
+            }
+            case INSTR_ASTORE_0: {
+                int32_t value = pop32(operandStack);
+                locals[0] = value;
+                break;
+            }
+            case INSTR_ASTORE_1: {
+                int32_t value = pop32(operandStack);
+                locals[1] = value;
+                break;
+            }
+            case INSTR_ASTORE_2: {
+                int32_t value = pop32(operandStack);
+                locals[2] = value;
+                break;
+            }
+            case INSTR_ASTORE_3: {
+                int32_t value = pop32(operandStack);
+                locals[3] = value;
                 break;
             }
             case INSTR_INVOKESTATIC: {
