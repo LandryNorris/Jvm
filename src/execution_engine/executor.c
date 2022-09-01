@@ -247,6 +247,27 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 setFieldValue32(obj, nameString, value);
                 break;
             }
+            case INSTR_GETFIELD: {
+                uint8_t high = *(++pc);
+                uint8_t low = *(++pc);
+                int index = high << 8 | low;
+
+                MethodRef* method = classFile->constantPool->pool[index-1]->constant->methodRef;
+                NameAndTypeIndex* nameAndType = classFile->constantPool->pool[method->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                UTF8* nameUtf = classFile->constantPool->pool[nameAndType->nameIndex-1]->constant->utf8;
+
+                char* nameString = utf82cstring(nameUtf);
+
+                uint32_t objRef = pop32(operandStack);
+
+                if(objRef == 0) printf("Object was null. ToDo: Handle this properly");
+
+                ObjHeader* obj = getValue(executor->gc->memoryRegion, (int) objRef);
+
+                int32_t value = getFieldValue32(obj, nameString);
+                push32(operandStack, value);
+                break;
+            }
             case INSTR_INVOKESPECIAL: {
                 uint8_t high = *(++pc);
                 uint8_t low = *(++pc);
