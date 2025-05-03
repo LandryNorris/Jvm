@@ -1,0 +1,101 @@
+Unrecognized Attribute type with name index 21 and type -1
+Got magic value cafebabe
+Got minor version 0
+Got major version 52
+Got Constant Pool size 27
+Got Access Flags 32
+This Class name is 26 //Averager
+Super Class name is 27 //java/lang/Object
+Interface count: 0, Field count: 2, Method count: 3, attributes: 1
+
+Constant Pool:
+    1 Method Ref           #5.#23
+    2 Field Ref            #4.#24
+    3 Field Ref            #4.#25
+    4 Class                #26
+    5 Class                #27
+    6 UTF8                 sum
+    7 UTF8                 I
+    8 UTF8                 count
+    9 UTF8                 <init>
+   10 UTF8                 ()V
+   11 UTF8                 Code
+   12 UTF8                 LineNumberTable
+   13 UTF8                 LocalVariableTable
+   14 UTF8                 this
+   15 UTF8                 LAverager;
+   16 UTF8                 addValue
+   17 UTF8                 (I)V
+   18 UTF8                 value
+   19 UTF8                 getAverage
+   20 UTF8                 ()I
+   21 UTF8                 SourceFile
+   22 UTF8                 Averager.java
+   23 Name and Type        #9:#10
+   24 Name and Type        #6:#7
+   25 Name and Type        #8:#7
+   26 UTF8                 Averager
+   27 UTF8                 java/lang/Object
+
+Field Pool:
+
+Field #1:
+sum
+    Access Flags: 0
+    descriptor: I
+
+Field #2:
+count
+    Access Flags: 0
+    descriptor: I
+
+Method Pool:
+Method #1
+<init> ()V
+Stack size: 2, Local size: 1
+        0: aload_0
+        1: invokespecial 1 //java/lang/Object.<init>:()V
+        4: aload_0
+        5: iconst_0
+        6: putfield 2
+        9: aload_0
+       10: iconst_0
+       11: putfield 3
+       14: return
+    Line Number Table
+        line 2: 0
+        line 3: 4
+        line 4: 9
+
+Method #2
+addValue (I)V
+Stack size: 3, Local size: 2
+        0: aload_0
+        1: dup
+        2: getfield 2
+        5: iload_1
+        6: iadd
+        7: putfield 2
+       10: aload_0
+       11: dup
+       12: getfield 3
+       15: iconst_1
+       16: iadd
+       17: putfield 3
+       20: return
+    Line Number Table
+        line 7: 0
+        line 8: 10
+        line 9: 20
+
+Method #3
+getAverage ()I
+Stack size: 2, Local size: 1
+        0: aload_0
+        1: getfield 2
+        4: aload_0
+        5: getfield 3
+        8: idiv
+        9: ireturn
+    Line Number Table
+        line 12: 0
