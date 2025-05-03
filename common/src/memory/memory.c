@@ -6,6 +6,10 @@
 #include <malloc.h>
 #include "memory/memory.h"
 
+typedef struct {
+    int index;
+} ReservedData;
+
 /**
  * Creates a MemoryRegion with a rolling pointer allocator for now. It's not efficient, but it works as
  * an initial solution.
@@ -18,7 +22,8 @@ MemoryRegion* createMemoryRegion(uint64_t size) {
 
     memoryRegion->memory = memory;
     memoryRegion->size = size;
-    *(uint64_t*)memoryRegion->reserved = 1; //start at 1, so we can save 0 for null
+    memoryRegion->reserved = malloc(sizeof(ReservedData));
+    ((ReservedData*)memoryRegion->reserved)->index = 1; //start at 1, so we can save 0 for null
 
     return memoryRegion;
 }
@@ -29,10 +34,10 @@ MemoryRegion* createMemoryRegion(uint64_t size) {
  * @param size size of memory to allocate in the region
  */
 int allocate(MemoryRegion* region, uint32_t size) {
-    if(*(uint64_t*)region->reserved + size >= region->size) return 0;
-    void* allocated = region->reserved;
-    region->reserved += size;
-    return (int)allocated;
+    if(((ReservedData*)region->reserved)->index + size >= region->size) return 0;
+    int allocated = ((ReservedData*)region->reserved)->index;
+    ((ReservedData*)region->reserved)->index += size;
+    return allocated;
 }
 
 void* getValue(MemoryRegion* region, int index) {
