@@ -11,4 +11,14 @@ class Averager {
     int getAverage() {
         return sum/count;
     }
+
+    public static void main(String[] args) {
+        Averager averager = new Averager();
+
+        averager.addValue(10);
+        averager.addValue(20);
+
+        int average = averager.getAverage();
+    }
 }
+
