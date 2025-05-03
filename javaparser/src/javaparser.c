@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-int main(int argc, char* argv[]) {
+int javaparser_main(int argc, char** argv) {
     if(argc < 2) {
         printf("no class file given.\n");
         return EINVAL;
