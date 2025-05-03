@@ -1,0 +1,69 @@
+Unrecognized Attribute type with name index 17 and type -1
+Got magic value cafebabe
+Got minor version 0
+Got major version 52
+Got Constant Pool size 22
+Got Access Flags 32
+This Class name is 21 //Fibonacci
+Super Class name is 22 //java/lang/Object
+Interface count: 0, Field count: 0, Method count: 2, attributes: 1
+
+Constant Pool:
+    1 Method Ref           #4.#19
+    2 Method Ref           #3.#20
+    3 Class                #21
+    4 Class                #22
+    5 UTF8                 <init>
+    6 UTF8                 ()V
+    7 UTF8                 Code
+    8 UTF8                 LineNumberTable
+    9 UTF8                 LocalVariableTable
+   10 UTF8                 this
+   11 UTF8                 LFibonacci;
+   12 UTF8                 fibonacciRecursive
+   13 UTF8                 (I)I
+   14 UTF8                 n
+   15 UTF8                 I
+   16 UTF8                 StackMapTable
+   17 UTF8                 SourceFile
+   18 UTF8                 Fibonacci.java
+   19 Name and Type        #5:#6
+   20 Name and Type        #12:#13
+   21 UTF8                 Fibonacci
+   22 UTF8                 java/lang/Object
+
+Field Pool:
+
+Method Pool:
+Method #1
+<init> ()V
+Stack size: 1, Local size: 1
+        0: aload_0
+        1: invokespecial 1 //java/lang/Object.<init>:()V
+        4: return
+    Line Number Table
+        line 2: 0
+
+Method #2
+fibonacciRecursive (I)I
+Stack size: 3, Local size: 1
+        0: iload_0
+        1: iconst_1
+        2: if_icmpgt 5
+        5: iload_0
+        6: ireturn
+        7: iload_0
+        8: iconst_1
+        9: isub
+       10: invokestatic 2 //Fibonacci.fibonacciRecursive:(I)I
+       13: iload_0
+       14: iconst_2
+       15: isub
+       16: invokestatic 2 //Fibonacci.fibonacciRecursive:(I)I
+       19: iadd
+       20: ireturn
+    Line Number Table
+        line 5: 0
+        line 6: 7
+    StackMapTable: number of entries: 1
+        frameType = 7
