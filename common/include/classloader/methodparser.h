@@ -8,6 +8,7 @@ typedef struct {
     uint16_t accessFlags;
     uint16_t nameIndex;
     uint16_t descriptorIndex;
+    uint16_t argumentCount;
     AttributePool* attributePool;
 } MethodInfo;
 
