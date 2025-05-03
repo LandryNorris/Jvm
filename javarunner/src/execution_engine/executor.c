@@ -150,6 +150,20 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, a-b);
                 break;
             }
+            case INSTR_IMUL: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                push32(operandStack, a*b);
+                break;
+            }
+            case INSTR_IDIV: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+
+                // TODO(Landry): Handle 'special case' from idiv specification
+                push32(operandStack, a/b);
+                break;
+            }
             case INSTR_BIPUSH: {
                 int8_t value = *((int8_t*)(++pc));
                 push32(operandStack, value);
