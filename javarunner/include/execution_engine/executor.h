@@ -13,8 +13,8 @@ typedef struct {
 Executor* createExecutor(const char* classPath, const char* mainClassName);
 void executeProgram(Executor* executor, Program* program, FrameStack* frameStack, const ClassFile *classFile);
 int runMain(Executor* executor);
-int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack);
-int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack);
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack, bool isVirtual);
+int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack, bool isVirtual);
 void freeExecutor(Executor* executor);
 
 #endif //JVM_PROJECT_EXECUTOR_H
