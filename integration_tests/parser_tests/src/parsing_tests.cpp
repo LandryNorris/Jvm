@@ -18,3 +18,9 @@ TEST(ParserTests, FibonacciParserTest) {
     const fs::path goldenFilePath = fs::path(getGoldenFilePath()) / "Fibonacci.golden";
     testParseJavaClass(classFilePath.c_str(), goldenFilePath.c_str());
 }
+
+TEST(ParserTests, AverageParserTest) {
+    const fs::path classFilePath = fs::path(getTestProjectsRootPath()) / "average/build/classes/java/main/Averager.class";
+    const fs::path goldenFilePath = fs::path(getGoldenFilePath()) / "Average.golden";
+    testParseJavaClass(classFilePath.c_str(), goldenFilePath.c_str());
+}
