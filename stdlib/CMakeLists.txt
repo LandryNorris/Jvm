@@ -23,5 +23,6 @@ add_jar(java_stdlib SOURCES
 get_target_property(java_stdlib_CLASSDIR java_stdlib CLASSDIR)
 
 add_custom_command(TARGET java_stdlib POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${java_stdlib_CLASSDIR}/java ${CMAKE_SOURCE_DIR}/java-prebuilt
+        # The /java suffix is copied on both to avoid copying other files.
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${java_stdlib_CLASSDIR}/java ${CMAKE_SOURCE_DIR}/java-prebuilt/java
 )
