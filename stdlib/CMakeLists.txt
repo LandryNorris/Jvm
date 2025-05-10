@@ -18,3 +18,9 @@ add_jar(java_stdlib SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/PrintStream.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/Serializable.java"
 )
+
+get_target_property(java_stdlib_CLASSDIR java_stdlib CLASSDIR)
+
+add_custom_command(TARGET java_stdlib POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${java_stdlib_CLASSDIR}/java ${CMAKE_SOURCE_DIR}/java-prebuilt
+)
