@@ -12,6 +12,7 @@
 #include "memory/memory.h"
 #include "utils/constantpoolhelper.h"
 #include "memory/objheader.h"
+#include "memory/primitive_array.h"
 
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
@@ -103,6 +104,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
     while(1) {
         uint8_t instruction = *pc;
+        printf("Executing: %s\n", instructionNames[instruction]);
         switch(instruction) {
             case INSTR_NOP: break;
             case INSTR_ACONST_NULL:
@@ -244,6 +246,31 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, obj);
                 break;
             }
+            case INSTR_LDC: {
+                uint8_t index = *++pc;
+                ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
+                switch (constant->tag) {
+                    case CONSTANT_INT: {
+                        const int value = constant->constant->integer->value;
+                        push32(operandStack, value);
+                        break;
+                    }
+                    case CONSTANT_FLOAT: {
+                        const float value = constant->constant->f->value;
+                        const uint32_t raw = *(uint32_t*)&value;
+                        push32(operandStack, (int32_t)raw);
+                        break;
+                    }
+                    case CONSTANT_STRING: {
+                        const int index = constant->constant->string->index;
+                        UTF8* utf8 = classFile->constantPool->pool[index-1]->constant->utf8;
+                        int obj = utf82string(executor->gc, executor->loader, utf8);
+                        push32(operandStack, obj);
+                        break;
+                    }
+                }
+                break;
+            }
             case INSTR_DUP: {
                 int top = pop32(operandStack);
                 push32(operandStack, top);
@@ -377,6 +404,14 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                     class->classFile = getClassFile(executor->loader, utf82cstring(className));
                 }
                 executeByNameUtf8(executor, class->classFile, methodName, frameStack, true);
+                break;
+            }
+            case INSTR_NEWARRAY: {
+                uint8_t type = *++pc;
+                int32_t count = pop32(operandStack);
+
+                int obj = createPrimitiveArray(executor->gc, type, count);
+                push32(operandStack, obj);
                 break;
             }
             default:

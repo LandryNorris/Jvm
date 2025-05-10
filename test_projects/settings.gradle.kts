@@ -13,3 +13,4 @@ plugins {
 rootProject.name = "test_projects"
 include("fibonacci")
 include("average")
+include("strings")
