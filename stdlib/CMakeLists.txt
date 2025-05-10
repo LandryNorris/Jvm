@@ -1,0 +1,20 @@
+
+include(FindJava)
+include(UseJava)
+
+find_package(Java 1.8 REQUIRED)
+find_package(Java COMPONENTS Runtime)
+find_package(Java COMPONENTS Development)
+
+set(CMAKE_JAVA_COMPILE_FLAGS "--target"  "8" "--source" "8")
+
+file(GLOB_RECURSE JAVA_SRCS "${CMAKE_CURRENT_LIST_DIR}/src/main/java/**/*.java")
+
+add_jar(java_stdlib SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/String.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Comparable.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/CharSequence.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/System.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/PrintStream.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/Serializable.java"
+)

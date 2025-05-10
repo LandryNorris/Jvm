@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(JVM C CXX ASM)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -14,6 +16,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+add_subdirectory(stdlib)
 add_subdirectory(common)
 add_subdirectory(javarunner)
 add_subdirectory(javaparser)
