@@ -1,0 +1,34 @@
+#include "memory/primitive_array.h"
+
+#include <stdio.h>
+#include <string.h>
+
+#include "memory/garbagecollector.h"
+
+int getElementSize(const int type) {
+    switch (type) {
+        case T_BOOLEAN:
+        case T_BYTE: return 1;
+        case T_SHORT: return 2;
+        case T_INT:
+        case T_FLOAT: return 4;
+        case T_LONG:
+        case T_DOUBLE: return 8;
+        default: {
+            printf("Invalid type: %d\n", type);
+            return -1;
+        }
+    }
+}
+
+int createPrimitiveArray(GarbageCollector* gc, const int type, const uint32_t length) {
+    const uint32_t arraySize = getElementSize(type) * length;
+    const int index = allocateNew(gc, sizeof(PrimitiveArray) + arraySize);
+
+    PrimitiveArray* array = getValue(gc->memoryRegion, index);
+    array->length = length;
+    array->code = (TypeCode) type;
+    memset(&array->memory, 0, arraySize);
+
+    return index;
+}

@@ -12,6 +12,7 @@
 #include "memory/memory.h"
 #include "utils/constantpoolhelper.h"
 #include "memory/objheader.h"
+#include "memory/primitive_array.h"
 
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
@@ -103,6 +104,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
     while(1) {
         uint8_t instruction = *pc;
+        printf("Executing: %s\n", instructionNames[instruction]);
         switch(instruction) {
             case INSTR_NOP: break;
             case INSTR_ACONST_NULL:
@@ -377,6 +379,14 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                     class->classFile = getClassFile(executor->loader, utf82cstring(className));
                 }
                 executeByNameUtf8(executor, class->classFile, methodName, frameStack, true);
+                break;
+            }
+            case INSTR_NEWARRAY: {
+                uint8_t type = *++pc;
+                int32_t count = pop32(operandStack);
+
+                int obj = createPrimitiveArray(executor->gc, type, count);
+                push32(operandStack, obj);
                 break;
             }
             default:
