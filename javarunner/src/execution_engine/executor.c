@@ -29,22 +29,32 @@ void freeExecutor(Executor* executor) {
 
 int runMain(Executor* executor) {
     FrameStack* frameStack = allocFrameStack(100);
-    return executeByName(executor, executor->loader->mainClass, "main", frameStack);
+    return executeByName(executor, executor->loader->mainClass, "main", frameStack, false);
 }
 
-int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack) {
+int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack, bool isVirtual) {
     Code* code = NULL;
     StackFrame* frame;
 
     for(int i = 0; i < method->attributePool->size; i++) {
         Attribute* attributeInfo = method->attributePool->attributes[i];
         if(attributeInfo->type == ATTRIBUTE_CODE) {
+
             code = attributeInfo->info->code;
             frame = allocStackFrame(code->maxLocals, code->maxStack, classFile->constantPool);
             StackFrame* lastFrame = peekFrame(frameStack);
             if(lastFrame) {
-                for(int j = 0; j < code->maxLocals; j++) {
-                    frame->localVariables[j] = pop32(&lastFrame->operandStack);
+                int localVariableIndex = 0;
+                if (isVirtual) {
+                    // the object reference is at the bottom of the stack, but
+                    // needs to go at the start of local variables
+                    localVariableIndex++;
+                }
+                for(int j = 0; j < method->argumentCount; j++) {
+                    frame->localVariables[localVariableIndex++] = pop32(&lastFrame->operandStack);
+                }
+                if (isVirtual) {
+                    frame->localVariables[0] = pop32(&lastFrame->operandStack);
                 }
             }
             pushFrame(frameStack,frame);
@@ -58,20 +68,20 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
     return 0;
 }
 
-int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack) {
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack, bool isVirtual) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
         UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
 
         if(isEqualUtf8(methodNameUtf8, methodName)) {
-            return execute(executor, info, classFile, frameStack);
+            return execute(executor, info, classFile, frameStack, isVirtual);
         }
     }
     return EINVAL;
 }
 
-int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack) {
+int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack, bool isVirtual) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
@@ -79,7 +89,7 @@ int executeByName(Executor* executor, const ClassFile *classFile, char* methodNa
         char* currentMethodName = utf82cstring(methodNameUtf8);
 
         if(strcmp(currentMethodName, methodName) == 0) {
-            return execute(executor, info, classFile, frameStack);
+            return execute(executor, info, classFile, frameStack, isVirtual);
         }
     }
     return EINVAL;
@@ -296,7 +306,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 ClassFile* otherClass = getClassFile(executor->loader, otherClassString);
 
-                executeByNameUtf8(executor, otherClass, methodName, frameStack);
+                executeByNameUtf8(executor, otherClass, methodName, frameStack, true);
                 break;
             }
             case INSTR_ALOAD_0: {
@@ -347,7 +357,26 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 //Add getting the ClassFile index later.
                 uint16_t methodNameIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
-                executeByNameUtf8(executor, classFile, methodName, frameStack);
+                executeByNameUtf8(executor, classFile, methodName, frameStack, false);
+                break;
+            }
+            case INSTR_INVOKEVIRTUAL: {
+                int8_t high = *((int8_t*)(++pc));
+                int8_t low = *((int8_t*)(++pc));
+                int index = high << 8 | low;
+                MethodRef* methodRef = classFile->constantPool->pool[index-1]->constant->methodRef;
+
+                uint16_t methodNameIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
+                UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
+
+                // TODO(Landry): Test how inherited methods work here
+                Class* class = classFile->constantPool->pool[methodRef->classIndex-1]->constant->class;
+                UTF8* className = classFile->constantPool->pool[class->nameIndex-1]->constant->utf8;
+
+                if (class->classFile == NULL) {
+                    class->classFile = getClassFile(executor->loader, utf82cstring(className));
+                }
+                executeByNameUtf8(executor, class->classFile, methodName, frameStack, true);
                 break;
             }
             default:

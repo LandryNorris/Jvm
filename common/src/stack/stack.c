@@ -64,13 +64,17 @@ Stack32* allocStack32(int capacity) {
 }
 
 int32_t push32(Stack32* stack, int32_t value) {
-    if(isFull32(stack)) return -1;
+    if(isFull32(stack)) {
+        return -1;
+    }
     *++stack->sp = value;
     return value;
 }
 
 int32_t pop32(Stack32* stack) {
-    if(isEmpty32(stack)) return -1;
+    if(isEmpty32(stack)) {
+        return -1;
+    }
     return *stack->sp--;
 }
 

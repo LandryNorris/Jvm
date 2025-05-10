@@ -1,41 +1,52 @@
-Unrecognized Attribute type with name index 21 and type -1
+Unrecognized Attribute type with name index 30 and type -1
 Got magic value cafebabe
 Got minor version 0
 Got major version 52
-Got Constant Pool size 27
+Got Constant Pool size 38
 Got Access Flags 32
-This Class name is 26 //Averager
-Super Class name is 27 //java/lang/Object
-Interface count: 0, Field count: 2, Method count: 3, attributes: 1
+This Class name is 35 //Averager
+Super Class name is 38 //java/lang/Object
+Interface count: 0, Field count: 2, Method count: 4, attributes: 1
 
 Constant Pool:
-    1 Method Ref           #5.#23
-    2 Field Ref            #4.#24
-    3 Field Ref            #4.#25
-    4 Class                #26
-    5 Class                #27
-    6 UTF8                 sum
-    7 UTF8                 I
-    8 UTF8                 count
-    9 UTF8                 <init>
-   10 UTF8                 ()V
-   11 UTF8                 Code
-   12 UTF8                 LineNumberTable
-   13 UTF8                 LocalVariableTable
-   14 UTF8                 this
-   15 UTF8                 LAverager;
-   16 UTF8                 addValue
-   17 UTF8                 (I)V
-   18 UTF8                 value
-   19 UTF8                 getAverage
-   20 UTF8                 ()I
-   21 UTF8                 SourceFile
-   22 UTF8                 Averager.java
-   23 Name and Type        #9:#10
-   24 Name and Type        #6:#7
-   25 Name and Type        #8:#7
-   26 UTF8                 Averager
-   27 UTF8                 java/lang/Object
+    1 Method Ref           #8.#32
+    2 Field Ref            #4.#33
+    3 Field Ref            #4.#34
+    4 Class                #35
+    5 Method Ref           #4.#32
+    6 Method Ref           #4.#36
+    7 Method Ref           #4.#37
+    8 Class                #38
+    9 UTF8                 sum
+   10 UTF8                 I
+   11 UTF8                 count
+   12 UTF8                 <init>
+   13 UTF8                 ()V
+   14 UTF8                 Code
+   15 UTF8                 LineNumberTable
+   16 UTF8                 LocalVariableTable
+   17 UTF8                 this
+   18 UTF8                 LAverager;
+   19 UTF8                 addValue
+   20 UTF8                 (I)V
+   21 UTF8                 value
+   22 UTF8                 getAverage
+   23 UTF8                 ()I
+   24 UTF8                 main
+   25 UTF8                 ([Ljava/lang/String;)V
+   26 UTF8                 args
+   27 UTF8                 [Ljava/lang/String;
+   28 UTF8                 averager
+   29 UTF8                 average
+   30 UTF8                 SourceFile
+   31 UTF8                 Averager.java
+   32 Name and Type        #12:#13
+   33 Name and Type        #9:#10
+   34 Name and Type        #11:#10
+   35 UTF8                 Averager
+   36 Name and Type        #19:#20
+   37 Name and Type        #22:#23
+   38 UTF8                 java/lang/Object
 
 Field Pool:
 
@@ -99,3 +110,27 @@ Stack size: 2, Local size: 1
         9: ireturn
     Line Number Table
         line 12: 0
+
+Method #4
+main ([Ljava/lang/String;)V
+Stack size: 2, Local size: 3
+        0: new 4
+        3: dup
+        4: invokespecial 5 //Averager.<init>:()V
+        7: astore_1
+        8: aload_1
+        9: bipush 10
+       11: invokevirtual 6 //Averager.addValue:(I)V
+       14: aload_1
+       15: bipush 20
+       17: invokevirtual 6 //Averager.addValue:(I)V
+       20: aload_1
+       21: invokevirtual 7 //Averager.getAverage:()I
+       24: istore_2
+       25: return
+    Line Number Table
+        line 16: 0
+        line 18: 8
+        line 19: 14
+        line 21: 20
+        line 22: 25
