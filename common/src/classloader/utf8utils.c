@@ -1,5 +1,42 @@
 #include "classloader/utf8utils.h"
 #include<malloc.h>
+#include <string.h>
+
+#include "classloader/classloader.h"
+#include "memory/objheader.h"
+#include "memory/primitive_array.h"
+
+int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf8) {
+    ClassFile* stringClass = getClassFile(loader, "java/lang/String");
+    int index = createObject(gc, stringClass);
+    ObjHeader* header = getValue(gc->memoryRegion, index);
+
+    // Create value array
+    const int arrayOffset = createPrimitiveArray(gc, T_BYTE, utf8->size);
+    PrimitiveArray* arrayHeader = getValue(gc->memoryRegion, arrayOffset);
+
+    uint8_t* textLocation = arrayHeader->memory;
+
+    int j = 0;
+    for(;j < utf8->size; j++) {
+        textLocation[j] = utf8->content[j];
+    }
+    textLocation[j] = '\0'; //add null terminator
+
+    // TODO(Landry): I think openjdk hardcodes the index. Maybe that makes sense here too?
+    for (int i = 0 ; i < header->fieldCount; i++) {
+        ObjField* field = header->fields[i];
+
+        // Look for 'value' field
+        if (strcmp(field->name, "value") == 0) {
+             ObjField* field = header->fields[i];
+
+            memcpy(&header->data[field->offset], &arrayOffset, sizeof(int));
+        }
+    }
+
+    return index;
+}
 
 char* utf82cstring(UTF8* utf8) {
     unsigned char* cstring = malloc(utf8->size+1);

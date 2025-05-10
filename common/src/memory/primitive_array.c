@@ -9,6 +9,7 @@ int getElementSize(const int type) {
     switch (type) {
         case T_BOOLEAN:
         case T_BYTE: return 1;
+        case T_CHAR:
         case T_SHORT: return 2;
         case T_INT:
         case T_FLOAT: return 4;
