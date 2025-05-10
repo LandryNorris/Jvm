@@ -208,6 +208,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 popFrame(frameStack);
                 return; //we are done with this program.
             }
+            case INSTR_ARETURN: // addresses are ints
             case INSTR_IRETURN: {
                 StackFrame* lastFrame = getStackFrame(frameStack, 1);
                 int value = pop32(operandStack);
