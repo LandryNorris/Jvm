@@ -13,6 +13,10 @@ public class String implements Serializable, Comparable<String>, CharSequence {
         this.value = original.value;
     }
 
+    public String(byte[] value) {
+        this.value = value;
+    }
+
     @Override
     public int compareTo(String o) {
         return 0;
@@ -31,6 +35,11 @@ public class String implements Serializable, Comparable<String>, CharSequence {
     @Override
     public CharSequence subSequence(int start, int end) {
         // TODO(Landry): Implement fully
+        return this;
+    }
+
+    @Override
+    public String toString() {
         return this;
     }
 }
