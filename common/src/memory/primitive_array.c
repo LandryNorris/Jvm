@@ -33,3 +33,21 @@ int createPrimitiveArray(GarbageCollector* gc, const int type, const uint32_t le
 
     return index;
 }
+
+void setCharArrayValue(GarbageCollector* gc, const int obj, const int index, const uint16_t value) {
+    PrimitiveArray* array = getValue(gc->memoryRegion, index);
+    // TODO(Landry): Bounds checks
+    // characters are two bytes in java
+    const int dataIndex = index*2;
+    array->memory[dataIndex] = value & 0xff;
+    array->memory[dataIndex+1] = (value >> 8) & 0xff;
+}
+
+uint16_t getCharArrayValue(GarbageCollector* gc, const int obj, const int index) {
+    PrimitiveArray* array = getValue(gc->memoryRegion, index);
+    // TODO(Landry): Bounds checks
+    // characters are two bytes in java
+    const int dataIndex = index*2;
+
+    return array->memory[dataIndex+1] << 8 | array->memory[dataIndex];
+}

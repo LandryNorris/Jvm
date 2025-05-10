@@ -23,5 +23,7 @@ typedef struct {
 } PrimitiveArray;
 
 int createPrimitiveArray(GarbageCollector* gc, int type, uint32_t length);
+void setCharArrayValue(GarbageCollector* gc, int obj, int index, uint16_t value);
+uint16_t getCharArrayValue(GarbageCollector* gc, int obj, int index);
 
 #endif //PRIMITIVE_ARRAY_H
