@@ -51,6 +51,10 @@ char* utf82cstring(UTF8* utf8) {
 int isEqual(UTF8* utf8, const char* cstring) {
     int size = utf8->size;
 
+    if (strlen(cstring) != size) {
+        return 0; // size doesn't match
+    }
+
     for(int i = 0; i < size; i++) {
         char c = cstring[i];
         if(c == '\0') return 0; //there should never be a null terminator in a UTF8 string.
