@@ -430,6 +430,13 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, obj);
                 break;
             }
+            case INSTR_ARRAYLENGTH: {
+                // TODO(Landry): Handle NullPointerException
+                int32_t arrayRef = pop32(operandStack);
+                int32_t size = (int32_t) getArrayLength(executor->gc, arrayRef);
+                push32(operandStack, size);
+                break;
+            }
             default:
                 printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
                 break;
