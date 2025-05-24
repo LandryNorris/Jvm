@@ -147,6 +147,9 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ILOAD_2:
                 push32(operandStack, locals[2]);
                 break;
+            case INSTR_ILOAD_3:
+                push32(operandStack, locals[3]);
+                break;
             case INSTR_IADD: {
                 int b = pop32(operandStack);
                 int a = pop32(operandStack);
@@ -263,6 +266,28 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int top = pop32(operandStack);
                 push32(operandStack, top);
                 push32(operandStack, top);
+                break;
+            }
+            case INSTR_DUP_X1: {
+                // TODO(Landry): Check if both top and next are "category 1 computational type"
+                int top = pop32(operandStack);
+                int next = pop32(operandStack);
+                push32(operandStack, top);
+                push32(operandStack, next);
+                push32(operandStack, top);
+                break;
+            }
+            case INSTR_DUP_X2: {
+                // TODO(Landry): Check for whether value 2 is a category 2 computational type
+                //               It will be different?
+                int value1 = pop32(operandStack);
+                int value2 = pop32(operandStack);
+                int value3 = pop32(operandStack);
+
+                push32(operandStack, value1);
+                push32(operandStack, value3);
+                push32(operandStack, value2);
+                push32(operandStack, value1);
                 break;
             }
             case INSTR_PUTFIELD: {
