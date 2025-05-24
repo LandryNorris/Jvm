@@ -24,3 +24,9 @@ TEST(ParserTests, AverageParserTest) {
     const fs::path goldenFilePath = fs::path(getGoldenFilePath()) / "Average.golden";
     testParseJavaClass(classFilePath.c_str(), goldenFilePath.c_str());
 }
+
+TEST(ParserTests, StringsParserTest) {
+    const fs::path classFilePath = fs::path(getTestProjectsRootPath()) / "strings/build/classes/java/main/App.class";
+    const fs::path goldenFilePath = fs::path(getGoldenFilePath()) / "Strings.golden";
+    testParseJavaClass(classFilePath.c_str(), goldenFilePath.c_str());
+}
