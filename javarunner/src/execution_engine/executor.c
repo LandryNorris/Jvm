@@ -69,16 +69,23 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
     return 0;
 }
 
-int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, FrameStack* frameStack, bool isVirtual) {
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual) {
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
         UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
+        UTF8* descriptorUtf8 = classFile->constantPool->pool[info->descriptorIndex-1]->constant->utf8;
 
-        if(isEqualUtf8(methodNameUtf8, methodName)) {
+        if(isEqualUtf8(methodNameUtf8, methodName) && isEqualUtf8(descriptor, descriptorUtf8)) {
             return execute(executor, info, classFile, frameStack, isVirtual);
         }
     }
+    char* methodNameString = utf82cstring(methodName);
+    char* descriptorString = utf82cstring(descriptor);
+    printf("Unable to find method with name %s and type %s\n", methodNameString, descriptorString);
+    free(methodNameString);
+    free(descriptorString);
+
     return EINVAL;
 }
 
@@ -326,15 +333,17 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = high << 8 | low;
                 ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
                 MethodRef* method = constant->constant->methodRef;
-                uint16_t methodNameIndex = classFile->constantPool->pool[method->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
+                NameAndTypeIndex* nameAndTypeIndex = classFile->constantPool->pool[method->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                uint16_t methodNameIndex = nameAndTypeIndex->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
                 uint16_t otherClassIndex = classFile->constantPool->pool[method->classIndex - 1]->constant->class->nameIndex;
                 UTF8* otherClassName = classFile->constantPool->pool[otherClassIndex - 1]->constant->utf8;
                 char* otherClassString = utf82cstring(otherClassName);
+                UTF8* descriptor = classFile->constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
 
                 ClassFile* otherClass = getClassFile(executor->loader, otherClassString);
 
-                executeByNameUtf8(executor, otherClass, methodName, frameStack, true);
+                executeByNameUtf8(executor, otherClass, methodName, descriptor, frameStack, true);
                 break;
             }
             case INSTR_ALOAD_0: {
@@ -398,9 +407,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = high << 8 | low;
                 MethodRef* methodRef = classFile->constantPool->pool[index-1]->constant->methodRef;
                 //Add getting the ClassFile index later.
-                uint16_t methodNameIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
+                NameAndTypeIndex* nameAndTypeIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                uint16_t methodNameIndex = nameAndTypeIndex->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
-                executeByNameUtf8(executor, classFile, methodName, frameStack, false);
+                UTF8* descriptor = classFile->constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
+                executeByNameUtf8(executor, classFile, methodName, descriptor, frameStack, false);
                 break;
             }
             case INSTR_INVOKEVIRTUAL: {
@@ -409,8 +420,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = high << 8 | low;
                 MethodRef* methodRef = classFile->constantPool->pool[index-1]->constant->methodRef;
 
-                uint16_t methodNameIndex = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex->nameIndex;
+                NameAndTypeIndex* nameAndType = classFile->constantPool->pool[methodRef->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                uint16_t methodNameIndex = nameAndType->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
+
+                UTF8* descriptor = classFile->constantPool->pool[nameAndType->descriptorIndex-1]->constant->utf8;
 
                 // TODO(Landry): Test how inherited methods work here
                 Class* class = classFile->constantPool->pool[methodRef->classIndex-1]->constant->class;
@@ -419,7 +433,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 if (class->classFile == NULL) {
                     class->classFile = getClassFile(executor->loader, utf82cstring(className));
                 }
-                executeByNameUtf8(executor, class->classFile, methodName, frameStack, true);
+                executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack, true);
                 break;
             }
             case INSTR_NEWARRAY: {
