@@ -34,6 +34,7 @@ int createPrimitiveArray(GarbageCollector* gc, const int type, const uint32_t le
     return index;
 }
 
+// Char array
 void setCharArrayValue(GarbageCollector* gc, const int obj, const int index, const uint16_t value) {
     PrimitiveArray* array = getValue(gc->memoryRegion, obj);
     // TODO(Landry): Bounds checks
@@ -52,8 +53,23 @@ uint16_t getCharArrayValue(GarbageCollector* gc, const int obj, const int index)
     return array->memory[dataIndex+1] << 8 | array->memory[dataIndex];
 }
 
+// Byte array
+void setByteArrayValue(GarbageCollector* gc, const int obj, const int index, const uint8_t value) {
+    PrimitiveArray* array = getValue(gc->memoryRegion, obj);
+    // TODO(Landry): Bounds checks
+    array->memory[index] = value;
+}
+
+uint8_t getByteArrayValue(GarbageCollector* gc, const int obj, const int index) {
+    const PrimitiveArray* array = getValue(gc->memoryRegion, obj);
+    // TODO(Landry): Bounds checks
+
+    return array->memory[index];
+}
+
 uint32_t getArrayLength(GarbageCollector* gc, const int obj) {
     const PrimitiveArray* array = getValue(gc->memoryRegion, obj);
     // TODO(Landry): Bounds checks
     return array->length;
 }
+

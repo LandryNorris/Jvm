@@ -406,6 +406,21 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 getCharArrayValue(executor->gc, obj, index);
                 break;
             }
+            case INSTR_BASTORE: {
+                int value = pop32(operandStack);
+                int index = pop32(operandStack);
+                int obj = pop32(operandStack);
+
+                setByteArrayValue(executor->gc, obj, index, value);
+                break;
+            }
+            case INSTR_BALOAD: {
+                int index = pop32(operandStack);
+                int obj = pop32(operandStack);
+
+                getByteArrayValue(executor->gc, obj, index);
+                break;
+            }
             case INSTR_INVOKESTATIC: {
                 int8_t high = *((int8_t*)(++pc));
                 int8_t low = *((int8_t*)(++pc));
