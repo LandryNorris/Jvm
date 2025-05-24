@@ -223,26 +223,6 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 popFrame(frameStack);
                 return; //we are done with this program.
             }
-            case INSTR_IF_ICMPGE: {
-                uint8_t high = *(++pc);
-                uint8_t low = *(++pc);
-                int branchOffset = high << 8 | low;
-                int value2 = pop32(operandStack);
-                int value1 = pop32(operandStack);
-
-                if(value1 >= value2) pc += branchOffset - 3; //we read 2 bytes in this instruction. The pc++ will add another.
-                break;
-            }
-            case INSTR_IF_ICMPGT: {
-                uint8_t high = *(++pc);
-                uint8_t low = *(++pc);
-                int branchOffset = high << 8 | low;
-                int value2 = pop32(operandStack);
-                int value1 = pop32(operandStack);
-
-                if(value1 > value2) pc += branchOffset - 3; //we read 2 bytes in this instruction. The pc++ will add another.
-                break;
-            }
             case INSTR_NEW: {
                 uint8_t high = *(++pc);
                 uint8_t low = *(++pc);
@@ -451,6 +431,93 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, size);
                 break;
             }
+
+            // If for integers
+            case INSTR_IF_ICMPLE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 <= value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPEQ: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 == value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPGE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 >= value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPGT: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 > value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPLT: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 < value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPNE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 != value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
             default:
                 printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
                 break;
