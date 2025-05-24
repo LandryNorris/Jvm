@@ -6,6 +6,10 @@ public class StringBuilder implements Serializable, CharSequence {
     private byte[] value;
     private int usedSize = 0;
 
+    public StringBuilder() {
+        this(16);
+    }
+
     public StringBuilder(int capacity) {
         value = new byte[capacity];
     }
