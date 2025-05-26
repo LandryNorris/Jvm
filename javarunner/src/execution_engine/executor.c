@@ -570,6 +570,25 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 pc += branch - 3; // we incremented 2 already, and pc++ increments again
                 break;
             }
+            case INSTR_I2B: {
+                int32_t value = pop32(operandStack);
+                int8_t byte = (int8_t) value;
+                push32(operandStack, byte);
+                break;
+            }
+            case INSTR_I2C: {
+                int32_t value = pop32(operandStack);
+                int16_t c = (int16_t) value;
+                push32(operandStack, c);
+                break;
+            }
+            case INSTR_I2F: {
+                int32_t value = pop32(operandStack);
+                float f = (float) value;
+                uint32_t fBytes = *(uint32_t*)&f;
+                push32(operandStack, (int32_t)fBytes);
+                break;
+            }
 
             default:
                 printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
