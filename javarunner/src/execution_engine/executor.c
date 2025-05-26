@@ -138,6 +138,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ICONST_5:
                 push32(operandStack, 5);
                 break;
+            case INSTR_ILOAD:
+                int8_t index = *++pc;
+                int32_t value = locals[index];
+                push32(operandStack, value);
+                break;
             case INSTR_ILOAD_0:
                 push32(operandStack, locals[0]);
                 break;
@@ -146,6 +151,9 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 break;
             case INSTR_ILOAD_2:
                 push32(operandStack, locals[2]);
+                break;
+            case INSTR_ILOAD_3:
+                push32(operandStack, locals[3]);
                 break;
             case INSTR_IADD: {
                 int b = pop32(operandStack);
@@ -171,6 +179,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 // TODO(Landry): Handle 'special case' from idiv specification
                 push32(operandStack, a/b);
+                break;
+            }
+            case INSTR_IINC: {
+                uint8_t index = *(++pc);
+                int8_t constant = (int8_t)*(++pc);
+                locals[index] += constant;
                 break;
             }
             case INSTR_BIPUSH: {
@@ -223,26 +237,6 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 popFrame(frameStack);
                 return; //we are done with this program.
             }
-            case INSTR_IF_ICMPGE: {
-                uint8_t high = *(++pc);
-                uint8_t low = *(++pc);
-                int branchOffset = high << 8 | low;
-                int value2 = pop32(operandStack);
-                int value1 = pop32(operandStack);
-
-                if(value1 >= value2) pc += branchOffset - 3; //we read 2 bytes in this instruction. The pc++ will add another.
-                break;
-            }
-            case INSTR_IF_ICMPGT: {
-                uint8_t high = *(++pc);
-                uint8_t low = *(++pc);
-                int branchOffset = high << 8 | low;
-                int value2 = pop32(operandStack);
-                int value1 = pop32(operandStack);
-
-                if(value1 > value2) pc += branchOffset - 3; //we read 2 bytes in this instruction. The pc++ will add another.
-                break;
-            }
             case INSTR_NEW: {
                 uint8_t high = *(++pc);
                 uint8_t low = *(++pc);
@@ -283,6 +277,28 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int top = pop32(operandStack);
                 push32(operandStack, top);
                 push32(operandStack, top);
+                break;
+            }
+            case INSTR_DUP_X1: {
+                // TODO(Landry): Check if both top and next are "category 1 computational type"
+                int top = pop32(operandStack);
+                int next = pop32(operandStack);
+                push32(operandStack, top);
+                push32(operandStack, next);
+                push32(operandStack, top);
+                break;
+            }
+            case INSTR_DUP_X2: {
+                // TODO(Landry): Check for whether value 2 is a category 2 computational type
+                //               It will be different?
+                int value1 = pop32(operandStack);
+                int value2 = pop32(operandStack);
+                int value3 = pop32(operandStack);
+
+                push32(operandStack, value1);
+                push32(operandStack, value3);
+                push32(operandStack, value2);
+                push32(operandStack, value1);
                 break;
             }
             case INSTR_PUTFIELD: {
@@ -398,7 +414,24 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = pop32(operandStack);
                 int obj = pop32(operandStack);
 
-                getCharArrayValue(executor->gc, obj, index);
+                int16_t c = (int16_t)getCharArrayValue(executor->gc, obj, index);
+                push32(operandStack, c);
+                break;
+            }
+            case INSTR_BASTORE: {
+                int value = pop32(operandStack);
+                int index = pop32(operandStack);
+                int obj = pop32(operandStack);
+
+                setByteArrayValue(executor->gc, obj, index, value);
+                break;
+            }
+            case INSTR_BALOAD: {
+                int index = pop32(operandStack);
+                int obj = pop32(operandStack);
+
+                int8_t value = (int8_t)getByteArrayValue(executor->gc, obj, index);
+                push32(operandStack, value);
                 break;
             }
             case INSTR_INVOKESTATIC: {
@@ -451,6 +484,119 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, size);
                 break;
             }
+
+            // If for integers
+            case INSTR_IF_ICMPLE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 <= value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPEQ: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 == value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPGE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 >= value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPGT: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 > value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPLT: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 < value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IF_ICMPNE: {
+                int value2 = pop32(operandStack);
+                int value1 = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*)(++pc));
+                int8_t branchByteLow = *((int8_t*)(++pc));
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value1 != value2) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_GOTO: {
+                uint8_t branchByteHigh = *++pc;
+                uint8_t branchByteLow = *++pc;
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+                pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                break;
+            }
+            case INSTR_I2B: {
+                int32_t value = pop32(operandStack);
+                int8_t byte = (int8_t) value;
+                push32(operandStack, byte);
+                break;
+            }
+            case INSTR_I2C: {
+                int32_t value = pop32(operandStack);
+                int16_t c = (int16_t) value;
+                push32(operandStack, c);
+                break;
+            }
+            case INSTR_I2F: {
+                int32_t value = pop32(operandStack);
+                float f = (float) value;
+                uint32_t fBytes = *(uint32_t*)&f;
+                push32(operandStack, (int32_t)fBytes);
+                break;
+            }
+
             default:
                 printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
                 break;

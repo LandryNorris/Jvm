@@ -17,6 +17,14 @@ public class String implements Serializable, Comparable<String>, CharSequence {
         this.value = value;
     }
 
+    public String(char[] chars) {
+        this.value = new byte[chars.length];
+
+        for(int i = 0; i < chars.length; i++) {
+            this.value[i] = (byte) chars[i];
+        }
+    }
+
     @Override
     public int compareTo(String o) {
         return 0;

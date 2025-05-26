@@ -51,7 +51,7 @@ void setFieldValue32(ObjHeader* obj, char* field, int32_t value) {
         return;
     }
     int offset = obj->fields[fieldIndex]->offset;
-    ((int32_t*) obj->data)[offset] = value;
+    *(int32_t*) &obj->data[offset] = value;
 }
 
 int32_t getFieldValue32(ObjHeader* obj, char* field) {
@@ -61,7 +61,7 @@ int32_t getFieldValue32(ObjHeader* obj, char* field) {
         return 0;
     }
     int offset = obj->fields[fieldIndex]->offset;
-    return ((int32_t*) obj->data)[offset];
+    return *(int32_t*) &obj->data[offset];
 }
 
 /**
