@@ -176,6 +176,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, a/b);
                 break;
             }
+            case INSTR_IINC: {
+                uint8_t index = *(++pc);
+                int8_t constant = (int8_t)*(++pc);
+                locals[index] += constant;
+                break;
+            }
             case INSTR_BIPUSH: {
                 int8_t value = *((int8_t*)(++pc));
                 push32(operandStack, value);
