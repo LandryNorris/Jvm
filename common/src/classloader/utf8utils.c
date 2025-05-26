@@ -7,7 +7,7 @@
 #include "memory/primitive_array.h"
 
 int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf8) {
-    ClassFile* stringClass = getClassFile(loader, "java/lang/String");
+    ClassFile* stringClass = getClassFile(loader, "java/lang/String", nullptr);
     int index = createObject(gc, stringClass);
     ObjHeader* header = getValue(gc->memoryRegion, index);
 

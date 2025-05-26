@@ -31,7 +31,7 @@ int indexOfClassFile(ClassLoader* classLoader, const char* classFileName) {
     return -1;
 }
 
-ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName) {
+ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName, uint8_t *loadedFresh) {
     int index = indexOfClassFile(classLoader, classFileName);
 
     if(index == -1) {
@@ -43,8 +43,14 @@ ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName) {
             classFile = loadClassFile(javaClassPath);
         }
         ClassFile* class = addClass(classLoader->classPool, classFile);
+        if (loadedFresh) {
+            *loadedFresh = 1;
+        }
         return class;
     } else {
+        if (loadedFresh) {
+            *loadedFresh = 0;
+        }
         return classLoader->classPool->classFiles[index];
     }
 }
