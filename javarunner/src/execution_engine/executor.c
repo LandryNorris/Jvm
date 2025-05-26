@@ -563,6 +563,13 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 }
                 break;
             }
+            case INSTR_GOTO: {
+                uint8_t branchByteHigh = *++pc;
+                uint8_t branchByteLow = *++pc;
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+                pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                break;
+            }
 
             default:
                 printf("Unrecognized instruction %d (%s)\n", instruction, instructionNames[instruction]);
