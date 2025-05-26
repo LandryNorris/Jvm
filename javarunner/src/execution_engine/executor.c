@@ -138,6 +138,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ICONST_5:
                 push32(operandStack, 5);
                 break;
+            case INSTR_ILOAD:
+                int8_t index = *++pc;
+                int32_t value = locals[index];
+                push32(operandStack, value);
+                break;
             case INSTR_ILOAD_0:
                 push32(operandStack, locals[0]);
                 break;
