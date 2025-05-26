@@ -1,9 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
-#include <classloader/classloader.h>
 #include <execution_engine/executor.h>
-#include <interpreter/stackframe.h>
-#include <memory/garbagecollector.h>
+#include "stdlib_native.h"
 
 int main(int argc, char** argv) {
     if(argc < 2) {
@@ -16,6 +14,7 @@ int main(int argc, char** argv) {
 
     Executor* executor = createExecutor(classPath, mainClass);
 
+    loadNativeStdLib();
     runMain(executor);
 
     freeExecutor(executor);
