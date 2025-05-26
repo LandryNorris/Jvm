@@ -1,7 +1,7 @@
 package java.lang;
 
 public final class System {
-    {
+    static {
         setupPrinter();
     }
     static String lineSeparator() {

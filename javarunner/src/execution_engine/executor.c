@@ -39,7 +39,7 @@ static ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStac
         printf("Searching for initializer\n");
         UTF8 name;
         UTF8 descriptor;
-        initUtf8(&name, "<init>");
+        initUtf8(&name, "<clinit>");
         initUtf8(&descriptor, "()V");
 
         executeByNameUtf8(e, result, &name, &descriptor, frameStack, false);
