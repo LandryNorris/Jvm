@@ -71,3 +71,8 @@ int isEqualUtf8(UTF8* utf1, UTF8* utf2) {
     }
     return 1;
 }
+
+void initUtf8(UTF8* utf8, const char* cstring) {
+    utf8->size = strlen(cstring);
+    utf8->content = (uint8_t*)cstring;
+}

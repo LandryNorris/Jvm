@@ -11,5 +11,6 @@ int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf
 int isEqual(UTF8*, const char*);
 
 int isEqualUtf8(UTF8*, UTF8*);
+void initUtf8(UTF8* utf8, const char* cstring);
 
 #endif //JVM_PROJECT_UTF8UTILS_H
