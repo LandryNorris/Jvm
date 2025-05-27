@@ -92,7 +92,13 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
         }
     }
 
-    if(code == NULL) return EINVAL;
+    if(code == NULL) {
+        if (isNative(method)) {
+            // execute native
+            return 0;
+        }
+        return EINVAL;
+    }
 
     executeProgram(executor, code->program, frameStack, classFile);
     return 0;
