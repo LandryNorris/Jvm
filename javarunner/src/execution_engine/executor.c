@@ -14,6 +14,16 @@
 #include "memory/objheader.h"
 #include "memory/primitive_array.h"
 
+// TODO(Landry): Find better place for this
+
+float intRawToFloat(uint32_t raw) {
+    return *(float*) &raw;
+}
+
+uint32_t floatToIntRaw(float raw) {
+    return *(uint32_t*) &raw;
+}
+
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
     executor->gc = createGarbageCollector();
@@ -185,6 +195,38 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 uint8_t index = *(++pc);
                 int8_t constant = (int8_t)*(++pc);
                 locals[index] += constant;
+                break;
+            }
+            case INSTR_FADD: {
+                float f1 = intRawToFloat(pop32(operandStack));
+                float f2 = intRawToFloat(pop32(operandStack));
+
+                float result = f1+f2;
+                push32(operandStack, (int32_t)floatToIntRaw(result));
+                break;
+            }
+            case INSTR_FSUB: {
+                float f1 = intRawToFloat(pop32(operandStack));
+                float f2 = intRawToFloat(pop32(operandStack));
+
+                float result = f1-f2;
+                push32(operandStack, (int32_t)floatToIntRaw(result));
+                break;
+            }
+            case INSTR_FMUL: {
+                float f1 = intRawToFloat(pop32(operandStack));
+                float f2 = intRawToFloat(pop32(operandStack));
+
+                float result = f1*f2;
+                push32(operandStack, (int32_t)floatToIntRaw(result));
+                break;
+            }
+            case INSTR_FDIV: {
+                float f1 = intRawToFloat(pop32(operandStack));
+                float f2 = intRawToFloat(pop32(operandStack));
+
+                float result = f1/f2;
+                push32(operandStack, (int32_t)floatToIntRaw(result));
                 break;
             }
             case INSTR_BIPUSH: {
@@ -592,8 +634,13 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_I2F: {
                 int32_t value = pop32(operandStack);
                 float f = (float) value;
-                uint32_t fBytes = *(uint32_t*)&f;
-                push32(operandStack, (int32_t)fBytes);
+                push32(operandStack, (int32_t)floatToIntRaw(f));
+                break;
+            }
+            case INSTR_F2I: {
+                int32_t value = intRawToFloat(pop32(operandStack));
+                int32_t i = value;
+                push32(operandStack, i);
                 break;
             }
 

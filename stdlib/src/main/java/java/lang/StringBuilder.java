@@ -44,7 +44,7 @@ public class StringBuilder implements Serializable, CharSequence {
     }
 
     private void expandSize(int additionalLength) {
-        int newLength = (int)((usedSize+ additionalLength)*1.5);
+        int newLength = (int)((usedSize+ additionalLength)*1.5f);
         byte[] newValue = new byte[newLength];
 
         for(int i = 0; i < usedSize; i++) {
