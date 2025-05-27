@@ -18,6 +18,9 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(stdlib)
 add_subdirectory(common)
+# Native portion of the stdlib. It may depend on common in the future
+add_subdirectory(stdlib_native)
+
 add_subdirectory(javarunner)
 add_subdirectory(javaparser)
 
