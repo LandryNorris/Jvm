@@ -1,10 +1,7 @@
-#include <dlfcn.h>
 #include <stdio.h>
-
-static void* nativeStdlib;
+#include "native.h"
 
 void loadNativeStdLib() {
-    nativeStdlib = dlopen("libstdlib_native.so", RTLD_NOW);
-
+    loadSharedLibrary("libstdlib_native.so");
     printf("Loaded native stdlib");
 }
