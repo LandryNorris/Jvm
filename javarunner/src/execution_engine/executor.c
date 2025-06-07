@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "../../include/execution_engine/executor.h"
+
+#include "native.h"
 #include "memory/memory.h"
 #include "utils/constantpoolhelper.h"
 #include "memory/objheader.h"
@@ -95,6 +97,9 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
     if(code == NULL) {
         if (isNative(method)) {
             // execute native
+            UTF8* methodName = classFile->constantPool->pool[method->nameIndex-1]->constant->utf8;
+            UTF8* descriptor = classFile->constantPool->pool[method->descriptorIndex-1]->constant->utf8;
+            executeNativeMethod(classFile, method->argumentCount, methodName, descriptor, frameStack, isVirtual);
             return 0;
         }
         return EINVAL;

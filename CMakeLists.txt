@@ -16,6 +16,14 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBFFI REQUIRED IMPORTED_TARGET libffi)
+
+# Or with a friendly error message
+if (NOT LIBFFI_FOUND)
+    message(FATAL_ERROR "libffi is required. Install it with your package manager (e.g., `apt install libffi-dev`)")
+endif()
+
 add_subdirectory(stdlib)
 add_subdirectory(common)
 # Native portion of the stdlib. It may depend on common in the future
