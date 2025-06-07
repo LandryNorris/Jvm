@@ -26,10 +26,22 @@ uint32_t floatToIntRaw(float raw) {
     return *(uint32_t*) &raw;
 }
 
+static void initializeClass(Executor* e, const ClassFile* classFile, FrameStack* frameStack) {
+    printf("Searching for initializer\n");
+    UTF8 name;
+    UTF8 descriptor;
+    initUtf8(&name, "<clinit>");
+    initUtf8(&descriptor, "()V");
+
+    executeByNameUtf8(e, classFile, &name, &descriptor, frameStack, false);
+}
+
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
     executor->gc = createGarbageCollector();
     executor->loader = createClassLoader(classPath, "java-prebuilt/", mainClassName);
+    executor->mainFrameStack = allocFrameStack(100);
+    initializeClass(executor, executor->loader->mainClass, executor->mainFrameStack);
 
     return executor;
 }
@@ -40,7 +52,7 @@ void freeExecutor(Executor* executor) {
     free(executor);
 }
 
-static ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, const char* className) {
+ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, const char* className) {
     ClassLoader* loader = e->loader;
 
     uint8_t loadedFresh = 0;
@@ -48,20 +60,13 @@ static ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStac
 
     if (loadedFresh) {
         // execute static method
-        printf("Searching for initializer\n");
-        UTF8 name;
-        UTF8 descriptor;
-        initUtf8(&name, "<clinit>");
-        initUtf8(&descriptor, "()V");
-
-        executeByNameUtf8(e, result, &name, &descriptor, frameStack, false);
+        initializeClass(e, result, frameStack);
     }
     return result;
 }
 
 int runMain(Executor* executor) {
-    FrameStack* frameStack = allocFrameStack(100);
-    return executeByName(executor, executor->loader->mainClass, "main", frameStack, false);
+    return executeByName(executor, executor->loader->mainClass, "main", executor->mainFrameStack, false);
 }
 
 int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, FrameStack* frameStack, bool isVirtual) {
@@ -415,6 +420,32 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, value);
                 break;
             }
+            case INSTR_PUTSTATIC: {
+                uint8_t high = *++pc;
+                uint8_t low = *++pc;
+                int i = high << 8 | low;
+
+                // MethodRef and FieldRef are identical
+                MethodRef* field = classFile->constantPool->pool[i-1]->constant->methodRef;
+                NameAndTypeIndex* nameAndType = classFile->constantPool->pool[field->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                UTF8* nameUtf = classFile->constantPool->pool[nameAndType->nameIndex-1]->constant->utf8;
+                UTF8* typeUtf = classFile->constantPool->pool[nameAndType->descriptorIndex-1]->constant->utf8;
+
+                Class* containingClass = classFile->constantPool->pool[field->classIndex-1]->constant->class;
+                UTF8* containingClassName = classFile->constantPool->pool[containingClass->nameIndex-1]->constant->utf8;
+                char* containingClassNameString = utf82cstring(containingClassName);
+                ClassFile* containingClassFile = getClassFileAndExecuteIfNew(executor, frameStack, containingClassNameString);
+
+                char* fieldNameString = utf82cstring(nameUtf);
+                StaticField* staticField = getStaticField(containingClassFile, fieldNameString);
+
+                int32_t newValue = pop32(operandStack);
+                staticField->value = newValue;
+                free(containingClassNameString);
+                free(fieldNameString);
+                break;
+                break;
+            }
             case INSTR_GETSTATIC: {
                 uint8_t high = *++pc;
                 uint8_t low = *++pc;
@@ -433,7 +464,8 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 char* fieldNameString = utf82cstring(nameUtf);
                 StaticField* staticField = getStaticField(containingClassFile, fieldNameString);
-                // TODO(Landry): Where to store variables?
+
+                push32(operandStack, (int32_t)staticField->value);
                 free(containingClassNameString);
                 free(fieldNameString);
                 break;
