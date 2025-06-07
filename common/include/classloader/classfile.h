@@ -6,7 +6,7 @@
 #include "fieldpoolloader.h"
 #include "methodparser.h"
 #include <stdint.h>
-#include "constantparser.h"
+#include "memory/static.h"
 
 //we predefined the ClassFile in constantparser.h
 struct ClassFile {
@@ -22,6 +22,8 @@ struct ClassFile {
     FieldPool* fieldPool;
     MethodPool* methodPool;
     AttributePool* attributePool;
+
+	struct StaticFields* staticFields;
 };
 
 int initClassFile(const uint8_t * bytes, ClassFile* classPtr);

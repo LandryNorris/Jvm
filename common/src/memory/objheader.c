@@ -15,10 +15,16 @@ int createObject(GarbageCollector* gc, ClassFile* classFile) {
     int fieldCount = classFile->fieldPool->size;
     header->class = classFile;
     header->size = classFile->size;
+    // TODO(Landry): Account for static fields
     header->fieldCount = fieldCount;
     header->fields = malloc(sizeof(char*)*fieldCount);
     int offset = 0;
     for(int i = 0; i < fieldCount; i++) {
+        // we only care about instance fields
+        if (isFieldStatic(classFile->fieldPool->pool[i])) {
+            continue;
+        }
+
         int nameIndex = classFile->fieldPool->pool[i]->nameIndex;
         int descriptorIndex = classFile->fieldPool->pool[i]->descriptorIndex;
         UTF8* nameUtf = classFile->constantPool->pool[nameIndex-1]->constant->utf8;

@@ -8,6 +8,7 @@
 typedef struct {
     GarbageCollector* gc;
     ClassLoader* loader;
+    FrameStack* mainFrameStack;
 } Executor;
 
 Executor* createExecutor(const char* classPath, const char* mainClassName);
