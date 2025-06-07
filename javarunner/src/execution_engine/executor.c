@@ -415,6 +415,29 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, value);
                 break;
             }
+            case INSTR_GETSTATIC: {
+                uint8_t high = *++pc;
+                uint8_t low = *++pc;
+                int i = high << 8 | low;
+
+                // MethodRef and FieldRef are identical
+                MethodRef* field = classFile->constantPool->pool[i-1]->constant->methodRef;
+                NameAndTypeIndex* nameAndType = classFile->constantPool->pool[field->nameAndTypeIndex-1]->constant->nameAndTypeIndex;
+                UTF8* nameUtf = classFile->constantPool->pool[nameAndType->nameIndex-1]->constant->utf8;
+                UTF8* typeUtf = classFile->constantPool->pool[nameAndType->descriptorIndex-1]->constant->utf8;
+
+                Class* containingClass = classFile->constantPool->pool[field->classIndex-1]->constant->class;
+                UTF8* containingClassName = classFile->constantPool->pool[containingClass->nameIndex-1]->constant->utf8;
+                char* containingClassNameString = utf82cstring(containingClassName);
+                ClassFile* containingClassFile = getClassFileAndExecuteIfNew(executor, frameStack, containingClassNameString);
+
+                char* fieldNameString = utf82cstring(nameUtf);
+                StaticField* staticField = getStaticField(containingClassFile, fieldNameString);
+                // TODO(Landry): Where to store variables?
+                free(containingClassNameString);
+                free(fieldNameString);
+                break;
+            }
             case INSTR_INVOKESPECIAL: {
                 uint8_t high = *(++pc);
                 uint8_t low = *(++pc);
