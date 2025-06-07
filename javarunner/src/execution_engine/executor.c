@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <malloc.h>
 #include "../../include/execution_engine/executor.h"
+
+#include "native.h"
 #include "memory/memory.h"
 #include "utils/constantpoolhelper.h"
 #include "memory/objheader.h"
@@ -36,6 +38,25 @@ void freeExecutor(Executor* executor) {
     freeClassLoader(executor->loader);
     //ToDo: free GC
     free(executor);
+}
+
+static ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, const char* className) {
+    ClassLoader* loader = e->loader;
+
+    uint8_t loadedFresh = 0;
+    ClassFile* result = getClassFile(loader, className, &loadedFresh);
+
+    if (loadedFresh) {
+        // execute static method
+        printf("Searching for initializer\n");
+        UTF8 name;
+        UTF8 descriptor;
+        initUtf8(&name, "<clinit>");
+        initUtf8(&descriptor, "()V");
+
+        executeByNameUtf8(e, result, &name, &descriptor, frameStack, false);
+    }
+    return result;
 }
 
 int runMain(Executor* executor) {
@@ -73,7 +94,16 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
         }
     }
 
-    if(code == NULL) return EINVAL;
+    if(code == NULL) {
+        if (isNative(method)) {
+            // execute native
+            UTF8* methodName = classFile->constantPool->pool[method->nameIndex-1]->constant->utf8;
+            UTF8* descriptor = classFile->constantPool->pool[method->descriptorIndex-1]->constant->utf8;
+            executeNativeMethod(classFile, method->argumentCount, methodName, descriptor, frameStack, isVirtual);
+            return 0;
+        }
+        return EINVAL;
+    }
 
     executeProgram(executor, code->program, frameStack, classFile);
     return 0;
@@ -285,7 +315,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = high << 8 | low;
                 ConstantPoolInfo* constant = classFile->constantPool->pool[index-1];
                 char* name = parseClass(constant->constant->class, classFile->constantPool);
-                ClassFile* file = getClassFile(executor->loader, name);
+                ClassFile* file = getClassFileAndExecuteIfNew(executor, frameStack, name);
                 int obj = createObject(executor->gc, file);
                 push32(operandStack, obj);
                 break;
@@ -399,7 +429,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 char* otherClassString = utf82cstring(otherClassName);
                 UTF8* descriptor = classFile->constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
 
-                ClassFile* otherClass = getClassFile(executor->loader, otherClassString);
+                ClassFile* otherClass = getClassFile(executor->loader, otherClassString, NULL);
 
                 executeByNameUtf8(executor, otherClass, methodName, descriptor, frameStack, true);
                 break;
@@ -486,7 +516,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 uint16_t methodNameIndex = nameAndTypeIndex->nameIndex;
                 UTF8* methodName = classFile->constantPool->pool[methodNameIndex-1]->constant->utf8;
                 UTF8* descriptor = classFile->constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
-                executeByNameUtf8(executor, classFile, methodName, descriptor, frameStack, false);
+                Class* otherClass = classFile->constantPool->pool[methodRef->classIndex-1]->constant->class;
+                UTF8* otherClassUtf8 = classFile->constantPool->pool[otherClass->nameIndex-1]->constant->utf8;
+                char* otherClassString = utf82cstring(otherClassUtf8);
+                ClassFile* otherClassFile = getClassFileAndExecuteIfNew(executor, frameStack, otherClassString);
+                free(otherClassString);
+                executeByNameUtf8(executor, otherClassFile, methodName, descriptor, frameStack, false);
                 break;
             }
             case INSTR_INVOKEVIRTUAL: {
@@ -506,7 +541,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 UTF8* className = classFile->constantPool->pool[class->nameIndex-1]->constant->utf8;
 
                 if (class->classFile == NULL) {
-                    class->classFile = getClassFile(executor->loader, utf82cstring(className));
+                    class->classFile = getClassFileAndExecuteIfNew(executor, frameStack, utf82cstring(className));
                 }
                 executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack, true);
                 break;
