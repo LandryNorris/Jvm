@@ -17,4 +17,7 @@ int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* meth
 int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack, bool isVirtual);
 void freeExecutor(Executor* executor);
 
+void setMainExecutor(Executor* executor);
+Executor* getMainExecutor();
+
 #endif //JVM_PROJECT_EXECUTOR_H

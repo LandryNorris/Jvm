@@ -1,5 +1,7 @@
 package java.lang;
 
+import java.io.PrintStream;
+
 public final class System {
     static {
         setupPrinter();
@@ -8,6 +10,8 @@ public final class System {
         // TODO(Landry): Detect Windows
         return "\n";
     }
+
+    static PrintStream out;
 
     private static native void setupPrinter();
 }

@@ -26,6 +26,16 @@ uint32_t floatToIntRaw(float raw) {
     return *(uint32_t*) &raw;
 }
 
+Executor* mainExecutor;
+
+Executor* getMainExecutor() {
+    return mainExecutor;
+}
+
+void setMainExecutor(Executor* executor) {
+    mainExecutor = executor;
+}
+
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
     Executor* executor = malloc(sizeof(Executor));
     executor->gc = createGarbageCollector();
