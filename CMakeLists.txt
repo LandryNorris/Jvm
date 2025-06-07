@@ -24,9 +24,10 @@ if (NOT LIBFFI_FOUND)
     message(FATAL_ERROR "libffi is required. Install it with your package manager (e.g., `apt install libffi-dev`)")
 endif()
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(stdlib)
 add_subdirectory(common)
-# Native portion of the stdlib. It may depend on common in the future
 add_subdirectory(stdlib_native)
 
 add_subdirectory(javarunner)
