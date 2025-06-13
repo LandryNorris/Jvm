@@ -1,9 +1,11 @@
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../../javarunner/include/execution_engine/executor.h"
 #include "classloader/classloader.h"
 #include "memory/objheader.h"
+#include "memory/primitive_array.h"
 #include "synthetic/class_creator.h"
 
 void Java_java_lang_Printer_print() {
@@ -11,7 +13,17 @@ void Java_java_lang_Printer_print() {
 }
 
 void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
-    printf("Printing via System.out.println\n");
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int)text);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+
+    printf("%s", (char*) arrayHeader->memory);
 }
 
 void Java_java_lang_System_setupPrinter() {
