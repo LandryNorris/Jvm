@@ -80,18 +80,44 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
             free(cstring);
             break;
         }
-		case CONSTANT_NAME_AND_TYPE:
-			sprintf(buffer, "#%d:#%d", constant->nameAndType->nameIndex, constant->nameAndType->descriptorIndex);
+		case CONSTANT_NAME_AND_TYPE: {
+			char* nameString = utf82cstring(constant->nameAndType->name);
+			char* descriptorString = utf82cstring(constant->nameAndType->descriptor);
+			sprintf(buffer, "#%d:#%d (%s %s)", constant->nameAndType->nameIndex, constant->nameAndType->descriptorIndex, descriptorString, nameString);
+			free(nameString);
+			free(descriptorString);
 			break;
-		case CONSTANT_CLASS:
-			sprintf(buffer, "#%d", constant->class->nameIndex);
+		}
+		case CONSTANT_CLASS: {
+			char* classString = utf82cstring(constant->class->name);
+			sprintf(buffer, "#%d (%s)", constant->class->nameIndex, classString);
+			free(classString);
 			break;
-		case CONSTANT_METHOD_REF:
-		case CONSTANT_FIELD_REF:
-			sprintf(buffer, "#%d.#%d", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex);
+		}
+		case CONSTANT_FIELD_REF: {
+			char* classString = utf82cstring(constant->methodRef->class->name);
+			char* nameString = utf82cstring(constant->methodRef->nameAndType->name);
+			char* descriptor = utf82cstring(constant->methodRef->nameAndType->descriptor);
+			sprintf(buffer, "#%d.#%d (%s %s.%s)", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex, descriptor, classString, nameString);
+			free(nameString);
+			free(classString);
+			free(descriptor);
 			break;
+		}
+		case CONSTANT_METHOD_REF: {
+			char* classString = utf82cstring(constant->methodRef->class->name);
+			char* nameString = utf82cstring(constant->methodRef->nameAndType->name);
+			char* descriptorString = utf82cstring(constant->methodRef->nameAndType->descriptor);
+			sprintf(buffer, "#%d.#%d (%s.%s %s)", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex, classString, nameString, descriptorString);
+			free(nameString);
+			free(classString);
+			free(descriptorString);
+			break;
+		}
 		case CONSTANT_STRING:
+			char* text = utf82cstring(constant->string->string);
 			sprintf(buffer, "#%d", constant->string->index);
+			free(text);
 			break;
         case CONSTANT_INVOKE_DYNAMIC:
             sprintf(buffer, "#%d:#%d", constant->invokeDynamic->bootstrapMethodAttrIndex, constant->invokeDynamic->nameAndTypeIndex);
@@ -167,7 +193,7 @@ void printConstantPool(const ConstantPool *constantPool) {
     for(int i = 0; i < constantPool->size; i++) {
         ConstantPoolInfo* item = constantPool->pool[i];
         if(item) {
-            char* constantString = malloc(60*sizeof(char));
+            char* constantString = malloc(150*sizeof(char));
             getConstantString(constantString, item);
             printf("%5d %-20s %s\n", i+1, getTagName(item), constantString);
             free(constantString);
