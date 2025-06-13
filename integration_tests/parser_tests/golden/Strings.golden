@@ -1,57 +1,63 @@
-Unrecognized Attribute type with name index 27 and type -1
+Unrecognized Attribute type with name index 29 and type -1
 Got magic value cafebabe
 Got minor version 0
 Got major version 52
-Got Constant Pool size 43
+Got Constant Pool size 49
 Got Access Flags 33
-This Class name is 37 //App
-Super Class name is 38 //java/lang/Object
+This Class name is 41 //App
+Super Class name is 42 //java/lang/Object
 Interface count: 0, Field count: 0, Method count: 2, attributes: 1
 
 Constant Pool:
-    1 Method Ref           #11.#29
-    2 String               #30
-    3 Class                #31
-    4 Method Ref           #3.#29
-    5 Method Ref           #3.#32
-    6 String               #33
-    7 Method Ref           #3.#34
-    8 Class                #35
-    9 Method Ref           #8.#36
-   10 Class                #37
-   11 Class                #38
-   12 UTF8                 <init>
-   13 UTF8                 ()V
-   14 UTF8                 Code
-   15 UTF8                 LineNumberTable
-   16 UTF8                 LocalVariableTable
-   17 UTF8                 this
-   18 UTF8                 LApp;
-   19 UTF8                 main
-   20 UTF8                 ([Ljava/lang/String;)V
-   21 UTF8                 args
-   22 UTF8                 [Ljava/lang/String;
-   23 UTF8                 s
-   24 UTF8                 Ljava/lang/String;
-   25 UTF8                 added
-   26 UTF8                 manual
-   27 UTF8                 SourceFile
-   28 UTF8                 App.java
-   29 Name and Type        #12:#13
-   30 UTF8                 some text
-   31 UTF8                 java/lang/StringBuilder
-   32 Name and Type        #39:#40
-   33 UTF8                  and some other text
-   34 Name and Type        #41:#42
-   35 UTF8                 java/lang/String
-   36 Name and Type        #12:#43
-   37 UTF8                 App
-   38 UTF8                 java/lang/Object
-   39 UTF8                 append
-   40 UTF8                 (Ljava/lang/String;)Ljava/lang/StringBuilder;
-   41 UTF8                 toString
-   42 UTF8                 ()Ljava/lang/String;
-   43 UTF8                 ([C)V
+    1 Method Ref           #12.#31 (java/lang/Object.<init> ()V)
+    2 Method Ref           #32.#33 (java/lang/System.lineSeparator ()Ljava/lang/String;)
+    3 String               #34
+    4 Class                #35 (java/lang/StringBuilder)
+    5 Method Ref           #4.#31 (java/lang/StringBuilder.<init> ()V)
+    6 Method Ref           #4.#36 (java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;)
+    7 String               #37
+    8 Method Ref           #4.#38 (java/lang/StringBuilder.toString ()Ljava/lang/String;)
+    9 Class                #39 (java/lang/String)
+   10 Method Ref           #9.#40 (java/lang/String.<init> ([C)V)
+   11 Class                #41 (App)
+   12 Class                #42 (java/lang/Object)
+   13 UTF8                 <init>
+   14 UTF8                 ()V
+   15 UTF8                 Code
+   16 UTF8                 LineNumberTable
+   17 UTF8                 LocalVariableTable
+   18 UTF8                 this
+   19 UTF8                 LApp;
+   20 UTF8                 main
+   21 UTF8                 ([Ljava/lang/String;)V
+   22 UTF8                 args
+   23 UTF8                 [Ljava/lang/String;
+   24 UTF8                 separator
+   25 UTF8                 Ljava/lang/String;
+   26 UTF8                 s
+   27 UTF8                 added
+   28 UTF8                 manual
+   29 UTF8                 SourceFile
+   30 UTF8                 App.java
+   31 Name and Type        #13:#14 (()V <init>)
+   32 Class                #43 (java/lang/System)
+   33 Name and Type        #44:#45 (()Ljava/lang/String; lineSeparator)
+   34 UTF8                 some text
+   35 UTF8                 java/lang/StringBuilder
+   36 Name and Type        #46:#47 ((Ljava/lang/String;)Ljava/lang/StringBuilder; append)
+   37 UTF8                  and some other text
+   38 Name and Type        #48:#45 (()Ljava/lang/String; toString)
+   39 UTF8                 java/lang/String
+   40 Name and Type        #13:#49 (([C)V <init>)
+   41 UTF8                 App
+   42 UTF8                 java/lang/Object
+   43 UTF8                 java/lang/System
+   44 UTF8                 lineSeparator
+   45 UTF8                 ()Ljava/lang/String;
+   46 UTF8                 append
+   47 UTF8                 (Ljava/lang/String;)Ljava/lang/StringBuilder;
+   48 UTF8                 toString
+   49 UTF8                 ([C)V
 
 Field Pool:
 
@@ -59,48 +65,51 @@ Method Pool:
 Method #1
 <init> ()V
 Stack size: 1, Local size: 1
-        0: aload_0
-        1: invokespecial 1 //java/lang/Object.<init>:()V
-        4: return
-    Line Number Table
-        line 2: 0
+	    0: aload_0
+	    1: invokespecial 1 //java/lang/Object.<init>:()V
+	    4: return
+	Line Number Table
+		line 2: 0
 
 Method #2
 main ([Ljava/lang/String;)V
-Stack size: 6, Local size: 4
-        0: ldc 2
-        2: astore_1
-        3: new 3
-        6: dup
-        7: invokespecial 4 //java/lang/StringBuilder.<init>:()V
-       10: aload_1
-       11: invokevirtual 5 //java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-       14: ldc 6
-       16: invokevirtual 5 //java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-       19: invokevirtual 7 //java/lang/StringBuilder.toString:()Ljava/lang/String;
-       22: astore_2
-       23: new 8
-       26: dup
-       27: iconst_3
-       28: newarray
-       29: iconst_2
-       30: dup
-       31: iconst_0
-       32: bipush 97
-       34: castore
-       35: dup
-       36: iconst_1
-       37: bipush 98
-       39: castore
-       40: dup
-       41: iconst_2
-       42: bipush 99
-       44: castore
-       45: invokespecial 9 //java/lang/String.<init>:([C)V
-       48: astore_3
-       49: return
-    Line Number Table
-        line 4: 0
-        line 5: 3
-        line 6: 23
-        line 7: 49
+Stack size: 6, Local size: 5
+	    0: invokestatic 2 //java/lang/System.lineSeparator:()Ljava/lang/String;
+	    3: astore_1
+	    4: ldc 3
+	    6: astore_2
+	    7: new 4
+	   10: dup
+	   11: invokespecial 5 //java/lang/StringBuilder.<init>:()V
+	   14: aload_2
+	   15: invokevirtual 6 //java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+	   18: ldc 7
+	   20: invokevirtual 6 //java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+	   23: invokevirtual 8 //java/lang/StringBuilder.toString:()Ljava/lang/String;
+	   26: astore_3
+	   27: new 9
+	   30: dup
+	   31: iconst_3
+	   32: newarray
+	   33: iconst_2
+	   34: dup
+	   35: iconst_0
+	   36: bipush 97
+	   38: castore
+	   39: dup
+	   40: iconst_1
+	   41: bipush 98
+	   43: castore
+	   44: dup
+	   45: iconst_2
+	   46: bipush 99
+	   48: castore
+	   49: invokespecial 10 //java/lang/String.<init>:([C)V
+	   52: astore 4
+	   54: return
+	Line Number Table
+		line 4: 0
+		line 5: 4
+		line 6: 7
+		line 7: 27
+		line 8: 54

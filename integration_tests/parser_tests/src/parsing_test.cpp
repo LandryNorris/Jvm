@@ -33,6 +33,7 @@ void testParseJavaClass(const char* classFilePath, const char* goldenFilePath) {
     const std::string output = testing::internal::GetCapturedStdout();
     const std::string adjustedOutput = tabsToSpaces(output, 4);
     const std::string expected = readFile(goldenFilePath);
+    const std::string adjustedExpected = tabsToSpaces(expected, 4);
 
-    ASSERT_EQ(adjustedOutput, expected);
+    ASSERT_EQ(adjustedOutput, adjustedExpected);
 }

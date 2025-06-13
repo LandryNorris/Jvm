@@ -9,14 +9,14 @@ Super Class name is 38 //java/lang/Object
 Interface count: 0, Field count: 2, Method count: 4, attributes: 1
 
 Constant Pool:
-    1 Method Ref           #8.#32
-    2 Field Ref            #4.#33
-    3 Field Ref            #4.#34
-    4 Class                #35
-    5 Method Ref           #4.#32
-    6 Method Ref           #4.#36
-    7 Method Ref           #4.#37
-    8 Class                #38
+    1 Method Ref           #8.#32 (java/lang/Object.<init> ()V)
+    2 Field Ref            #4.#33 (I Averager.sum)
+    3 Field Ref            #4.#34 (I Averager.count)
+    4 Class                #35 (Averager)
+    5 Method Ref           #4.#32 (Averager.<init> ()V)
+    6 Method Ref           #4.#36 (Averager.addValue (I)V)
+    7 Method Ref           #4.#37 (Averager.getAverage ()I)
+    8 Class                #38 (java/lang/Object)
     9 UTF8                 sum
    10 UTF8                 I
    11 UTF8                 count
@@ -40,97 +40,97 @@ Constant Pool:
    29 UTF8                 average
    30 UTF8                 SourceFile
    31 UTF8                 Averager.java
-   32 Name and Type        #12:#13
-   33 Name and Type        #9:#10
-   34 Name and Type        #11:#10
+   32 Name and Type        #12:#13 (()V <init>)
+   33 Name and Type        #9:#10 (I sum)
+   34 Name and Type        #11:#10 (I count)
    35 UTF8                 Averager
-   36 Name and Type        #19:#20
-   37 Name and Type        #22:#23
+   36 Name and Type        #19:#20 ((I)V addValue)
+   37 Name and Type        #22:#23 (()I getAverage)
    38 UTF8                 java/lang/Object
 
 Field Pool:
 
 Field #1:
 sum
-    Access Flags: 0
-    descriptor: I
+	Access Flags: 0
+	descriptor: I
 
 Field #2:
 count
-    Access Flags: 0
-    descriptor: I
+	Access Flags: 0
+	descriptor: I
 
 Method Pool:
 Method #1
 <init> ()V
 Stack size: 2, Local size: 1
-        0: aload_0
-        1: invokespecial 1 //java/lang/Object.<init>:()V
-        4: aload_0
-        5: iconst_0
-        6: putfield 2
-        9: aload_0
-       10: iconst_0
-       11: putfield 3
-       14: return
-    Line Number Table
-        line 2: 0
-        line 3: 4
-        line 4: 9
+	    0: aload_0
+	    1: invokespecial 1 //java/lang/Object.<init>:()V
+	    4: aload_0
+	    5: iconst_0
+	    6: putfield 2
+	    9: aload_0
+	   10: iconst_0
+	   11: putfield 3
+	   14: return
+	Line Number Table
+		line 2: 0
+		line 3: 4
+		line 4: 9
 
 Method #2
 addValue (I)V
 Stack size: 3, Local size: 2
-        0: aload_0
-        1: dup
-        2: getfield 2
-        5: iload_1
-        6: iadd
-        7: putfield 2
-       10: aload_0
-       11: dup
-       12: getfield 3
-       15: iconst_1
-       16: iadd
-       17: putfield 3
-       20: return
-    Line Number Table
-        line 7: 0
-        line 8: 10
-        line 9: 20
+	    0: aload_0
+	    1: dup
+	    2: getfield 2
+	    5: iload_1
+	    6: iadd
+	    7: putfield 2
+	   10: aload_0
+	   11: dup
+	   12: getfield 3
+	   15: iconst_1
+	   16: iadd
+	   17: putfield 3
+	   20: return
+	Line Number Table
+		line 7: 0
+		line 8: 10
+		line 9: 20
 
 Method #3
 getAverage ()I
 Stack size: 2, Local size: 1
-        0: aload_0
-        1: getfield 2
-        4: aload_0
-        5: getfield 3
-        8: idiv
-        9: ireturn
-    Line Number Table
-        line 12: 0
+	    0: aload_0
+	    1: getfield 2
+	    4: aload_0
+	    5: getfield 3
+	    8: idiv
+	    9: ireturn
+	Line Number Table
+		line 12: 0
 
 Method #4
 main ([Ljava/lang/String;)V
 Stack size: 2, Local size: 3
-        0: new 4
-        3: dup
-        4: invokespecial 5 //Averager.<init>:()V
-        7: astore_1
-        8: aload_1
-        9: bipush 10
-       11: invokevirtual 6 //Averager.addValue:(I)V
-       14: aload_1
-       15: bipush 20
-       17: invokevirtual 6 //Averager.addValue:(I)V
-       20: aload_1
-       21: invokevirtual 7 //Averager.getAverage:()I
-       24: istore_2
-       25: return
-    Line Number Table
-        line 16: 0
-        line 18: 8
-        line 19: 14
-        line 21: 20
-        line 22: 25
+	    0: new 4
+	    3: dup
+	    4: invokespecial 5 //Averager.<init>:()V
+	    7: astore_1
+	    8: aload_1
+	    9: bipush 10
+	   11: invokevirtual 6 //Averager.addValue:(I)V
+	   14: aload_1
+	   15: bipush 20
+	   17: invokevirtual 6 //Averager.addValue:(I)V
+	   20: aload_1
+	   21: invokevirtual 7 //Averager.getAverage:()I
+	   24: istore_2
+	   25: return
+	Line Number Table
+		line 16: 0
+		line 18: 8
+		line 19: 14
+		line 21: 20
+		line 22: 25
