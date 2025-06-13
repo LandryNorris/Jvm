@@ -24,8 +24,7 @@ ClassLoader* createClassLoader(const char* classPath, const char* javaClassPath,
 int indexOfClassFile(ClassLoader* classLoader, const char* classFileName) {
     for(int i = 0; i < classLoader->classPool->size; i++) {
         ClassFile* classFile = classLoader->classPool->classFiles[i];
-        int index = classFile->thisClass;
-        UTF8* utf8 = parseClassToUTF8ByIndex(index, classFile->constantPool);
+        UTF8* utf8 = classFile->name;
         if(isEqual(utf8, classFileName)) return i;
     }
     return -1;

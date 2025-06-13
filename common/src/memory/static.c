@@ -21,11 +21,7 @@ void initializeStaticFields(ClassFile* classFile) {
             continue;
         }
 
-        const int nameIndex = classFile->fieldPool->pool[i]->nameIndex;
-        const int descriptorIndex = classFile->fieldPool->pool[i]->descriptorIndex;
-        UTF8* nameUtf = classFile->constantPool->pool[nameIndex-1]->constant->utf8;
-        UTF8* descriptorUtf = classFile->constantPool->pool[descriptorIndex-1]->constant->utf8;
-        char* descriptor = utf82cstring(descriptorUtf);
+        UTF8* nameUtf = classFile->fieldPool->pool[i]->name;
         StaticField field;
 
         field.value = 0;

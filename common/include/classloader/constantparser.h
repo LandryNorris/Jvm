@@ -26,19 +26,24 @@ typedef struct {
 } UTF8;
 
 typedef struct {
-	uint16_t classIndex;
-	uint16_t nameAndTypeIndex;
-} MethodRef;
-
-typedef struct {
 	uint16_t nameIndex;
-    ClassFile* classFile;
+	UTF8* name;
+	ClassFile* classFile;
 } Class;
 
 typedef struct {
 	uint16_t nameIndex;
 	uint16_t descriptorIndex;
-} NameAndTypeIndex;
+	UTF8* name;
+	UTF8* descriptor;
+} NameAndType;
+
+typedef struct {
+	uint16_t classIndex;
+	uint16_t nameAndTypeIndex;
+	NameAndType* nameAndType;
+	Class* class;
+} MethodRef;
 
 typedef struct {
 	int32_t value;
@@ -58,6 +63,7 @@ typedef struct {
 
 typedef struct {
 	uint16_t index;
+	UTF8* string;
 } String;
 
 typedef struct {
@@ -78,7 +84,7 @@ typedef union {
 	UTF8* utf8;
 	MethodRef* methodRef;
 	Class* class;
-	NameAndTypeIndex* nameAndTypeIndex;
+	NameAndType* nameAndType;
 	Integer* integer;
 	Float* f;
 	Long* l;

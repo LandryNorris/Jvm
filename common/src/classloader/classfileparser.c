@@ -23,8 +23,8 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 	classPtr->constantPool = readConstantPool(content);
 
 	classPtr->accessFlags = readuInt16(content);
-	classPtr->thisClass = readuInt16(content);
-	classPtr->superClass = readuInt16(content);
+	classPtr->thisClassIndex = readuInt16(content);
+	classPtr->superClassIndex = readuInt16(content);
 
 	classPtr->interfacePool = readInterfacePool(content);
     classPtr->fieldPool = parseFieldPool(classPtr->constantPool, content);
@@ -32,6 +32,9 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
     classPtr->attributePool = parseAttributes(classPtr->constantPool, content);
 
     classPtr->size = getClassSize(classPtr->constantPool, classPtr->fieldPool);
+
+	classPtr->thisClass = classPtr->constantPool->pool[classPtr->thisClassIndex-1]->constant->class;
+	classPtr->superClass = classPtr->constantPool->pool[classPtr->superClassIndex-1]->constant->class;
 
 	return 0;
 }
@@ -77,18 +80,44 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
             free(cstring);
             break;
         }
-		case CONSTANT_NAME_AND_TYPE:
-			sprintf(buffer, "#%d:#%d", constant->nameAndTypeIndex->nameIndex, constant->nameAndTypeIndex->descriptorIndex);
+		case CONSTANT_NAME_AND_TYPE: {
+			char* nameString = utf82cstring(constant->nameAndType->name);
+			char* descriptorString = utf82cstring(constant->nameAndType->descriptor);
+			sprintf(buffer, "#%d:#%d (%s %s)", constant->nameAndType->nameIndex, constant->nameAndType->descriptorIndex, descriptorString, nameString);
+			free(nameString);
+			free(descriptorString);
 			break;
-		case CONSTANT_CLASS:
-			sprintf(buffer, "#%d", constant->class->nameIndex);
+		}
+		case CONSTANT_CLASS: {
+			char* classString = utf82cstring(constant->class->name);
+			sprintf(buffer, "#%d (%s)", constant->class->nameIndex, classString);
+			free(classString);
 			break;
-		case CONSTANT_METHOD_REF:
-		case CONSTANT_FIELD_REF:
-			sprintf(buffer, "#%d.#%d", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex);
+		}
+		case CONSTANT_FIELD_REF: {
+			char* classString = utf82cstring(constant->methodRef->class->name);
+			char* nameString = utf82cstring(constant->methodRef->nameAndType->name);
+			char* descriptor = utf82cstring(constant->methodRef->nameAndType->descriptor);
+			sprintf(buffer, "#%d.#%d (%s %s.%s)", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex, descriptor, classString, nameString);
+			free(nameString);
+			free(classString);
+			free(descriptor);
 			break;
+		}
+		case CONSTANT_METHOD_REF: {
+			char* classString = utf82cstring(constant->methodRef->class->name);
+			char* nameString = utf82cstring(constant->methodRef->nameAndType->name);
+			char* descriptorString = utf82cstring(constant->methodRef->nameAndType->descriptor);
+			sprintf(buffer, "#%d.#%d (%s.%s %s)", constant->methodRef->classIndex, constant->methodRef->nameAndTypeIndex, classString, nameString, descriptorString);
+			free(nameString);
+			free(classString);
+			free(descriptorString);
+			break;
+		}
 		case CONSTANT_STRING:
+			char* text = utf82cstring(constant->string->string);
 			sprintf(buffer, "#%d", constant->string->index);
+			free(text);
 			break;
         case CONSTANT_INVOKE_DYNAMIC:
             sprintf(buffer, "#%d:#%d", constant->invokeDynamic->bootstrapMethodAttrIndex, constant->invokeDynamic->nameAndTypeIndex);
@@ -99,10 +128,10 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
 void printMethodPool(const ConstantPool *constantPool, const MethodPool *pool) {
     printf("\nMethod Pool:");
     for(int i = 0; i < pool->size; i++) {
-        MethodInfo* method = pool->pool[i];
+        const MethodInfo* method = pool->pool[i];
         printf("\nMethod #%d\n", i+1);
-        char* nameString = utf82cstring(constantPool->pool[method->nameIndex-1]->constant->utf8);
-        char* descriptionString = utf82cstring(constantPool->pool[method->descriptorIndex-1]->constant->utf8);
+        char* nameString = utf82cstring(method->name);
+        char* descriptionString = utf82cstring(method->descriptor);
         printf("%s ", nameString);
         printf("%s\n", descriptionString);
         free(nameString);
@@ -131,10 +160,15 @@ void printFieldPool(const ConstantPool *constantPool, const FieldPool *fieldPool
     printf("\nField Pool:\n");
     for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
+    	char* fieldName = utf82cstring(field->name);
+    	char* descriptor = utf82cstring(field->descriptor);
         printf("\nField #%d:\n", i+1);
-        printf("%s\n", utf82cstring(constantPool->pool[field->nameIndex-1]->constant->utf8));
+        printf("%s\n", fieldName);
         printf("\tAccess Flags: %x\n", field->accessFlags);
-        printf("\tdescriptor: %s\n", utf82cstring(constantPool->pool[field->descriptorIndex-1]->constant->utf8));
+        printf("\tdescriptor: %s\n", descriptor);
+
+    	free(fieldName);
+    	free(descriptor);
 
         for(int j = 0; j < field->attributePool->size; j++) {
             Attribute* attribute = field->attributePool->attributes[j];
@@ -164,7 +198,7 @@ void printConstantPool(const ConstantPool *constantPool) {
     for(int i = 0; i < constantPool->size; i++) {
         ConstantPoolInfo* item = constantPool->pool[i];
         if(item) {
-            char* constantString = malloc(60*sizeof(char));
+            char* constantString = malloc(150*sizeof(char));
             getConstantString(constantString, item);
             printf("%5d %-20s %s\n", i+1, getTagName(item), constantString);
             free(constantString);
@@ -179,13 +213,13 @@ void printClassFile(ClassFile* classFilePtr) {
 	printf("Got Constant Pool size %d\n", classFilePtr->constantPool->size);
     printf("Got Access Flags %d\n", classFilePtr->accessFlags);
 
-	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClass - 1]->constant->class->nameIndex;
-	char* thisName = parseClassByIndex(classFilePtr->thisClass, classFilePtr->constantPool);
+	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClassIndex - 1]->constant->class->nameIndex;
+	char* thisName = parseClassByIndex(classFilePtr->thisClassIndex, classFilePtr->constantPool);
 	printf("This Class name is %d //%s\n", thisNameIndex, thisName);
     free(thisName);
 
-	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClass - 1]->constant->class->nameIndex;
-	char* superName = parseClassByIndex(classFilePtr->superClass, classFilePtr->constantPool);
+	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClassIndex - 1]->constant->class->nameIndex;
+	char* superName = parseClassByIndex(classFilePtr->superClassIndex, classFilePtr->constantPool);
 	printf("Super Class name is %d //%s\n", superNameIndex, superName);
     free(superName);
 
@@ -208,13 +242,10 @@ int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool) {
     int sum = 0;
     for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
-        int index = field->descriptorIndex;
 
-        ConstantPoolInfo* constant = constantPool->pool[index-1];
-        char name[512];
-        getConstantString(name, constant);
-
-        sum += getSizeFromDescriptor(name);
+    	char* descriptor = utf82cstring(field->descriptor);
+        sum += getSizeFromDescriptor(descriptor);
+    	free(descriptor);
     }
 
     return sum;

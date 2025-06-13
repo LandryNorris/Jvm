@@ -36,26 +36,26 @@ ClassFile* loadClassFile(const char* classFilePath) {
 }
 
 CStringArray* getDependencyClasses(ClassFile* classFile) {
-    int thisIndex = classFile->thisClass;
     ConstantPool* constantPool = classFile->constantPool;
 
     //number of classes referenced in the constant pool of the given classFile
     int numClasses = 0;
     for(int i = 0; i < constantPool->size; i++) {
         if(!constantPool->pool[i]) continue;
-        if(i == thisIndex-1) continue; //the 'this' class name
         int tag = constantPool->pool[i]->tag;
         if(tag == CONSTANT_CLASS) numClasses++;
     }
+    numClasses--; // thisClass shouldn't count
 
     CStringArray* result = allocCStringArray(numClasses);
     int numResultsWritten = 0;
     for(int i = 0; i < constantPool->size; i++) {
         if(!constantPool->pool[i]) continue; //spot is empty
-        if(i == thisIndex-1) continue; //the 'this' class name
         if(constantPool->pool[i]->tag == CONSTANT_CLASS) {
             //We need to add 1 to the index because class files are 1-indexed
             UTF8* nameUtf8 = parseClassToUTF8ByIndex(i+1, constantPool);
+
+            if (nameUtf8 == classFile->name) continue; // skip this class
 
             CStringArray* subList = malloc(sizeof(CStringArray));
             subList->values = result->values;

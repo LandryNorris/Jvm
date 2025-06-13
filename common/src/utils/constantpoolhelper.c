@@ -24,20 +24,16 @@ char* parseClass(Class* class, const ConstantPool* constantPool) {
     return parseUTF8ByIndex(nameIndex, constantPool);
 }
 
-UTF8* parseClassToUTF8(Class* class, const ConstantPool* constantPool) {
-    return constantPool->pool[class->nameIndex-1]->constant->utf8;
-}
-
 UTF8* parseClassToUTF8ByIndex(int index, const ConstantPool* constantPool) {
     Class* class = constantPool->pool[index-1]->constant->class;
-    return parseClassToUTF8(class, constantPool);
+    return class->name;
 }
 
 char* parseClassByIndex(int index, const ConstantPool* constantPool) {
     return parseClass(constantPool->pool[index-1]->constant->class, constantPool);
 }
 
-char* parseNameAndType(NameAndTypeIndex* nameAndTypeIndex, const ConstantPool* constantPool) {
+char* parseNameAndType(NameAndType* nameAndTypeIndex, const ConstantPool* constantPool) {
     char* nameString = parseUTF8ByIndex(nameAndTypeIndex->nameIndex, constantPool);
     char* typeString = parseUTF8ByIndex(nameAndTypeIndex->descriptorIndex, constantPool);
     char* result = malloc(strlen(nameString) + 1 + strlen(typeString) + 1);
@@ -52,7 +48,7 @@ char* parseNameAndType(NameAndTypeIndex* nameAndTypeIndex, const ConstantPool* c
 }
 
 char* parseNameAndTypeByIndex(int index, const ConstantPool* constantPool) {
-    return parseNameAndType(constantPool->pool[index-1]->constant->nameAndTypeIndex, constantPool);
+    return parseNameAndType(constantPool->pool[index-1]->constant->nameAndType, constantPool);
 }
 
 char* parseMethodRef(MethodRef* methodRef, const ConstantPool* constantPool) {
