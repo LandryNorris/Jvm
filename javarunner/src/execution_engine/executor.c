@@ -79,8 +79,8 @@ MethodInfo* lookupMethodInDirectClass(const ClassFile* instanceClass, UTF8* name
     for (int i = 0; i < instanceClass->methodPool->size; i++) {
         MethodInfo* info = instanceClass->methodPool->pool[i];
 
-        UTF8* methodName = instanceClass->constantPool->pool[info->nameIndex-1]->constant->utf8;
-        UTF8* methodDescriptor = instanceClass->constantPool->pool[info->descriptorIndex-1]->constant->utf8;
+        UTF8* methodName = info->name;
+        UTF8* methodDescriptor = info->descriptor;
 
         if (isEqualUtf8(methodName, name) && isEqualUtf8(methodDescriptor, descriptor)) {
             return info;
@@ -127,8 +127,8 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
     if(code == NULL) {
         if (isNative(method)) {
             // execute native
-            UTF8* methodName = classFile->constantPool->pool[method->nameIndex-1]->constant->utf8;
-            UTF8* descriptor = classFile->constantPool->pool[method->descriptorIndex-1]->constant->utf8;
+            UTF8* methodName = method->name;
+            UTF8* descriptor = method->descriptor;
             executeNativeMethod(classFile, method->argumentCount, methodName, descriptor, frameStack, isVirtual);
             return 0;
         }
@@ -169,10 +169,7 @@ int executeByName(Executor* executor, const ClassFile *classFile, char* methodNa
     MethodPool* methodPool = classFile->methodPool;
     for(int i = 0; i < methodPool->size; i++) {
         MethodInfo* info = methodPool->pool[i];
-        UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
-        char* currentMethodName = utf82cstring(methodNameUtf8);
-
-        if(strcmp(currentMethodName, methodName) == 0) {
+        if(isEqual(info->name, methodName)) {
             return execute(executor, info, classFile, frameStack, isVirtual);
         }
     }

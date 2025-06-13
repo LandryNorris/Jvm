@@ -69,14 +69,16 @@ MethodPool* parseMethodPool(ConstantPool* constantPool, const uint8_t** content)
         MethodInfo* methodInfo = malloc(sizeof(MethodInfo));
 
         methodInfo->accessFlags = readuInt16(content);
-        methodInfo->nameIndex = readuInt16(content);
-        methodInfo->descriptorIndex = readuInt16(content);
+        const uint16_t nameIndex = readuInt16(content);
+        const uint16_t descriptorIndex = readuInt16(content);
+
+        methodInfo->name = constantPool->pool[nameIndex-1]->constant->utf8;
+        methodInfo->descriptor = constantPool->pool[descriptorIndex-1]->constant->utf8;
 
         methodInfo->attributePool = parseAttributes(constantPool, content);
         methodPool->pool[i] = methodInfo;
 
-        UTF8* descriptor = constantPool->pool[methodInfo->descriptorIndex-1]->constant->utf8;
-        methodInfo->argumentCount = getArgCount(utf82cstring(descriptor));
+        methodInfo->argumentCount = getArgCount(utf82cstring(methodInfo->descriptor));
     }
     return methodPool;
 }
