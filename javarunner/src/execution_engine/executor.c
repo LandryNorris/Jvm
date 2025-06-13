@@ -26,6 +26,16 @@ uint32_t floatToIntRaw(float raw) {
     return *(uint32_t*) &raw;
 }
 
+Executor* mainExecutor;
+
+Executor* getMainExecutor() {
+    return mainExecutor;
+}
+
+void setMainExecutor(Executor* executor) {
+    mainExecutor = executor;
+}
+
 static void initializeClass(Executor* e, const ClassFile* classFile, FrameStack* frameStack) {
     printf("Searching for initializer\n");
     UTF8 name;

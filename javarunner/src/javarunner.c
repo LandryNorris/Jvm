@@ -13,6 +13,7 @@ int main(int argc, char** argv) {
     const char* classPath = argv[2];
 
     Executor* executor = createExecutor(classPath, mainClass);
+    setMainExecutor(executor);
 
     loadNativeStdLib();
     runMain(executor);
