@@ -33,8 +33,8 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->major = 52;
     classFile->minor = 0;
 
-    // this class, this class name, native methods
-    int numConstants = 2 + 2*context->numNativeMethods;
+    // this class, this class name, superclass name, native methods
+    int numConstants = 3 + 2*context->numNativeMethods;
 
     classFile->constantPool = malloc(sizeof(ConstantPool));
     classFile->constantPool->size = numConstants;
@@ -85,6 +85,16 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->fieldPool = malloc(sizeof(FieldPool));
     classFile->fieldPool->size = 0;
     classFile->fieldPool->pool = malloc(0);
+
+    if (context->superclass != nullptr) {
+        const Class* superclass = context->superclass->constantPool->pool[context->superclass->thisClass-1]->constant->class;
+        UTF8* superclassNameUtf8 = context->superclass->constantPool->pool[superclass->nameIndex-1]->constant->utf8;
+
+        char* superclassName = utf82cstring(superclassNameUtf8);
+        addStringToConstantPool(classFile->constantPool, &poolIndex, superclassName);
+        free(superclassName);
+        classFile->superClass = poolIndex;
+    }
 
     return classFile;
 }

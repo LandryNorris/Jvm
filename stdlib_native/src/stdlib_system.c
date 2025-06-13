@@ -13,6 +13,11 @@ void Java_java_lang_Printer_print() {
 void Java_java_lang_System_setupPrinter() {
     printf("Initializing printer!\n");
 
+    const Executor* executor = getMainExecutor();
+
+    uint8_t loadedFresh;
+    ClassFile* printStreamClass = getClassFile(executor->loader, "java/io/PrintStream", &loadedFresh);
+
     const NativeMethodCreationContext nativeMethods[] = {
         {
             .name = "print",
@@ -23,15 +28,13 @@ void Java_java_lang_System_setupPrinter() {
     const ClassCreationContext context = {
         .name = "java/lang/SyntheticPrinter",
         .numNativeMethods = 1,
+        .superclass = printStreamClass,
         .nativeMethods = nativeMethods,
     };
     ClassFile* syntheticPrinter = createClassFile(&context);
 
-    const Executor* executor = getMainExecutor();
-
     addClass(executor->loader->classPool, syntheticPrinter);
 
-    uint8_t loadedFresh;
     ClassFile* system = getClassFile(executor->loader, "java/lang/System", &loadedFresh);
 
     const int printerObject = createObject(executor->gc, syntheticPrinter);

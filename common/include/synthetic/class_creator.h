@@ -11,6 +11,7 @@ typedef struct {
 typedef struct {
     const char* name;
     int numNativeMethods;
+    ClassFile* superclass;
     NativeMethodCreationContext* nativeMethods;
 } ClassCreationContext;
 
