@@ -78,7 +78,9 @@ MethodPool* parseMethodPool(ConstantPool* constantPool, const uint8_t** content)
         methodInfo->attributePool = parseAttributes(constantPool, content);
         methodPool->pool[i] = methodInfo;
 
-        methodInfo->argumentCount = getArgCount(utf82cstring(methodInfo->descriptor));
+        char* descriptor = utf82cstring(methodInfo->descriptor);
+        methodInfo->argumentCount = getArgCount(descriptor);
+        free(descriptor);
     }
     return methodPool;
 }

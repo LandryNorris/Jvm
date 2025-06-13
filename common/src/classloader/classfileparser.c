@@ -160,10 +160,15 @@ void printFieldPool(const ConstantPool *constantPool, const FieldPool *fieldPool
     printf("\nField Pool:\n");
     for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
+    	char* fieldName = utf82cstring(field->name);
+    	char* descriptor = utf82cstring(field->descriptor);
         printf("\nField #%d:\n", i+1);
-        printf("%s\n", utf82cstring(field->name));
+        printf("%s\n", fieldName);
         printf("\tAccess Flags: %x\n", field->accessFlags);
-        printf("\tdescriptor: %s\n", utf82cstring(field->descriptor));
+        printf("\tdescriptor: %s\n", descriptor);
+
+    	free(fieldName);
+    	free(descriptor);
 
         for(int j = 0; j < field->attributePool->size; j++) {
             Attribute* attribute = field->attributePool->attributes[j];
