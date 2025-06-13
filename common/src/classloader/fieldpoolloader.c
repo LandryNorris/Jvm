@@ -14,9 +14,11 @@ FieldPool* parseFieldPool(ConstantPool* constantPool, const uint8_t** content) {
     for(int i = 0; i < fieldCount; i++) {
         FieldPoolItem* fieldPoolItem = malloc(sizeof(FieldPoolItem));
         fieldPoolItem->accessFlags = readuInt16(content);
-        fieldPoolItem->nameIndex = readuInt16(content);
-        fieldPoolItem->descriptorIndex = readuInt16(content);
+        const uint16_t nameIndex = readuInt16(content);
+        const uint16_t descriptorIndex = readuInt16(content);
 
+        fieldPoolItem->name = constantPool->pool[nameIndex-1]->constant->utf8;
+        fieldPoolItem->descriptor = constantPool->pool[descriptorIndex-1]->constant->utf8;
         AttributePool* attributePool = parseAttributes(constantPool, content);
 
         fieldPoolItem->attributePool = attributePool;

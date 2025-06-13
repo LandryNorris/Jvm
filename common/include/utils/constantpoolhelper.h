@@ -17,7 +17,7 @@ UTF8* parseClassToUTF8ByIndex(int index, const ConstantPool* constantPool);
 
 char* parseClassByIndex(int index, const ConstantPool* constantPool);
 
-char* parseNameAndType(NameAndTypeIndex* nameAndTypeIndex, const ConstantPool* constantPool);
+char* parseNameAndType(NameAndType* nameAndTypeIndex, const ConstantPool* constantPool);
 
 char* parseNameAndTypeByIndex(int index, const ConstantPool* constantPool);
 

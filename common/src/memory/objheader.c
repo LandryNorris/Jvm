@@ -77,7 +77,7 @@ int32_t getFieldValue32(ObjHeader* obj, char* field) {
 int getSizeFromDescriptor(char* descriptor) {
     if(strcmp(descriptor, "B") == 0 || strcmp(descriptor, "Z") == 0) return 1;
     if(strcmp(descriptor, "C") == 0 || strcmp(descriptor, "S") == 0) return 2;
-    if(strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0) return 4;
+    if(strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0 || descriptor[0] == '[') return 4;
     if(strcmp(descriptor, "J") == 0 || strcmp(descriptor, "D") == 0) return 8;
     return 4;
 }

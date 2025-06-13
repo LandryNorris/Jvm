@@ -134,10 +134,9 @@ void printFileAttributes(ConstantPool* constantPool, AttributePool* attributePoo
                     MethodHandle * methodHandle = constantPool->pool[method->methodRef-1]->constant->methodHandle;
                     MethodRef* methodRef = constantPool->pool[methodHandle->referenceIndex-1]->constant->methodRef;
                     Class* class = constantPool->pool[methodRef->classIndex-1]->constant->class;
-                    NameAndTypeIndex* nameAndTypeIndex = constantPool->pool[methodRef->nameAndTypeIndex - 1]->constant->nameAndTypeIndex;
                     UTF8* className = constantPool->pool[class->nameIndex - 1]->constant->utf8;
-                    UTF8* methodName = constantPool->pool[nameAndTypeIndex->nameIndex - 1]->constant->utf8;
-                    UTF8* typeName = constantPool->pool[nameAndTypeIndex->descriptorIndex-1]->constant->utf8;
+                    UTF8* methodName = methodRef->nameAndType->name;
+                    UTF8* typeName = methodRef->nameAndType->descriptor;
                     printf("\t%d: #%d %s.%s:%s\n\t\tMethod Arguments:\n", j, method->methodRef, utf82cstring(className),
                            utf82cstring(methodName), utf82cstring(typeName));
 

@@ -26,7 +26,8 @@ Constant* readMethodRef(const uint8_t** bytes) {
 
 Constant* readClass(const uint8_t** bytes) {
 	Class* class = malloc(sizeof(Class));
-	class->nameIndex = readuInt16(bytes);
+	uint16_t nameIndex = readuInt16(bytes);
+	class->nameIndex = nameIndex;
     class->classFile = NULL;
 	Constant* result = malloc(sizeof(Constant));
 	result->class = class;
@@ -34,11 +35,11 @@ Constant* readClass(const uint8_t** bytes) {
 }
 
 Constant* readNameAndType(const uint8_t** bytes) {
-	NameAndTypeIndex* nameAndTypeIndex = malloc(sizeof(NameAndTypeIndex));
+	NameAndType* nameAndTypeIndex = malloc(sizeof(NameAndType));
 	nameAndTypeIndex->nameIndex = readuInt16(bytes);
 	nameAndTypeIndex->descriptorIndex = readuInt16(bytes);
 	Constant* result = malloc(sizeof(Constant));
-	result->nameAndTypeIndex = nameAndTypeIndex;
+	result->nameAndType = nameAndTypeIndex;
 	return result;
 }
 
@@ -171,6 +172,35 @@ ConstantPool* readConstantPool(const uint8_t** bytes) {
 		result->pool[i] = cpInfoPtr;
 		if(cpInfoPtr->tag == CONSTANT_DOUBLE || cpInfoPtr->tag == CONSTANT_LONG) {
 			result->pool[++i] = NULL; //we want to skip a spot for doubles and longs.
+		}
+	}
+
+	// All items in the pool are now valid. Fill out shortcuts
+	for (int i = 0; i < size; i++) {
+		ConstantPoolInfo* cpInfoPtr = result->pool[i];
+		switch (cpInfoPtr->tag) {
+			case CONSTANT_CLASS: {
+				cpInfoPtr->constant->class->name = result->pool[cpInfoPtr->constant->class->nameIndex-1]->constant->utf8;
+				break;
+			}
+			case CONSTANT_NAME_AND_TYPE: {
+				NameAndType* nameAndTypePtr = cpInfoPtr->constant->nameAndType;
+				nameAndTypePtr->name = result->pool[nameAndTypePtr->nameIndex-1]->constant->utf8;
+				nameAndTypePtr->descriptor = result->pool[nameAndTypePtr->descriptorIndex-1]->constant->utf8;
+				break;
+			}
+			case CONSTANT_FIELD_REF:
+			case CONSTANT_INTERFACE_METHOD_REF:
+			case CONSTANT_METHOD_REF: {
+				cpInfoPtr->constant->methodRef->nameAndType = result->pool[cpInfoPtr->constant->methodRef->nameAndTypeIndex-1]->constant->nameAndType;
+				cpInfoPtr->constant->methodRef->class = result->pool[cpInfoPtr->constant->methodRef->classIndex-1]->constant->class;
+				break;
+			}
+			case CONSTANT_STRING: {
+				cpInfoPtr->constant->string->string = result->pool[cpInfoPtr->constant->string->index-1]->constant->utf8;
+				break;
+			}
+			default: {}
 		}
 	}
 

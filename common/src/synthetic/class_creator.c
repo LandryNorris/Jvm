@@ -50,7 +50,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     int poolIndex = 0;
     Class* clazz = malloc(sizeof(Class));
     addClassToConstantPool(classFile->constantPool, &poolIndex, clazz);
-    classFile->thisClass = poolIndex;
+    classFile->thisClassIndex = poolIndex;
     clazz->classFile = classFile;
 
     addStringToConstantPool(classFile->constantPool, &poolIndex, context->name);
@@ -87,13 +87,13 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->fieldPool->pool = malloc(0);
 
     if (context->superclass != nullptr) {
-        const Class* superclass = context->superclass->constantPool->pool[context->superclass->thisClass-1]->constant->class;
+        const Class* superclass = context->superclass->constantPool->pool[context->superclass->thisClassIndex-1]->constant->class;
         UTF8* superclassNameUtf8 = context->superclass->constantPool->pool[superclass->nameIndex-1]->constant->utf8;
 
         char* superclassName = utf82cstring(superclassNameUtf8);
         addStringToConstantPool(classFile->constantPool, &poolIndex, superclassName);
         free(superclassName);
-        classFile->superClass = poolIndex;
+        classFile->superClassIndex = poolIndex;
     }
 
     return classFile;

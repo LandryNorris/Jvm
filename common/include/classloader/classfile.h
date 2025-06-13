@@ -16,13 +16,16 @@ struct ClassFile {
 	uint16_t major;
 	ConstantPool* constantPool;
 	uint16_t accessFlags;
-	uint16_t thisClass;
-	uint16_t superClass;
+	uint16_t thisClassIndex;
+	uint16_t superClassIndex;
 	InterfacePool* interfacePool;
     FieldPool* fieldPool;
     MethodPool* methodPool;
     AttributePool* attributePool;
 
+	Class* thisClass;
+	Class* superClass;
+	UTF8* name;
 	struct StaticFields* staticFields;
 };
 

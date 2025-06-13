@@ -23,8 +23,8 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
 	classPtr->constantPool = readConstantPool(content);
 
 	classPtr->accessFlags = readuInt16(content);
-	classPtr->thisClass = readuInt16(content);
-	classPtr->superClass = readuInt16(content);
+	classPtr->thisClassIndex = readuInt16(content);
+	classPtr->superClassIndex = readuInt16(content);
 
 	classPtr->interfacePool = readInterfacePool(content);
     classPtr->fieldPool = parseFieldPool(classPtr->constantPool, content);
@@ -32,6 +32,9 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
     classPtr->attributePool = parseAttributes(classPtr->constantPool, content);
 
     classPtr->size = getClassSize(classPtr->constantPool, classPtr->fieldPool);
+
+	classPtr->thisClass = classPtr->constantPool->pool[classPtr->thisClassIndex-1]->constant->class;
+	classPtr->superClass = classPtr->constantPool->pool[classPtr->superClassIndex-1]->constant->class;
 
 	return 0;
 }
@@ -78,7 +81,7 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
             break;
         }
 		case CONSTANT_NAME_AND_TYPE:
-			sprintf(buffer, "#%d:#%d", constant->nameAndTypeIndex->nameIndex, constant->nameAndTypeIndex->descriptorIndex);
+			sprintf(buffer, "#%d:#%d", constant->nameAndType->nameIndex, constant->nameAndType->descriptorIndex);
 			break;
 		case CONSTANT_CLASS:
 			sprintf(buffer, "#%d", constant->class->nameIndex);
@@ -99,10 +102,10 @@ void getConstantString(char * const buffer, ConstantPoolInfo* item) {
 void printMethodPool(const ConstantPool *constantPool, const MethodPool *pool) {
     printf("\nMethod Pool:");
     for(int i = 0; i < pool->size; i++) {
-        MethodInfo* method = pool->pool[i];
+        const MethodInfo* method = pool->pool[i];
         printf("\nMethod #%d\n", i+1);
-        char* nameString = utf82cstring(constantPool->pool[method->nameIndex-1]->constant->utf8);
-        char* descriptionString = utf82cstring(constantPool->pool[method->descriptorIndex-1]->constant->utf8);
+        char* nameString = utf82cstring(method->name);
+        char* descriptionString = utf82cstring(method->descriptor);
         printf("%s ", nameString);
         printf("%s\n", descriptionString);
         free(nameString);
@@ -132,9 +135,9 @@ void printFieldPool(const ConstantPool *constantPool, const FieldPool *fieldPool
     for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
         printf("\nField #%d:\n", i+1);
-        printf("%s\n", utf82cstring(constantPool->pool[field->nameIndex-1]->constant->utf8));
+        printf("%s\n", utf82cstring(field->name));
         printf("\tAccess Flags: %x\n", field->accessFlags);
-        printf("\tdescriptor: %s\n", utf82cstring(constantPool->pool[field->descriptorIndex-1]->constant->utf8));
+        printf("\tdescriptor: %s\n", utf82cstring(field->descriptor));
 
         for(int j = 0; j < field->attributePool->size; j++) {
             Attribute* attribute = field->attributePool->attributes[j];
@@ -179,13 +182,13 @@ void printClassFile(ClassFile* classFilePtr) {
 	printf("Got Constant Pool size %d\n", classFilePtr->constantPool->size);
     printf("Got Access Flags %d\n", classFilePtr->accessFlags);
 
-	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClass - 1]->constant->class->nameIndex;
-	char* thisName = parseClassByIndex(classFilePtr->thisClass, classFilePtr->constantPool);
+	uint16_t thisNameIndex = classFilePtr->constantPool->pool[classFilePtr->thisClassIndex - 1]->constant->class->nameIndex;
+	char* thisName = parseClassByIndex(classFilePtr->thisClassIndex, classFilePtr->constantPool);
 	printf("This Class name is %d //%s\n", thisNameIndex, thisName);
     free(thisName);
 
-	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClass - 1]->constant->class->nameIndex;
-	char* superName = parseClassByIndex(classFilePtr->superClass, classFilePtr->constantPool);
+	uint16_t superNameIndex = classFilePtr->constantPool->pool[classFilePtr->superClassIndex - 1]->constant->class->nameIndex;
+	char* superName = parseClassByIndex(classFilePtr->superClassIndex, classFilePtr->constantPool);
 	printf("Super Class name is %d //%s\n", superNameIndex, superName);
     free(superName);
 
@@ -208,13 +211,10 @@ int getClassSize(ConstantPool* constantPool, FieldPool* fieldPool) {
     int sum = 0;
     for(int i = 0; i < fieldPool->size; i++) {
         FieldPoolItem* field = fieldPool->pool[i];
-        int index = field->descriptorIndex;
 
-        ConstantPoolInfo* constant = constantPool->pool[index-1];
-        char name[512];
-        getConstantString(name, constant);
-
-        sum += getSizeFromDescriptor(name);
+    	char* descriptor = utf82cstring(field->descriptor);
+        sum += getSizeFromDescriptor(descriptor);
+    	free(descriptor);
     }
 
     return sum;
