@@ -61,6 +61,13 @@ int32_t push32(Stack32*, int32_t);
 
 int32_t pop32(Stack32*);
 
+/**
+ * @param stack
+ * @param depth zero-indexed depth to read (0 reads top)
+ * @return
+ */
+int32_t peek32(Stack32* stack, int depth);
+
 int isFull32(Stack32*);
 
 int isEmpty32(Stack32*);

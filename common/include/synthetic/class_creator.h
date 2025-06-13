@@ -6,6 +6,7 @@
 typedef struct {
     const char* name;
     const char* descriptor;
+    const int numArgs;
 } NativeMethodCreationContext;
 
 typedef struct {

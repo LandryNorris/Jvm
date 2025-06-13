@@ -71,7 +71,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
         info->descriptorIndex = poolIndex;
 
         info->accessFlags = METHOD_NATIVE | METHOD_SYNTHETIC;
-        info->argumentCount = 0;
+        info->argumentCount = method->numArgs;
         info->attributePool = malloc(sizeof(AttributePool));
         info->attributePool->size = 0;
         info->attributePool->attributes = malloc(0);

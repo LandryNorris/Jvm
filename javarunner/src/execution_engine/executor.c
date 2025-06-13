@@ -75,6 +75,21 @@ ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, cons
     return result;
 }
 
+MethodInfo* lookupMethodInDirectClass(const ClassFile* instanceClass, UTF8* name, UTF8* descriptor) {
+    for (int i = 0; i < instanceClass->methodPool->size; i++) {
+        MethodInfo* info = instanceClass->methodPool->pool[i];
+
+        UTF8* methodName = instanceClass->constantPool->pool[info->nameIndex-1]->constant->utf8;
+        UTF8* methodDescriptor = instanceClass->constantPool->pool[info->descriptorIndex-1]->constant->utf8;
+
+        if (isEqualUtf8(methodName, name) && isEqualUtf8(methodDescriptor, descriptor)) {
+            return info;
+        }
+    }
+
+    return nullptr;
+}
+
 int runMain(Executor* executor) {
     return executeByName(executor, executor->loader->mainClass, "main", executor->mainFrameStack, false);
 }
@@ -125,23 +140,29 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
 }
 
 int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual) {
-    MethodPool* methodPool = classFile->methodPool;
-    for(int i = 0; i < methodPool->size; i++) {
-        MethodInfo* info = methodPool->pool[i];
-        UTF8* methodNameUtf8 = classFile->constantPool->pool[info->nameIndex-1]->constant->utf8;
-        UTF8* descriptorUtf8 = classFile->constantPool->pool[info->descriptorIndex-1]->constant->utf8;
+    MethodInfo* method = lookupMethodInDirectClass(classFile, methodName, descriptor);
+    if (method == nullptr) {
+        char* methodNameString = utf82cstring(methodName);
+        char* descriptorString = utf82cstring(descriptor);
+        printf("Unable to find method with name %s and type %s\n", methodNameString, descriptorString);
+        free(methodNameString);
+        free(descriptorString);
 
-        if(isEqualUtf8(methodNameUtf8, methodName) && isEqualUtf8(descriptor, descriptorUtf8)) {
-            return execute(executor, info, classFile, frameStack, isVirtual);
+        return EINVAL;
+    }
+    if (isVirtual) {
+        Stack32* operandStack = &peekFrame(frameStack)->operandStack;
+        int objRef = peek32(operandStack, method->argumentCount);
+        const ObjHeader* instance = getValue(executor->gc->memoryRegion, objRef);
+
+        // TODO(Landry): Walk full class tree
+        MethodInfo* overridingMethod = lookupMethodInDirectClass(instance->class, methodName, descriptor);
+        if (overridingMethod != nullptr) {
+            method = overridingMethod;
+            classFile = instance->class;
         }
     }
-    char* methodNameString = utf82cstring(methodName);
-    char* descriptorString = utf82cstring(descriptor);
-    printf("Unable to find method with name %s and type %s\n", methodNameString, descriptorString);
-    free(methodNameString);
-    free(descriptorString);
-
-    return EINVAL;
+    return execute(executor, method, classFile, frameStack, isVirtual);
 }
 
 int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack, bool isVirtual) {

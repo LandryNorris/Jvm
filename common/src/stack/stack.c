@@ -78,6 +78,13 @@ int32_t pop32(Stack32* stack) {
     return *stack->sp--;
 }
 
+int32_t peek32(Stack32* stack, int depth) {
+    if (stack->sp - depth < stack->values) {
+        return -1;
+    }
+    return *(stack->sp - depth);
+}
+
 int isFull32(Stack32* stack) {
     return stack->sp == stack->values - 1 + stack->capacity;
 }

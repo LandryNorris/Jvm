@@ -10,6 +10,10 @@ void Java_java_lang_Printer_print() {
     printf("System is printing!\n");
 }
 
+void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
+    printf("Printing via System.out.println\n");
+}
+
 void Java_java_lang_System_setupPrinter() {
     printf("Initializing printer!\n");
 
@@ -22,6 +26,7 @@ void Java_java_lang_System_setupPrinter() {
         {
             .name = "print",
             .descriptor = "(Ljava/lang/String;)V",
+            .numArgs = 1,
         },
     };
 
