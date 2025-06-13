@@ -3,6 +3,7 @@
 
 #include "../../javarunner/include/execution_engine/executor.h"
 #include "classloader/classloader.h"
+#include "memory/objheader.h"
 #include "synthetic/class_creator.h"
 
 void Java_java_lang_Printer_print() {
@@ -33,5 +34,8 @@ void Java_java_lang_System_setupPrinter() {
     uint8_t loadedFresh;
     ClassFile* system = getClassFile(executor->loader, "java/lang/System", &loadedFresh);
 
+    const int printerObject = createObject(executor->gc, syntheticPrinter);
+
+    setInt32StaticField(system, "out", printerObject);
     printf("Found system\n");
 }
