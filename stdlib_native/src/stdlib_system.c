@@ -23,7 +23,8 @@ void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
 
     const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
 
-    printf("%s", (char*) arrayHeader->memory);
+    fwrite(arrayHeader->memory, sizeof(char), arrayHeader->length, stdout);
+    fflush(stdout);
 }
 
 void Java_java_lang_System_setupPrinter() {
