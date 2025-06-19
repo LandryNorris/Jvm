@@ -1,7 +1,8 @@
 #ifndef JVM_PROJECT_METHODPARSER_H
 #define JVM_PROJECT_METHODPARSER_H
 
-#include<stdint.h>
+#include <stdint.h>
+
 #include "attributeloader.h"
 
 typedef struct {

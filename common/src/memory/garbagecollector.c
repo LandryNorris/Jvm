@@ -2,8 +2,9 @@
 // Created by landry on 8/29/22.
 //
 
-#include <malloc.h>
 #include "memory/garbagecollector.h"
+
+#include <malloc.h>
 
 GarbageCollector* createGarbageCollector() {
     GarbageCollector* gc = malloc(sizeof(GarbageCollector));

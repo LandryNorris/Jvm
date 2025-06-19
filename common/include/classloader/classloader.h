@@ -15,8 +15,9 @@ typedef struct {
     ClassPool* classPool;
 } ClassLoader;
 
-ClassLoader* createClassLoader(const char* classPath, const char* javaClassPath, const char* mainFilePath);
-ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName, uint8_t *loadedFresh);
+ClassLoader* createClassLoader(const char* classPath, const char* javaClassPath,
+                               const char* mainFilePath);
+ClassFile* getClassFile(ClassLoader* classLoader, const char* classFileName, uint8_t* loadedFresh);
 void freeClassLoader(ClassLoader* classLoader);
 
-#endif //JVM_PROJECT_CLASSLOADER_H
+#endif // JVM_PROJECT_CLASSLOADER_H

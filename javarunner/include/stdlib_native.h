@@ -3,4 +3,4 @@
 
 void loadNativeStdLib();
 
-#endif //STDLIB_NATIVE_H
+#endif // STDLIB_NATIVE_H

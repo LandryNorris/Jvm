@@ -1,10 +1,11 @@
 #include <errno.h>
-#include <stdio.h>
 #include <execution_engine/executor.h>
+#include <stdio.h>
+
 #include "stdlib_native.h"
 
 int main(int argc, char** argv) {
-    if(argc < 2) {
+    if (argc < 2) {
         printf("no class file given.\n");
         return EINVAL;
     }

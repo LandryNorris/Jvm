@@ -6,6 +6,7 @@
 #define JVM_PROJECT_GARBAGECOLLECTOR_H
 
 #include <stdint.h>
+
 #include "memory.h"
 
 typedef struct {
@@ -15,4 +16,4 @@ typedef struct {
 GarbageCollector* createGarbageCollector();
 int allocateNew(GarbageCollector* gc, uint32_t size);
 
-#endif //JVM_PROJECT_GARBAGECOLLECTOR_H
+#endif // JVM_PROJECT_GARBAGECOLLECTOR_H

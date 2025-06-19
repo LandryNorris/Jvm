@@ -7,4 +7,4 @@
 
 char* getPath(const char* classPath, const char* className);
 
-#endif //JVM_PROJECT_CLASSPATHHELPER_H
+#endif // JVM_PROJECT_CLASSPATHHELPER_H

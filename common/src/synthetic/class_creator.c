@@ -36,7 +36,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->minor = 0;
 
     // this class, this class name, superclass name, native methods
-    int numConstants = 3 + 2*context->numNativeMethods;
+    int numConstants = 3 + 2 * context->numNativeMethods;
 
     classFile->constantPool = malloc(sizeof(ConstantPool));
     classFile->constantPool->size = numConstants;
@@ -68,7 +68,8 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
         classFile->methodPool->pool[i] = info;
 
         info->name = addStringToConstantPool(classFile->constantPool, &poolIndex, method->name);
-        info->descriptor = addStringToConstantPool(classFile->constantPool, &poolIndex, method->descriptor);
+        info->descriptor =
+            addStringToConstantPool(classFile->constantPool, &poolIndex, method->descriptor);
 
         info->accessFlags = METHOD_NATIVE | METHOD_SYNTHETIC;
         info->argumentCount = method->numArgs;
@@ -90,8 +91,11 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->name = clazz->name;
 
     if (context->superclass != nullptr) {
-        const Class* superclass = context->superclass->constantPool->pool[context->superclass->thisClassIndex-1]->constant->class;
-        UTF8* superclassNameUtf8 = context->superclass->constantPool->pool[superclass->nameIndex-1]->constant->utf8;
+        const Class* superclass =
+            context->superclass->constantPool->pool[context->superclass->thisClassIndex - 1]
+                ->constant->class;
+        UTF8* superclassNameUtf8 =
+            context->superclass->constantPool->pool[superclass->nameIndex - 1]->constant->utf8;
 
         char* superclassName = utf82cstring(superclassNameUtf8);
         addStringToConstantPool(classFile->constantPool, &poolIndex, superclassName);

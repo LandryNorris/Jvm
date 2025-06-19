@@ -13,4 +13,4 @@ int isEqual(UTF8*, const char*);
 int isEqualUtf8(UTF8*, UTF8*);
 void initUtf8(UTF8* utf8, const char* cstring);
 
-#endif //JVM_PROJECT_UTF8UTILS_H
+#endif // JVM_PROJECT_UTF8UTILS_H

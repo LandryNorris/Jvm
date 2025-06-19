@@ -27,4 +27,4 @@ typedef struct {
  */
 ClassFile* createClassFile(const ClassCreationContext* context);
 
-#endif //CLASS_CREATOR_H
+#endif // CLASS_CREATOR_H

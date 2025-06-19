@@ -31,4 +31,4 @@ uint8_t getByteArrayValue(GarbageCollector* gc, int obj, int index);
 
 uint32_t getArrayLength(GarbageCollector* gc, int obj);
 
-#endif //PRIMITIVE_ARRAY_H
+#endif // PRIMITIVE_ARRAY_H

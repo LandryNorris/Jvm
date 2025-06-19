@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "native.h"
 
 void loadNativeStdLib() {

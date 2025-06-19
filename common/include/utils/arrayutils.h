@@ -21,4 +21,4 @@ void freeCStringArray(CStringArray* cStringArray);
 
 int containsUtf8(CStringArray*, UTF8*);
 
-#endif //JVM_PROJECT_ARRAYUTILS_H
+#endif // JVM_PROJECT_ARRAYUTILS_H

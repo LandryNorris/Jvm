@@ -8,13 +8,17 @@
 int getElementSize(const int type) {
     switch (type) {
         case T_BOOLEAN:
-        case T_BYTE: return 1;
+        case T_BYTE:
+            return 1;
         case T_CHAR:
-        case T_SHORT: return 2;
+        case T_SHORT:
+            return 2;
         case T_INT:
-        case T_FLOAT: return 4;
+        case T_FLOAT:
+            return 4;
         case T_LONG:
-        case T_DOUBLE: return 8;
+        case T_DOUBLE:
+            return 8;
         default: {
             printf("Invalid type: %d\n", type);
             return -1;
@@ -39,18 +43,18 @@ void setCharArrayValue(GarbageCollector* gc, const int obj, const int index, con
     PrimitiveArray* array = getValue(gc->memoryRegion, obj);
     // TODO(Landry): Bounds checks
     // characters are two bytes in java
-    const int dataIndex = index*2;
+    const int dataIndex = index * 2;
     array->memory[dataIndex] = value & 0xff;
-    array->memory[dataIndex+1] = (value >> 8) & 0xff;
+    array->memory[dataIndex + 1] = (value >> 8) & 0xff;
 }
 
 uint16_t getCharArrayValue(GarbageCollector* gc, const int obj, const int index) {
     PrimitiveArray* array = getValue(gc->memoryRegion, obj);
     // TODO(Landry): Bounds checks
     // characters are two bytes in java
-    const int dataIndex = index*2;
+    const int dataIndex = index * 2;
 
-    return array->memory[dataIndex+1] << 8 | array->memory[dataIndex];
+    return array->memory[dataIndex + 1] << 8 | array->memory[dataIndex];
 }
 
 // Byte array
@@ -72,4 +76,3 @@ uint32_t getArrayLength(GarbageCollector* gc, const int obj) {
     // TODO(Landry): Bounds checks
     return array->length;
 }
-
