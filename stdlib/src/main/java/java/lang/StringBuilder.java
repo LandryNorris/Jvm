@@ -72,6 +72,10 @@ public class StringBuilder implements Serializable, CharSequence {
 
     @Override
     public String toString() {
-        return new String(value);
+        byte[] newData = new byte[usedSize];
+        for(int i = 0; i < usedSize; i++) {
+            newData[i] = value[i];
+        }
+        return new String(newData);
     }
 }
