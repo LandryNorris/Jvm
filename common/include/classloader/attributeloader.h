@@ -1,11 +1,13 @@
 #ifndef _ATTRIBUTE_LOADER_H
 #define _ATTRIBUTE_LOADER_H
 
-#include<stdint.h>
+#include <stdint.h>
+
 #include "constantparser.h"
 
-//We use these values to keep track of an attribute's type. They are not defined in the JVM spec, so we can choose any
-//implementation. OpenJDK seems to use a custom Symbol class, but I'll use int constants here to keep it simple,
+// We use these values to keep track of an attribute's type. They are not defined in the JVM spec,
+// so we can choose any implementation. OpenJDK seems to use a custom Symbol class, but I'll use int
+// constants here to keep it simple,
 #define ATTRIBUTE_CONSTANT_VALUE 1
 #define ATTRIBUTE_CODE 2
 #define ATTRIBUTE_DEPRECATED 3
@@ -29,18 +31,18 @@
 #define TYPE_DOUBLE 3
 
 typedef struct {
-	uint16_t valueIndex;
+    uint16_t valueIndex;
 } ConstantValue;
 
 typedef struct {
-	uint16_t signatureIndex;
+    uint16_t signatureIndex;
 } Signature;
 
-//ElementValues require a lot of work. This may work better in a real object-oriented language.
+// ElementValues require a lot of work. This may work better in a real object-oriented language.
 typedef struct ElementValue ElementValue;
 
 typedef struct {
-	uint16_t constValueIndex;
+    uint16_t constValueIndex;
 } ConstValue;
 
 typedef struct {
@@ -81,7 +83,7 @@ struct ElementValue {
 };
 
 typedef struct {
-	uint16_t count;
+    uint16_t count;
     Annotation* annotation;
 } RuntimeAnnotations;
 
@@ -106,20 +108,20 @@ typedef struct {
 } NestMembers;
 
 typedef struct {
-	uint32_t length;
-	uint8_t* byteCode;
+    uint32_t length;
+    uint8_t* byteCode;
 } Program;
 
 typedef struct {
-	uint16_t startpc;
-	uint16_t endpc;
-	uint16_t handlerpc;
-	uint16_t catchType;
+    uint16_t startpc;
+    uint16_t endpc;
+    uint16_t handlerpc;
+    uint16_t catchType;
 } ExceptionAttributes;
 
 typedef struct {
-	uint16_t length;
-	ExceptionAttributes exception[];
+    uint16_t length;
+    ExceptionAttributes exception[];
 } ExceptionTable;
 
 typedef struct {
@@ -146,11 +148,12 @@ typedef struct {
 } LocalVariableTable;
 
 typedef struct {
-    uint16_t startPC; //the variable has a value in the byteCode array in the range [startPC, startPC+length).
+    uint16_t startPC; // the variable has a value in the byteCode array in the range [startPC,
+                      // startPC+length).
     uint16_t length;
-    uint16_t nameIndex; //Constant Pool entry giving the name of the variable.
-    uint16_t signatureIndex; //Constant Pool entry giving the signature of the variable.
-    uint16_t index; //index into the local variable array of the current frame.
+    uint16_t nameIndex;      // Constant Pool entry giving the name of the variable.
+    uint16_t signatureIndex; // Constant Pool entry giving the signature of the variable.
+    uint16_t index;          // index into the local variable array of the current frame.
 } LocalVariableTypeElement;
 
 typedef struct {
@@ -160,18 +163,19 @@ typedef struct {
 
 typedef struct {
     uint8_t tag;
-    uint16_t index; //only used for Object and Uninitialized.
+    uint16_t index; // only used for Object and Uninitialized.
 } VerificationType;
 
 typedef struct {
-    //values of frameType in [0,63] mean variables same as last frame and operation stack is empty.
-    //values of frameType in [64,127] mean there is one item in the stack. Value of offsetDelta is frameType - 64.
-    //value of frameType = 247 means extended one item in stack, where offsetDelta is explicitly given.
-    //values of frameType in [248,250] mean that the local variables are the same as the last frame, but the operand
-    //stack is empty. The latest k = 251-frameType local variables are absent.
-    //value of frameType = 251 means local variables are the same as the last frame and op stack is empty, but offset delta is given.
-    //values of frameType in [252-254] mean that the local variables are same as last frame, but k = frameType - 251 new local variables are added.
-    //value of frameType = 255 means a 'full stack', which uses all members.
+    // values of frameType in [0,63] mean variables same as last frame and operation stack is empty.
+    // values of frameType in [64,127] mean there is one item in the stack. Value of offsetDelta is
+    // frameType - 64. value of frameType = 247 means extended one item in stack, where offsetDelta
+    // is explicitly given. values of frameType in [248,250] mean that the local variables are the
+    // same as the last frame, but the operand stack is empty. The latest k = 251-frameType local
+    // variables are absent. value of frameType = 251 means local variables are the same as the last
+    // frame and op stack is empty, but offset delta is given. values of frameType in [252-254] mean
+    // that the local variables are same as last frame, but k = frameType - 251 new local variables
+    // are added. value of frameType = 255 means a 'full stack', which uses all members.
     uint8_t frameType;
     uint16_t offsetDelta;
     uint16_t stackSize;
@@ -207,8 +211,8 @@ typedef struct {
 } Code;
 
 typedef union {
-	ConstantValue* constantValue;
-	Code* code;
+    ConstantValue* constantValue;
+    Code* code;
     RuntimeAnnotations* runtimeVisibleAnnotations;
     Signature* signature;
     BootstrapMethodsList* bootstrapMethods;

@@ -1,17 +1,19 @@
+#include "utils/constantpoolhelper.h"
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "classloader/constantparser.h"
 #include "classloader/utf8utils.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "utils/constantpoolhelper.h"
 
 char* parseUTF8(UTF8* utf8) {
     return utf82cstring(utf8);
 }
 
 char* parseUTF8ByIndex(int index, const ConstantPool* constantPool) {
-    return parseUTF8(constantPool->pool[index-1]->constant->utf8);
+    return parseUTF8(constantPool->pool[index - 1]->constant->utf8);
 }
 
 char* parseString(String* string, const ConstantPool* constantPool) {
@@ -25,12 +27,12 @@ char* parseClass(Class* class, const ConstantPool* constantPool) {
 }
 
 UTF8* parseClassToUTF8ByIndex(int index, const ConstantPool* constantPool) {
-    Class* class = constantPool->pool[index-1]->constant->class;
+    Class* class = constantPool->pool[index - 1]->constant->class;
     return class->name;
 }
 
 char* parseClassByIndex(int index, const ConstantPool* constantPool) {
-    return parseClass(constantPool->pool[index-1]->constant->class, constantPool);
+    return parseClass(constantPool->pool[index - 1]->constant->class, constantPool);
 }
 
 char* parseNameAndType(NameAndType* nameAndTypeIndex, const ConstantPool* constantPool) {
@@ -48,7 +50,7 @@ char* parseNameAndType(NameAndType* nameAndTypeIndex, const ConstantPool* consta
 }
 
 char* parseNameAndTypeByIndex(int index, const ConstantPool* constantPool) {
-    return parseNameAndType(constantPool->pool[index-1]->constant->nameAndType, constantPool);
+    return parseNameAndType(constantPool->pool[index - 1]->constant->nameAndType, constantPool);
 }
 
 char* parseMethodRef(MethodRef* methodRef, const ConstantPool* constantPool) {
@@ -67,33 +69,34 @@ char* parseMethodRef(MethodRef* methodRef, const ConstantPool* constantPool) {
 }
 
 char* parseMethodRefByIndex(int index, const ConstantPool* constantPool) {
-    return parseMethodRef(constantPool->pool[index-1]->constant->methodRef, constantPool);
+    return parseMethodRef(constantPool->pool[index - 1]->constant->methodRef, constantPool);
 }
 
 char* parseMethodHandle(MethodHandle* methodHandle, const ConstantPool* constantPool) {
     char* methodDescription = parseMethodRefByIndex(methodHandle->referenceIndex, constantPool);
-    char* result = malloc(3+strlen(methodDescription) + 1);
+    char* result = malloc(3 + strlen(methodDescription) + 1);
 
-    snprintf(result, strlen(methodDescription), "%2d:%s", methodHandle->referenceKind, methodDescription);
+    snprintf(result, strlen(methodDescription), "%2d:%s", methodHandle->referenceKind,
+             methodDescription);
     return result;
 }
 
 char* parseInteger(Integer* integer) {
-    if(integer == NULL) return NULL;
-    int len = integer->value==0 ? 1 : (int)(log10(abs(integer->value)))+1;
-    if (integer->value<0) len++; // room for negative sign '-'
+    if (integer == NULL) return NULL;
+    int len = integer->value == 0 ? 1 : (int) (log10(abs(integer->value))) + 1;
+    if (integer->value < 0) len++; // room for negative sign '-'
 
-    char* buf = calloc(sizeof(char), len+1); // +1 for null
-    snprintf(buf, len+1, "%d", integer->value);
+    char* buf = calloc(sizeof(char), len + 1); // +1 for null
+    snprintf(buf, len + 1, "%d", integer->value);
     return buf;
 }
 
 char* parseFloat(Float* f) {
-    if(f == NULL) return NULL;
+    if (f == NULL) return NULL;
     int len = 7;
-    if (f->value<0) len++; // room for negative sign '-'
+    if (f->value < 0) len++; // room for negative sign '-'
 
-    char* buf = calloc(sizeof(char), len+1); // +1 for null
-    snprintf(buf, len+1, "%f", f->value);
+    char* buf = calloc(sizeof(char), len + 1); // +1 for null
+    snprintf(buf, len + 1, "%f", f->value);
     return buf;
 }

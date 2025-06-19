@@ -1,7 +1,8 @@
 #include "classloader/methodparser.h"
-#include<stdint.h>
-#include <malloc.h>
+
 #include <classloader/primitivereader.h>
+#include <malloc.h>
+#include <stdint.h>
 
 #include "classloader/utf8utils.h"
 
@@ -13,7 +14,7 @@ int getArgCount(const char* descriptor) {
 
     int numArgs = 0;
 
-    const char* currentCharacter = descriptor+1; // skip the '('
+    const char* currentCharacter = descriptor + 1; // skip the '('
 
     while (*currentCharacter != '\0' && *currentCharacter != ')') {
         switch (*currentCharacter) {
@@ -65,15 +66,15 @@ MethodPool* parseMethodPool(ConstantPool* constantPool, const uint8_t** content)
     methodPool->size = size;
     methodPool->pool = malloc(size * sizeof(MethodInfo*));
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         MethodInfo* methodInfo = malloc(sizeof(MethodInfo));
 
         methodInfo->accessFlags = readuInt16(content);
         const uint16_t nameIndex = readuInt16(content);
         const uint16_t descriptorIndex = readuInt16(content);
 
-        methodInfo->name = constantPool->pool[nameIndex-1]->constant->utf8;
-        methodInfo->descriptor = constantPool->pool[descriptorIndex-1]->constant->utf8;
+        methodInfo->name = constantPool->pool[nameIndex - 1]->constant->utf8;
+        methodInfo->descriptor = constantPool->pool[descriptorIndex - 1]->constant->utf8;
 
         methodInfo->attributePool = parseAttributes(constantPool, content);
         methodPool->pool[i] = methodInfo;

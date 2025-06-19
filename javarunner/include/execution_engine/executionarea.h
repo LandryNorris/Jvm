@@ -7,4 +7,4 @@ typedef struct {
     Stack8* stack;
 } ExecutionArea;
 
-#endif //JVM_PROJECT_EXECUTION_AREA_H
+#endif // JVM_PROJECT_EXECUTION_AREA_H

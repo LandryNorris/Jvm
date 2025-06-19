@@ -1,7 +1,7 @@
 #ifndef JVM_PROJECT_TARGETINFO_H
 #define JVM_PROJECT_TARGETINFO_H
 
-#include<stdint.h>
+#include <stdint.h>
 typedef struct {
     uint8_t typeParameterIndex;
 } TypeParameterTarget;

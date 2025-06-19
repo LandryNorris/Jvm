@@ -1,7 +1,7 @@
 #ifndef JVM_PROJECT_CONSTANT_PARSER_H
 #define JVM_PROJECT_CONSTANT_PARSER_H
 
-#include<stdint.h>
+#include <stdint.h>
 
 #define CONSTANT_UTF8 1
 #define CONSTANT_INT 3
@@ -21,58 +21,58 @@
 typedef struct ClassFile ClassFile;
 
 typedef struct {
-	uint16_t size;
-	uint8_t* content;
+    uint16_t size;
+    uint8_t* content;
 } UTF8;
 
 typedef struct {
-	uint16_t nameIndex;
-	UTF8* name;
-	ClassFile* classFile;
+    uint16_t nameIndex;
+    UTF8* name;
+    ClassFile* classFile;
 } Class;
 
 typedef struct {
-	uint16_t nameIndex;
-	uint16_t descriptorIndex;
-	UTF8* name;
-	UTF8* descriptor;
+    uint16_t nameIndex;
+    uint16_t descriptorIndex;
+    UTF8* name;
+    UTF8* descriptor;
 } NameAndType;
 
 typedef struct {
-	uint16_t classIndex;
-	uint16_t nameAndTypeIndex;
-	NameAndType* nameAndType;
-	Class* class;
+    uint16_t classIndex;
+    uint16_t nameAndTypeIndex;
+    NameAndType* nameAndType;
+    Class* class;
 } MethodRef;
 
 typedef struct {
-	int32_t value;
+    int32_t value;
 } Integer;
 
 typedef struct {
-	float value;
+    float value;
 } Float;
 
 typedef struct {
-	uint64_t value;
+    uint64_t value;
 } Long;
 
 typedef struct {
-	double value;
+    double value;
 } Double;
 
 typedef struct {
-	uint16_t index;
-	UTF8* string;
+    uint16_t index;
+    UTF8* string;
 } String;
 
 typedef struct {
-	uint8_t referenceKind;
-	uint16_t referenceIndex;
+    uint8_t referenceKind;
+    uint16_t referenceIndex;
 } MethodHandle;
 
 typedef struct {
-	uint16_t descriptorIndex;
+    uint16_t descriptorIndex;
 } MethodType;
 
 typedef struct {
@@ -81,28 +81,28 @@ typedef struct {
 } InvokeDynamic;
 
 typedef union {
-	UTF8* utf8;
-	MethodRef* methodRef;
-	Class* class;
-	NameAndType* nameAndType;
-	Integer* integer;
-	Float* f;
-	Long* l;
-	Double* d;
-	String* string;
-	MethodHandle* methodHandle;
-	MethodType* methodType;
+    UTF8* utf8;
+    MethodRef* methodRef;
+    Class* class;
+    NameAndType* nameAndType;
+    Integer* integer;
+    Float* f;
+    Long* l;
+    Double* d;
+    String* string;
+    MethodHandle* methodHandle;
+    MethodType* methodType;
     InvokeDynamic* invokeDynamic;
 } Constant;
 
 typedef struct {
-	uint8_t tag;
-	Constant* constant;
+    uint8_t tag;
+    Constant* constant;
 } ConstantPoolInfo;
 
 typedef struct {
-	uint16_t size;
-	ConstantPoolInfo** pool;
+    uint16_t size;
+    ConstantPoolInfo** pool;
 } ConstantPool;
 
 ConstantPool* readConstantPool(const uint8_t** bytes);

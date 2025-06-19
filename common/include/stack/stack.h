@@ -72,4 +72,4 @@ int isFull32(Stack32*);
 
 int isEmpty32(Stack32*);
 
-#endif //JVM_PROJECT_STACK_H
+#endif // JVM_PROJECT_STACK_H

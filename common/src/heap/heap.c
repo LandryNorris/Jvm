@@ -1,3 +1,3 @@
-#include<stdlib.h>
+#include <stdlib.h>
 
 long* heapPtr;

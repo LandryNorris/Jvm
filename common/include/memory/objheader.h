@@ -25,11 +25,10 @@ int createObject(GarbageCollector* gc, ClassFile* class);
 void setFieldValue32(ObjHeader* obj, char* field, int32_t value);
 int32_t getFieldValue32(ObjHeader* obj, char* field);
 
-
 /**
  * @param descriptor String descriptor of the type
  * @return size in bytes of the primitive or reference
  */
 int getSizeFromDescriptor(char* descriptor);
 
-#endif //JVM_PROJECT_OBJHEADER_H
+#endif // JVM_PROJECT_OBJHEADER_H

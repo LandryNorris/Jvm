@@ -22,4 +22,4 @@ StaticField* getStaticField(ClassFile* classFile, const char* field);
 int32_t getInt32StaticField(ClassFile* classFile, const char* field);
 int32_t setInt32StaticField(ClassFile* classFile, const char* field, int32_t value);
 
-#endif //STATIC_FIELDS_H
+#endif // STATIC_FIELDS_H

@@ -10,7 +10,7 @@ typedef struct {
 } ClassPool;
 
 ClassPool* createClassPool();
-ClassFile * addClass(ClassPool* classPool, ClassFile* classFile);
+ClassFile* addClass(ClassPool* classPool, ClassFile* classFile);
 void freeClassPool(ClassPool* classPool);
 
-#endif //JVM_PROJECT_CLASSPOOL_H
+#endif // JVM_PROJECT_CLASSPOOL_H

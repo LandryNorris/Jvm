@@ -31,4 +31,4 @@ char* parseInteger(Integer* integer);
 
 char* parseFloat(Float* f);
 
-#endif //JVM_PROJECT_CONSTANTPOOLHELPER_H
+#endif // JVM_PROJECT_CONSTANTPOOLHELPER_H

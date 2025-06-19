@@ -2,11 +2,13 @@
 // Created by landry on 8/29/22.
 //
 
+#include "memory/objheader.h"
+
 #include <malloc.h>
 #include <string.h>
-#include "memory/garbagecollector.h"
-#include "memory/objheader.h"
+
 #include "classloader/utf8utils.h"
+#include "memory/garbagecollector.h"
 
 int createObject(GarbageCollector* gc, ClassFile* classFile) {
     int index = allocateNew(gc, sizeof(ObjHeader) + classFile->size);
@@ -17,9 +19,9 @@ int createObject(GarbageCollector* gc, ClassFile* classFile) {
     header->size = classFile->size;
     // TODO(Landry): Account for static fields
     header->fieldCount = fieldCount;
-    header->fields = malloc(sizeof(char*)*fieldCount);
+    header->fields = malloc(sizeof(char*) * fieldCount);
     int offset = 0;
-    for(int i = 0; i < fieldCount; i++) {
+    for (int i = 0; i < fieldCount; i++) {
         // we only care about instance fields
         if (isFieldStatic(classFile->fieldPool->pool[i])) {
             continue;
@@ -40,8 +42,8 @@ int createObject(GarbageCollector* gc, ClassFile* classFile) {
 }
 
 int getFieldIndex(ObjHeader* obj, char* field) {
-    for(int i = 0; i < obj->fieldCount; i++) {
-        if(strcmp(field, obj->fields[i]->name) == 0) {
+    for (int i = 0; i < obj->fieldCount; i++) {
+        if (strcmp(field, obj->fields[i]->name) == 0) {
             return i;
         }
     }
@@ -50,7 +52,7 @@ int getFieldIndex(ObjHeader* obj, char* field) {
 
 void setFieldValue32(ObjHeader* obj, char* field, int32_t value) {
     int fieldIndex = getFieldIndex(obj, field);
-    if(fieldIndex == -1) {
+    if (fieldIndex == -1) {
         printf("Field %s is not a valid field in the class\n", field);
         return;
     }
@@ -60,7 +62,7 @@ void setFieldValue32(ObjHeader* obj, char* field, int32_t value) {
 
 int32_t getFieldValue32(ObjHeader* obj, char* field) {
     int fieldIndex = getFieldIndex(obj, field);
-    if(fieldIndex == -1) {
+    if (fieldIndex == -1) {
         printf("Field %s is not a valid field in the class\n", field);
         return 0;
     }
@@ -73,9 +75,10 @@ int32_t getFieldValue32(ObjHeader* obj, char* field) {
  * @return size in bytes of the primitive or reference
  */
 int getSizeFromDescriptor(char* descriptor) {
-    if(strcmp(descriptor, "B") == 0 || strcmp(descriptor, "Z") == 0) return 1;
-    if(strcmp(descriptor, "C") == 0 || strcmp(descriptor, "S") == 0) return 2;
-    if(strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0 || descriptor[0] == '[') return 4;
-    if(strcmp(descriptor, "J") == 0 || strcmp(descriptor, "D") == 0) return 8;
+    if (strcmp(descriptor, "B") == 0 || strcmp(descriptor, "Z") == 0) return 1;
+    if (strcmp(descriptor, "C") == 0 || strcmp(descriptor, "S") == 0) return 2;
+    if (strcmp(descriptor, "I") == 0 || strcmp(descriptor, "F") == 0 || descriptor[0] == '[')
+        return 4;
+    if (strcmp(descriptor, "J") == 0 || strcmp(descriptor, "D") == 0) return 8;
     return 4;
 }

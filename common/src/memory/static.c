@@ -15,7 +15,7 @@ void initializeStaticFields(ClassFile* classFile) {
     // TODO(Landry): Account for instance fields
     staticFields->numFields = fieldCount;
 
-    for(int i = 0; i < fieldCount; i++) {
+    for (int i = 0; i < fieldCount; i++) {
         // we only care about instance fields
         if (!isFieldStatic(classFile->fieldPool->pool[i])) {
             continue;
@@ -49,7 +49,7 @@ StaticField* getStaticField(ClassFile* classFile, const char* field) {
 int32_t getInt32StaticField(ClassFile* classFile, const char* field) {
     const StaticField* staticField = getStaticField(classFile, field);
 
-    return (int32_t)staticField->value;
+    return (int32_t) staticField->value;
 }
 
 int32_t setInt32StaticField(ClassFile* classFile, const char* field, int32_t value) {

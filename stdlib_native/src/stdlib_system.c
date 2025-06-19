@@ -14,7 +14,7 @@ void Java_java_lang_Printer_print() {
 
 void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
     Executor* executor = getMainExecutor();
-    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int)text);
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) text);
 
     // For Strings, the value is fields[0]
     int valueOffset = stringObj->fields[0]->offset;
@@ -31,7 +31,8 @@ void Java_java_lang_System_setupPrinter() {
     const Executor* executor = getMainExecutor();
 
     uint8_t loadedFresh;
-    ClassFile* printStreamClass = getClassFile(executor->loader, "java/io/PrintStream", &loadedFresh);
+    ClassFile* printStreamClass =
+        getClassFile(executor->loader, "java/io/PrintStream", &loadedFresh);
 
     const NativeMethodCreationContext nativeMethods[] = {
         {

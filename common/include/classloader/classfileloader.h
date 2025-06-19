@@ -1,8 +1,8 @@
 #ifndef JVM_PROJECT_CLASSFILELOADER_H
 #define JVM_PROJECT_CLASSFILELOADER_H
 
-#include <utils/arrayutils.h>
 #include <classloader/classfile.h>
+#include <utils/arrayutils.h>
 
 ClassFile* loadClassFile(const char* classFilePath);
 
@@ -16,14 +16,14 @@ void freeConstantPool(ConstantPool*);
 
 void freeMethodPool(MethodPool*);
 
-void freeAttributePool(AttributePool *attributePool);
+void freeAttributePool(AttributePool* attributePool);
 
-void freeFieldPool(FieldPool *fieldPool);
+void freeFieldPool(FieldPool* fieldPool);
 
-void freeInterfacePool(InterfacePool *interfacePool);
+void freeInterfacePool(InterfacePool* interfacePool);
 
 void freeClassFile(ClassFile* classFile);
 
 void freeStackMapTable(StackMapTable* stackMapTable);
 
-#endif //JVM_PROJECT_CLASSFILELOADER_H
+#endif // JVM_PROJECT_CLASSFILELOADER_H

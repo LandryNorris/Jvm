@@ -1,8 +1,8 @@
 #ifndef JVM_PROJECT_STACKFRAME_H
 #define JVM_PROJECT_STACKFRAME_H
 
-#include <stack/stack.h>
 #include <classloader/constantparser.h>
+#include <stack/stack.h>
 
 typedef struct {
     ConstantPool* constantPool;
@@ -33,4 +33,4 @@ int isEmptyFrame(FrameStack*);
 
 StackFrame* getStackFrame(FrameStack* stack, int offset);
 
-#endif //JVM_PROJECT_STACKFRAME_H
+#endif // JVM_PROJECT_STACKFRAME_H

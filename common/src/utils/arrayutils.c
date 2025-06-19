@@ -1,6 +1,7 @@
 #include "utils/arrayutils.h"
-#include <malloc.h>
+
 #include <classloader/utf8utils.h>
+#include <malloc.h>
 
 Array* allocArray(int size, int itemSize) {
     Array* array = malloc(sizeof(Array));
@@ -17,7 +18,7 @@ CStringArray* allocCStringArray(int size) {
 }
 
 void freeCStringArray(CStringArray* cStringArray) {
-    for(int i = 0; i < cStringArray->size; i++) {
+    for (int i = 0; i < cStringArray->size; i++) {
         free(cStringArray->values[i]);
     }
     free(cStringArray->values);
@@ -25,8 +26,8 @@ void freeCStringArray(CStringArray* cStringArray) {
 }
 
 int containsUtf8(CStringArray* array, UTF8* utf8) {
-    for(int i = 0; i < array->size; i++) {
-        if(isEqual(utf8, array->values[i])) {
+    for (int i = 0; i < array->size; i++) {
+        if (isEqual(utf8, array->values[i])) {
             return 1;
         }
     }

@@ -6,4 +6,4 @@
 void printCodeAttributes(Code* code);
 void printFileAttributes(ConstantPool* constantPool, AttributePool* attributePool);
 
-#endif //JVM_PROJECT_ATTRIBUTEHELPER_H
+#endif // JVM_PROJECT_ATTRIBUTEHELPER_H

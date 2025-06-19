@@ -18,4 +18,4 @@ int allocate(MemoryRegion* region, uint32_t size);
 void* getValue(MemoryRegion* region, int index);
 void freeMemory(MemoryRegion* region, void* ptr);
 
-#endif //JVM_PROJECT_MEMORY_H
+#endif // JVM_PROJECT_MEMORY_H

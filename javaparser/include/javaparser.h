@@ -11,4 +11,4 @@ int javaparser_main(int argc, char** argv);
 };
 #endif
 
-#endif //JAVAPARSER_H
+#endif // JAVAPARSER_H

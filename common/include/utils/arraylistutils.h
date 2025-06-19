@@ -8,4 +8,4 @@ typedef struct {
     uint32_t currentIndex;
     char** values;
 } CStringArrayList;
-#endif //JVM_PROJECT_ARRAYLISTUTILS_H
+#endif // JVM_PROJECT_ARRAYLISTUTILS_H

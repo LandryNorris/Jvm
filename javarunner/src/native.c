@@ -2,11 +2,10 @@
 #include "native.h"
 
 #include <dlfcn.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <ffi.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "classloader/utf8utils.h"
 
@@ -39,7 +38,7 @@ Symbol* loadSymbol(const char* name) {
             symbols[numLoadedSymbols].name = name;
             symbols[numLoadedSymbols].sym = sym;
             numLoadedSymbols++;
-            return &symbols[numLoadedSymbols-1];
+            return &symbols[numLoadedSymbols - 1];
         }
     }
 
@@ -85,7 +84,8 @@ void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* re
                 types[typeIndex++] = &ffi_type_sint32;
                 break;
             }
-            // TODO(Landry): I think arrays should treated like objects? Maybe primitives are different?
+            // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
+            // different?
             case '[':
             case 'L': {
                 // parse type
@@ -124,7 +124,7 @@ char* jniName(const ClassFile* classFile, const UTF8* methodName) {
 
     const char* prefix = "Java_";
 
-    const int length = (int)strlen(prefix) + className->size + 1 + methodName->size;
+    const int length = (int) strlen(prefix) + className->size + 1 + methodName->size;
 
     char* result = malloc(length + 1);
     snprintf(result, length + 1, "%s%s_%s", prefix, classNameString, methodNameString);
@@ -134,25 +134,25 @@ char* jniName(const ClassFile* classFile, const UTF8* methodName) {
     return result;
 }
 
-void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8* name, const UTF8* descriptor,
-    FrameStack* frameStack, const bool isVirtual) {
+void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8* name,
+                         const UTF8* descriptor, FrameStack* frameStack, const bool isVirtual) {
     char* jniMethodName = jniName(classFile, name);
     const Symbol* symbolInfo = loadSymbol(jniMethodName);
     free(jniMethodName);
 
-    int argSize = isVirtual ? argc+1 : argc;
+    int argSize = isVirtual ? argc + 1 : argc;
 
     uint32_t args[argSize];
 
     StackFrame* lastFrame = peekFrame(frameStack);
-    if(lastFrame) {
+    if (lastFrame) {
         int localVariableIndex = 0;
         if (isVirtual) {
             // the object reference is at the bottom of the stack, but
             // needs to go at the start of local variables
             localVariableIndex++;
         }
-        for(int j = 0; j < argc; j++) {
+        for (int j = 0; j < argc; j++) {
             args[localVariableIndex++] = pop32(&lastFrame->operandStack);
         }
         if (isVirtual) {
@@ -166,16 +166,18 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
     if (isVirtual) {
         types[0] = &ffi_type_uint32;
     }
-    parseDescriptorToFFI(descriptorString, types+1, &returnType);
+    parseDescriptorToFFI(descriptorString, types + 1, &returnType);
 
     free(descriptorString);
 
     ffi_cif callInterface;
-    const ffi_status status = ffi_prep_cif(&callInterface, FFI_DEFAULT_ABI, argSize, &returnType, types);
+    const ffi_status status =
+        ffi_prep_cif(&callInterface, FFI_DEFAULT_ABI, argSize, &returnType, types);
 
     if (status != FFI_OK) {
         printf("Unable to initialize FFI context\n");
-        exit(1); // this can be easy to miss, and may cause major issues. Replace with exception later
+        exit(1); // this can be easy to miss, and may cause major issues. Replace with exception
+                 // later
     }
 
     void* argPointers[argSize];
@@ -184,5 +186,5 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
     }
 
     uint64_t returnValue = 0;
-    ffi_call(&callInterface, (void(*)()) symbolInfo->sym, &returnValue, argPointers);
+    ffi_call(&callInterface, (void (*)()) symbolInfo->sym, &returnValue, argPointers);
 }
