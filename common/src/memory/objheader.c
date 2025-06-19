@@ -25,10 +25,8 @@ int createObject(GarbageCollector* gc, ClassFile* classFile) {
             continue;
         }
 
-        int nameIndex = classFile->fieldPool->pool[i]->nameIndex;
-        int descriptorIndex = classFile->fieldPool->pool[i]->descriptorIndex;
-        UTF8* nameUtf = classFile->constantPool->pool[nameIndex-1]->constant->utf8;
-        UTF8* descriptorUtf = classFile->constantPool->pool[descriptorIndex-1]->constant->utf8;
+        UTF8* nameUtf = classFile->fieldPool->pool[i]->name;
+        UTF8* descriptorUtf = classFile->fieldPool->pool[i]->descriptor;
         char* descriptor = utf82cstring(descriptorUtf);
         ObjField* field = malloc(sizeof(ObjField));
 

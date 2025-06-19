@@ -53,7 +53,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->thisClassIndex = poolIndex;
     clazz->classFile = classFile;
 
-    addStringToConstantPool(classFile->constantPool, &poolIndex, context->name);
+    clazz->name = addStringToConstantPool(classFile->constantPool, &poolIndex, context->name);
     clazz->nameIndex = poolIndex;
 
     // initialize method pool
@@ -85,6 +85,9 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
     classFile->fieldPool = malloc(sizeof(FieldPool));
     classFile->fieldPool->size = 0;
     classFile->fieldPool->pool = malloc(0);
+
+    classFile->thisClass = clazz;
+    classFile->name = clazz->name;
 
     if (context->superclass != nullptr) {
         const Class* superclass = context->superclass->constantPool->pool[context->superclass->thisClassIndex-1]->constant->class;

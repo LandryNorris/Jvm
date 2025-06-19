@@ -34,8 +34,14 @@ int initClassFile(const uint8_t * bytes, ClassFile* classPtr) {
     classPtr->size = getClassSize(classPtr->constantPool, classPtr->fieldPool);
 
 	classPtr->thisClass = classPtr->constantPool->pool[classPtr->thisClassIndex-1]->constant->class;
-	classPtr->superClass = classPtr->constantPool->pool[classPtr->superClassIndex-1]->constant->class;
 
+	if (classPtr->superClassIndex == 0) {
+		classPtr->superClass = nullptr;
+	} else {
+		classPtr->superClass = classPtr->constantPool->pool[classPtr->superClassIndex-1]->constant->class;
+	}
+
+	classPtr->name = classPtr->thisClass->name;
 	return 0;
 }
 

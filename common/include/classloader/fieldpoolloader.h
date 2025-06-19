@@ -19,8 +19,6 @@ typedef enum {
 
 typedef struct {
 	uint16_t accessFlags;
-	uint16_t nameIndex;
-	uint16_t descriptorIndex;
 	UTF8* name;
 	UTF8* descriptor;
     AttributePool* attributePool;
