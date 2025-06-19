@@ -28,8 +28,6 @@ void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
 }
 
 void Java_java_lang_System_setupPrinter() {
-    printf("Initializing printer!\n");
-
     const Executor* executor = getMainExecutor();
 
     uint8_t loadedFresh;
