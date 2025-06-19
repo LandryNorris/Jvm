@@ -37,7 +37,6 @@ void setMainExecutor(Executor* executor) {
 }
 
 static void initializeClass(Executor* e, const ClassFile* classFile, FrameStack* frameStack) {
-    printf("Searching for initializer\n");
     UTF8 name;
     UTF8 descriptor;
     initUtf8(&name, "<clinit>");
@@ -188,7 +187,6 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
     while(1) {
         uint8_t instruction = *pc;
-        printf("Executing: %s\n", instructionNames[instruction]);
         switch(instruction) {
             case INSTR_NOP: break;
             case INSTR_ACONST_NULL:

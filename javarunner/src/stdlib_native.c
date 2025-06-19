@@ -3,5 +3,4 @@
 
 void loadNativeStdLib() {
     loadSharedLibrary("libstdlib_native.so");
-    printf("Loaded native stdlib");
 }
