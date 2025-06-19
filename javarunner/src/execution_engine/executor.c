@@ -513,6 +513,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 executeByNameUtf8(executor, otherClass, methodName, descriptor, frameStack, true, true);
                 break;
             }
+            case INSTR_ALOAD: {
+                uint8_t index = *++pc;
+                push32(operandStack, locals[index]);
+                break;
+            }
             case INSTR_ALOAD_0: {
                 int32_t local = locals[0];
                 push32(operandStack, local);
@@ -531,6 +536,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ALOAD_3: {
                 int32_t local = locals[3];
                 push32(operandStack, local);
+                break;
+            }
+            case INSTR_ASTORE: {
+                uint8_t index = *++pc;
+                int32_t value = pop32(operandStack);
+                locals[index] = value;
                 break;
             }
             case INSTR_ASTORE_0: {
