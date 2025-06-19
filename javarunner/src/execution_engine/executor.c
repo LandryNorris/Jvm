@@ -43,7 +43,7 @@ static void initializeClass(Executor* e, const ClassFile* classFile, FrameStack*
     initUtf8(&name, "<clinit>");
     initUtf8(&descriptor, "()V");
 
-    executeByNameUtf8(e, classFile, &name, &descriptor, frameStack, false);
+    executeByNameUtf8(e, classFile, &name, &descriptor, frameStack, false, false);
 }
 
 Executor* createExecutor(const char* classPath, const char* mainClassName) {
@@ -139,7 +139,8 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile, 
     return 0;
 }
 
-int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual) {
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual, bool
+                      isSpecial) {
     MethodInfo* method = lookupMethodInDirectClass(classFile, methodName, descriptor);
     if (method == nullptr) {
         char* methodNameString = utf82cstring(methodName);
@@ -155,11 +156,14 @@ int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* meth
         int objRef = peek32(operandStack, method->argumentCount);
         const ObjHeader* instance = getValue(executor->gc->memoryRegion, objRef);
 
-        // TODO(Landry): Walk full class tree
-        MethodInfo* overridingMethod = lookupMethodInDirectClass(instance->class, methodName, descriptor);
-        if (overridingMethod != nullptr) {
-            method = overridingMethod;
-            classFile = instance->class;
+        // TODO(Landry): I think this is right?
+        if (!isSpecial) {
+            // TODO(Landry): Walk full class tree
+            MethodInfo* overridingMethod = lookupMethodInDirectClass(instance->class, methodName, descriptor);
+            if (overridingMethod != nullptr) {
+                method = overridingMethod;
+                classFile = instance->class;
+            }
         }
     }
     return execute(executor, method, classFile, frameStack, isVirtual);
@@ -506,7 +510,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 ClassFile* otherClass = getClassFile(executor->loader, otherClassString, NULL);
 
-                executeByNameUtf8(executor, otherClass, methodName, descriptor, frameStack, true);
+                executeByNameUtf8(executor, otherClass, methodName, descriptor, frameStack, true, true);
                 break;
             }
             case INSTR_ALOAD_0: {
@@ -593,7 +597,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 char* otherClassString = utf82cstring(otherClassUtf8);
                 ClassFile* otherClassFile = getClassFileAndExecuteIfNew(executor, frameStack, otherClassString);
                 free(otherClassString);
-                executeByNameUtf8(executor, otherClassFile, methodName, descriptor, frameStack, false);
+                executeByNameUtf8(executor, otherClassFile, methodName, descriptor, frameStack, false, false);
                 break;
             }
             case INSTR_INVOKEVIRTUAL: {
@@ -611,7 +615,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 if (class->classFile == NULL) {
                     class->classFile = getClassFileAndExecuteIfNew(executor, frameStack, utf82cstring(className));
                 }
-                executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack, true);
+                executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack, true, false);
                 break;
             }
             case INSTR_NEWARRAY: {

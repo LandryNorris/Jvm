@@ -14,7 +14,8 @@ typedef struct {
 Executor* createExecutor(const char* classPath, const char* mainClassName);
 void executeProgram(Executor* executor, Program* program, FrameStack* frameStack, const ClassFile *classFile);
 int runMain(Executor* executor);
-int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual);
+int executeByNameUtf8(Executor* executor, const ClassFile *classFile, UTF8* methodName, UTF8* descriptor, FrameStack* frameStack, bool isVirtual, bool
+                      isSpecial);
 int executeByName(Executor* executor, const ClassFile *classFile, char* methodName, FrameStack* frameStack, bool isVirtual);
 void freeExecutor(Executor* executor);
 
