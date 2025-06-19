@@ -239,6 +239,18 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ILOAD_3:
                 push32(operandStack, locals[3]);
                 break;
+            case INSTR_IOR: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                push32(operandStack, a | b);
+                break;
+            }
+            case INSTR_IAND: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                push32(operandStack, a & b);
+                break;
+            }
             case INSTR_IADD: {
                 int b = pop32(operandStack);
                 int a = pop32(operandStack);
@@ -263,6 +275,13 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 // TODO(Landry): Handle 'special case' from idiv specification
                 push32(operandStack, a / b);
+                break;
+            }
+            case INSTR_IREM: {
+                int a = pop32(operandStack);
+                int b = pop32(operandStack);
+                int result = a - (a / b) * b;
+                push32(operandStack, result);
                 break;
             }
             case INSTR_IINC: {
@@ -669,6 +688,85 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int ref = pop32(operandStack);
 
                 if (ref != 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IFEQ: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value == 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFNE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value != 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFLT: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value < 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFLE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value <= 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFGT: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value > 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFGE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value >= 0) {
                     pc += branch - 3; // we incremented 2 already, and pc++ increments again
                 }
                 break;
