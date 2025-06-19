@@ -12,9 +12,7 @@ void initializeStaticFields(ClassFile* classFile) {
     StaticFields* staticFields = malloc(sizeof(StaticFields));
     staticFields->fields = malloc(sizeof(StaticField) * fieldCount);
 
-    // TODO(Landry): Account for instance fields
-    staticFields->numFields = fieldCount;
-
+    int numStaticFields = 0;
     for (int i = 0; i < fieldCount; i++) {
         // we only care about instance fields
         if (!isFieldStatic(classFile->fieldPool->pool[i])) {
@@ -26,8 +24,9 @@ void initializeStaticFields(ClassFile* classFile) {
 
         field.value = 0;
         field.name = utf82cstring(nameUtf);
-        staticFields->fields[i] = field;
+        staticFields->fields[numStaticFields++] = field;
     }
+    staticFields->numFields = numStaticFields;
 
     classFile->staticFields = staticFields;
 }

@@ -45,6 +45,8 @@ int initClassFile(const uint8_t* bytes, ClassFile* classPtr) {
     }
 
     classPtr->name = classPtr->thisClass->name;
+
+    initializeStaticFields(classPtr);
     return 0;
 }
 
