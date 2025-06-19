@@ -661,6 +661,19 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 break;
             }
 
+            case INSTR_IFNONNULL: {
+                int8_t branchByteHigh = *(int8_t*) ++pc;
+                int8_t branchByteLow = *(int8_t*) ++pc;
+
+                uint16_t branch = branchByteHigh << 8 | branchByteLow;
+                int ref = pop32(operandStack);
+
+                if (ref != 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
             // If for integers
             case INSTR_IF_ICMPLE: {
                 int value2 = pop32(operandStack);
@@ -775,6 +788,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int32_t value = intRawToFloat(pop32(operandStack));
                 int32_t i = value;
                 push32(operandStack, i);
+                break;
+            }
+
+            case INSTR_POP: {
+                pop32(operandStack);
                 break;
             }
 
