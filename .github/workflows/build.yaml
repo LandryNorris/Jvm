@@ -21,3 +21,15 @@ jobs:
 
       - name: Build
         run: cmake --build ${{github.workspace}}/cmake-build-release
+
+      - name: Prepare artifacts
+        run: |
+          mkdir artifacts
+          cp cmake-build-release/javaparser/parser_main artifacts/javap
+          cp cmake-build-release/javarunner/runner artifacts/java
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: jre
+          path: artifacts
