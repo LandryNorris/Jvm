@@ -112,8 +112,7 @@ void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* re
 }
 
 char* jniName(const ClassFile* classFile, const UTF8* methodName) {
-    const Class* clazz = classFile->constantPool->pool[classFile->thisClass-1]->constant->class;
-    UTF8* className = classFile->constantPool->pool[clazz->nameIndex-1]->constant->utf8;
+    UTF8* className = classFile->name;
     char* classNameString = utf82cstring(className);
     for (int i = 0; i < className->size; i++) {
         if (classNameString[i] == '/') {
