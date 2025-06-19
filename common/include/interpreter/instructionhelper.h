@@ -1,6 +1,8 @@
 #ifndef JVM_PROJECT_INSTRUCTIONHELPER_H
 #define JVM_PROJECT_INSTRUCTIONHELPER_H
 
+#include "classloader/attributeloader.h"
+
 #define INSTR_NOP 0x00
 #define INSTR_ACONST_NULL 0x01
 

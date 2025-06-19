@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B ${{github.workspace}}/cmake-build-release -DCMAKE_BUILD_TYPE=Release . && cat cmake-build-release/compile_commands.json
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/cmake-build-release
