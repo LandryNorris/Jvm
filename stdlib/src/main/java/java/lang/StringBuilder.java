@@ -141,6 +141,15 @@ public class StringBuilder implements Serializable, CharSequence {
         return this;
     }
 
+    public StringBuilder reverse() {
+        for(int i = 0; i < usedSize/2; i++) {
+            byte temp = value[i];
+            value[i] = value[usedSize - i -1];
+            value[usedSize - i -1] = temp;
+        }
+        return this;
+    }
+
     void setLength(int length) {
         usedSize = length;
     }
@@ -194,4 +203,4 @@ public class StringBuilder implements Serializable, CharSequence {
     }
 }
 
-// TODO(Landry): Missing methods: codePointBefore, codePointAfter, codePointCount, getChars, indexOf, insert (all overloads), lastIndexOf, offsetByCodePoints, reverse, setCharAt, substring
+// TODO(Landry): Missing methods: codePointBefore, codePointAfter, codePointCount, getChars, indexOf, insert (all overloads), lastIndexOf, offsetByCodePoints, setCharAt, substring

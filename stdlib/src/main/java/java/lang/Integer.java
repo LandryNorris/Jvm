@@ -58,7 +58,7 @@ public class Integer {
             builder.append('-');
         }
 
-        return builder.toString();
+        return builder.reverse().toString();
     }
 
     static Integer valueOf(String s) {
