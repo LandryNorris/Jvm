@@ -46,9 +46,11 @@ public class Integer {
     private static String toStringInternal(int i, int base) {
         StringBuilder builder = new StringBuilder(11); // integers are at most 10 digits + 1 for -
 
-        while(i > 0) {
-            int lowestDigit = i % base;
-            i /= base; // TODO(Landry): Use the provided value
+        // TODO(Landry): Use Math.abs when it's added
+        int positiveValue = i > 0 ? i : -i;
+        while(positiveValue > 0) {
+            int lowestDigit = positiveValue % base;
+            positiveValue /= base; // TODO(Landry): Use the provided value
 
             char c = (char) ('0' + lowestDigit);
             builder.append(c);
