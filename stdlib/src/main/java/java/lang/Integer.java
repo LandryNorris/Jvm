@@ -46,6 +46,10 @@ public class Integer {
     private static String toStringInternal(int i, int base) {
         StringBuilder builder = new StringBuilder(11); // integers are at most 10 digits + 1 for -
 
+        if(i == 0) {
+            return "0";
+        }
+
         // TODO(Landry): Use Math.abs when it's added
         int positiveValue = i > 0 ? i : -i;
         while(positiveValue > 0) {
