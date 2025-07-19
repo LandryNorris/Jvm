@@ -108,14 +108,9 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile,
             frame = allocStackFrame(code->maxLocals, code->maxStack, classFile->constantPool);
             StackFrame* lastFrame = peekFrame(frameStack);
             if (lastFrame) {
-                int localVariableIndex = 0;
-                if (isVirtual) {
-                    // the object reference is at the bottom of the stack, but
-                    // needs to go at the start of local variables
-                    localVariableIndex++;
-                }
+                int localVariableIndex = method->argumentCount-1 + !!isVirtual;
                 for (int j = 0; j < method->argumentCount; j++) {
-                    frame->localVariables[localVariableIndex++] = pop32(&lastFrame->operandStack);
+                    frame->localVariables[localVariableIndex--] = pop32(&lastFrame->operandStack);
                 }
                 if (isVirtual) {
                     frame->localVariables[0] = pop32(&lastFrame->operandStack);
@@ -278,8 +273,8 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 break;
             }
             case INSTR_IREM: {
-                int a = pop32(operandStack);
                 int b = pop32(operandStack);
+                int a = pop32(operandStack);
                 int result = a - (a / b) * b;
                 push32(operandStack, result);
                 break;
