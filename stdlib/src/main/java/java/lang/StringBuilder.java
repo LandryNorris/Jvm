@@ -99,8 +99,7 @@ public class StringBuilder implements Serializable, CharSequence {
     }
 
     public StringBuilder append(int i) {
-        // TODO(Landry): Implement Integer.toString()
-        String s = "int value";
+        String s = Integer.toString(i);
         return append(s);
     }
 
@@ -139,6 +138,15 @@ public class StringBuilder implements Serializable, CharSequence {
         }
         usedSize--;
 
+        return this;
+    }
+
+    public StringBuilder reverse() {
+        for(int i = 0; i < usedSize/2; i++) {
+            byte temp = value[i];
+            value[i] = value[usedSize - i -1];
+            value[usedSize - i -1] = temp;
+        }
         return this;
     }
 
@@ -195,4 +203,4 @@ public class StringBuilder implements Serializable, CharSequence {
     }
 }
 
-// TODO(Landry): Missing methods: codePointBefore, codePointAfter, codePointCount, getChars, indexOf, insert (all overloads), lastIndexOf, offsetByCodePoints, reverse, setCharAt, substring
+// TODO(Landry): Missing methods: codePointBefore, codePointAfter, codePointCount, getChars, indexOf, insert (all overloads), lastIndexOf, offsetByCodePoints, setCharAt, substring

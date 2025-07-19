@@ -108,14 +108,9 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile,
             frame = allocStackFrame(code->maxLocals, code->maxStack, classFile->constantPool);
             StackFrame* lastFrame = peekFrame(frameStack);
             if (lastFrame) {
-                int localVariableIndex = 0;
-                if (isVirtual) {
-                    // the object reference is at the bottom of the stack, but
-                    // needs to go at the start of local variables
-                    localVariableIndex++;
-                }
+                int localVariableIndex = method->argumentCount-1 + !!isVirtual;
                 for (int j = 0; j < method->argumentCount; j++) {
-                    frame->localVariables[localVariableIndex++] = pop32(&lastFrame->operandStack);
+                    frame->localVariables[localVariableIndex--] = pop32(&lastFrame->operandStack);
                 }
                 if (isVirtual) {
                     frame->localVariables[0] = pop32(&lastFrame->operandStack);
@@ -239,6 +234,18 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
             case INSTR_ILOAD_3:
                 push32(operandStack, locals[3]);
                 break;
+            case INSTR_IOR: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                push32(operandStack, a | b);
+                break;
+            }
+            case INSTR_IAND: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                push32(operandStack, a & b);
+                break;
+            }
             case INSTR_IADD: {
                 int b = pop32(operandStack);
                 int a = pop32(operandStack);
@@ -263,6 +270,18 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
                 // TODO(Landry): Handle 'special case' from idiv specification
                 push32(operandStack, a / b);
+                break;
+            }
+            case INSTR_IREM: {
+                int b = pop32(operandStack);
+                int a = pop32(operandStack);
+                int result = a - (a / b) * b;
+                push32(operandStack, result);
+                break;
+            }
+            case INSTR_INEG: {
+                int value = pop32(operandStack);
+                push32(operandStack, -value);
                 break;
             }
             case INSTR_IINC: {
@@ -309,9 +328,9 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 break;
             }
             case INSTR_SIPUSH: {
-                int8_t high = *((int8_t*) (++pc));
-                int8_t low = *((int8_t*) (++pc));
-                int value = high << 8 | low;
+                uint8_t high = *((int8_t*) (++pc));
+                uint8_t low = *((int8_t*) (++pc));
+                int16_t value = (high << 8) | low;
                 push32(operandStack, value);
                 break;
             }
@@ -637,11 +656,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 Class* class = methodRef->class;
                 UTF8* className = class->name;
 
-                if (class->classFile == NULL) {
-                    class->classFile =
+                ClassFile* classfileToExecute = class->classFile;
+                if (classfileToExecute == NULL) {
+                    classfileToExecute =
                         getClassFileAndExecuteIfNew(executor, frameStack, utf82cstring(className));
                 }
-                executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack,
+                executeByNameUtf8(executor, classfileToExecute, methodName, descriptor, frameStack,
                                   true, false);
                 break;
             }
@@ -658,6 +678,98 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int32_t arrayRef = pop32(operandStack);
                 int32_t size = (int32_t) getArrayLength(executor->gc, arrayRef);
                 push32(operandStack, size);
+                break;
+            }
+
+            case INSTR_IFNONNULL: {
+                int8_t branchByteHigh = *(int8_t*) ++pc;
+                int8_t branchByteLow = *(int8_t*) ++pc;
+
+                uint16_t branch = branchByteHigh << 8 | branchByteLow;
+                int ref = pop32(operandStack);
+
+                if (ref != 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+
+            case INSTR_IFEQ: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value == 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFNE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value != 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFLT: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value < 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFLE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value <= 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFGT: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value > 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
+                break;
+            }
+            case INSTR_IFGE: {
+                int value = pop32(operandStack);
+
+                int8_t branchByteHigh = *((int8_t*) (++pc));
+                int8_t branchByteLow = *((int8_t*) (++pc));
+
+                int16_t branch = branchByteHigh << 8 | branchByteLow;
+
+                if (value >= 0) {
+                    pc += branch - 3; // we incremented 2 already, and pc++ increments again
+                }
                 break;
             }
 
@@ -775,6 +887,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int32_t value = intRawToFloat(pop32(operandStack));
                 int32_t i = value;
                 push32(operandStack, i);
+                break;
+            }
+
+            case INSTR_POP: {
+                pop32(operandStack);
                 break;
             }
 

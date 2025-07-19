@@ -103,5 +103,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
         classFile->superClassIndex = poolIndex;
     }
 
+    classFile->staticFields = nullptr;
+
     return classFile;
 }

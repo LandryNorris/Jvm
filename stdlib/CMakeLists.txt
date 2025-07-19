@@ -17,6 +17,7 @@ add_jar(java_stdlib SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/System.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/StringBuilder.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Object.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Integer.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/PrintStream.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/Serializable.java"
 )
