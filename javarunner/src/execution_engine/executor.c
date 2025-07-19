@@ -656,11 +656,12 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 Class* class = methodRef->class;
                 UTF8* className = class->name;
 
-                if (class->classFile == NULL) {
-                    class->classFile =
+                ClassFile* classfileToExecute = class->classFile;
+                if (classfileToExecute == NULL) {
+                    classfileToExecute =
                         getClassFileAndExecuteIfNew(executor, frameStack, utf82cstring(className));
                 }
-                executeByNameUtf8(executor, class->classFile, methodName, descriptor, frameStack,
+                executeByNameUtf8(executor, classfileToExecute, methodName, descriptor, frameStack,
                                   true, false);
                 break;
             }
