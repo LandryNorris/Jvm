@@ -47,8 +47,8 @@ public class Integer {
         StringBuilder builder = new StringBuilder(11); // integers are at most 10 digits + 1 for -
 
         while(i > 0) {
-            int lowestDigit = i % 10;
-            i /= 10; // TODO(Landry): Use the provided value
+            int lowestDigit = i % base;
+            i /= base; // TODO(Landry): Use the provided value
 
             char c = (char) ('0' + lowestDigit);
             builder.append(c);
