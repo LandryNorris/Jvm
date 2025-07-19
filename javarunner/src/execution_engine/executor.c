@@ -328,9 +328,9 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 break;
             }
             case INSTR_SIPUSH: {
-                int8_t high = *((int8_t*) (++pc));
-                int8_t low = *((int8_t*) (++pc));
-                int value = high << 8 | low;
+                uint8_t high = *((int8_t*) (++pc));
+                uint8_t low = *((int8_t*) (++pc));
+                int16_t value = (high << 8) | low;
                 push32(operandStack, value);
                 break;
             }
