@@ -279,6 +279,11 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 push32(operandStack, result);
                 break;
             }
+            case INSTR_INEG: {
+                int value = pop32(operandStack);
+                push32(operandStack, -value);
+                break;
+            }
             case INSTR_IINC: {
                 uint8_t index = *(++pc);
                 int8_t constant = (int8_t) *(++pc);
