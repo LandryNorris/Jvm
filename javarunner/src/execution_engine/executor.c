@@ -108,7 +108,7 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile,
             frame = allocStackFrame(code->maxLocals, code->maxStack, classFile->constantPool);
             StackFrame* lastFrame = peekFrame(frameStack);
             if (lastFrame) {
-                int localVariableIndex = method->argumentCount-1 + !!isVirtual;
+                int localVariableIndex = method->argumentCount - 1 + !!isVirtual;
                 for (int j = 0; j < method->argumentCount; j++) {
                     frame->localVariables[localVariableIndex--] = pop32(&lastFrame->operandStack);
                 }
