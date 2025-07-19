@@ -6,6 +6,7 @@ public class App {
         printStringFromCharArray();
         printIntegers();
         getCharacter();
+        printReversed();
     }
 
     private static void testArgPassing(int i1, int i2, int i3) {
@@ -52,5 +53,10 @@ public class App {
             String s2 = new String(new char[] { s.charAt(i) });
             System.out.println(s2);
         }
+    }
+
+    private static void printReversed() {
+        StringBuilder s = new StringBuilder("The quick brown fox jumped over the lazy dog");
+        System.out.println(s.reverse().toString());
     }
 }
