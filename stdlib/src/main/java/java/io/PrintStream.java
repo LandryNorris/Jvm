@@ -9,4 +9,9 @@ public class PrintStream {
         print(s);
         print("\n");
     }
+
+    void println(Object o) {
+        print(o.toString());
+        print("\n");
+    }
 }

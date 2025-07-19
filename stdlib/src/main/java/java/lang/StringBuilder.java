@@ -99,8 +99,7 @@ public class StringBuilder implements Serializable, CharSequence {
     }
 
     public StringBuilder append(int i) {
-        // TODO(Landry): Implement Integer.toString()
-        String s = "int value";
+        String s = Integer.toString(i);
         return append(s);
     }
 
