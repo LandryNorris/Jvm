@@ -5,6 +5,7 @@ public class App {
         printAppendedText();
         printStringFromCharArray();
         printIntegers();
+        getCharacter();
     }
 
     private static void testArgPassing(int i1, int i2, int i3) {
@@ -43,5 +44,13 @@ public class App {
         System.out.println(twelve);
         System.out.println(fiveHundredFortySix);
         System.out.println(negativeSixThousandFourHundredTwentyOne);
+    }
+
+    private static void getCharacter() {
+        StringBuilder s = new StringBuilder("abcdefghijklmnop");
+        for(int i = 0; i < s.length(); i++) {
+            String s2 = new String(new char[] { s.charAt(i) });
+            System.out.println(s2);
+        }
     }
 }
