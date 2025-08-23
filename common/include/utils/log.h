@@ -20,5 +20,6 @@ void verboseLog(const char* text, ...);
 
 void setLogLevel(LogLevel logLevel);
 LogLevel getLogLevel();
+LogLevel getLogLevelByName(const char* name);
 
 #endif //LOG_H

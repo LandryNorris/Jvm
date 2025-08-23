@@ -2,8 +2,34 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 static LogLevel currentLogLevel = NONE;
+
+LogLevel getLogLevelByName(const char* name) {
+    if (strcmp("none", name) == 0) {
+        return NONE;
+    }
+    if (strcmp("error", name) == 0) {
+        return ERROR;
+    }
+    if (strcmp("warning", name) == 0) {
+        return WARNING;
+    }
+    if (strcmp("info", name) == 0) {
+        return INFO;
+    }
+    if (strcmp("debug", name) == 0) {
+        return DEBUG;
+    }
+    if (strcmp("trace", name) == 0) {
+        return TRACE;
+    }
+    if (strcmp("verbose", name) == 0) {
+        return VERBOSE;
+    }
+    return -1;
+}
 
 void setLogLevel(LogLevel logLevel) {
     currentLogLevel = logLevel;
