@@ -81,7 +81,7 @@ void debugLog(const char* text, ...) {
     }
     va_list args;
     va_start(args, text);
-    printf("[ERROR]: ");
+    printf("[DEBUG]: ");
     vprintf(text, args);
     va_end(args);
 }
@@ -92,7 +92,7 @@ void traceLog(const char* text, ...) {
     }
     va_list args;
     va_start(args, text);
-    printf("[ERROR]: ");
+    printf("[TRACE]: ");
     vprintf(text, args);
     va_end(args);
 }
@@ -103,7 +103,7 @@ void verboseLog(const char* text, ...) {
     }
     va_list args;
     va_start(args, text);
-    printf("[ERROR]: ");
+    printf("[VERBOSE]: ");
     vprintf(text, args);
     va_end(args);
 }
