@@ -35,7 +35,7 @@ public final class Math {
     public static native double acos(double a);
     public static native double asin(double a);
     public static native double atan(double a);
-    public static native double atan2(double a);
+    public static native double atan2(double a, double b);
     public static native double cbrt(double a);
     public static native double ceil(double a);
     public static native double cos(double a);

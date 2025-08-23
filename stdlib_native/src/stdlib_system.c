@@ -1,5 +1,6 @@
-
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../../javarunner/include/execution_engine/executor.h"
@@ -58,4 +59,57 @@ void Java_java_lang_System_setupPrinter() {
 
     setInt32StaticField(system, "out", printerObject);
     printf("Found system\n");
+}
+
+double Java_java_lang_Math_acos(double a) {
+    return acos(a);
+}
+double Java_java_lang_Math_asin(double a) {
+    return asin(a);
+}
+double Java_java_lang_Math_atan(double a) {
+    return atan(a);
+}
+double Java_java_lang_Math_atan2(double a, double b) {
+    return atan2(a, b);
+}
+double Java_java_lang_Math_cbrt(double a) {
+    return cbrt(a);
+}
+double Java_java_lang_Math_ceil(double a) {
+    return ceil(a);
+}
+double Java_java_lang_Math_cos(double a) {
+    return cos(a);
+}
+double Java_java_lang_Math_cosh(double a) {
+    return cosh(a);
+}
+double Java_java_lang_Math_exp(double a) {
+    return exp(a);
+}
+double Java_java_lang_Math_expm1(double a) {
+    return expm1(a);
+}
+double Java_java_lang_Math_floor(double a) {
+    return floor(a);
+}
+double Java_java_lang_Math_floorDiv(int a, int b) {
+    // TODO(Landry): Handle properly?
+    return floor(a/b);
+}
+double Java_java_lang_Math_sqrt(double a) {
+    return sqrt(a);
+}
+double Java_java_lang_Math_log(double a) {
+    return log(a);
+}
+double Java_java_lang_Math_log10(double a) {
+    return log10(a);
+}
+double Java_java_lang_Math_log1p(double a) {
+    return log1p(a);
+}
+double Java_java_lang_Math_random() {
+    return (double)random() / (double) RAND_MAX;
 }
