@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "memory/garbagecollector.h"
+#include "utils/log.h"
 
 int getElementSize(const int type) {
     switch (type) {
@@ -20,7 +21,7 @@ int getElementSize(const int type) {
         case T_DOUBLE:
             return 8;
         default: {
-            printf("Invalid type: %d\n", type);
+            errorLog("Invalid type: %d\n", type);
             return -1;
         }
     }
