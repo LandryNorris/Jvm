@@ -5,6 +5,7 @@
 #include "classloader/constantparser.h"
 #include "classloader/primitivereader.h"
 #include "classloader/utf8utils.h"
+#include "utils/log.h"
 
 int getAttributeType(UTF8* utf8) {
     if (isEqual(utf8, "ConstantValue")) return ATTRIBUTE_CONSTANT_VALUE;
@@ -308,7 +309,7 @@ AttributePool* parseAttributes(ConstantPool* constantPool, const uint8_t** conte
             }
             default: {
                 attribute->info = NULL;
-                printf("Unrecognized Attribute type with name index %d and type %d\n",
+                traceLog("Unrecognized Attribute type with name index %d and type %d\n",
                        attribute->nameIndex, attribute->type);
                 for (int j = 0; j < attributeLength; j++) {
                     readuInt8(content); // read the values, but ignore them for now.

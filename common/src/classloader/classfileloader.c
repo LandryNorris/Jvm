@@ -10,11 +10,13 @@
 #include <string.h>
 #include <utils/constantpoolhelper.h>
 
+#include "utils/log.h"
+
 ClassFile* loadClassFile(const char* classFilePath) {
     FILE* file = fopen(classFilePath, "r");
 
     if (file == NULL) {
-        printf("No such file %s\n", classFilePath);
+        traceLog("No such file %s\n", classFilePath);
         return NULL;
     }
 
@@ -86,7 +88,7 @@ int findClassFile(const char* classFileDirectory, const char* name) {
     FILE* classFile = fopen(tryPath, "r");
 
     if (classFile) {
-        printf("Found ClassFile at %s\n", tryPath);
+        traceLog("Found ClassFile at %s\n", tryPath);
         return 0;
     }
     return ENOENT;
@@ -106,7 +108,7 @@ int loadClassFilesRecursive(const char* classFileDirectory) {
             loadClassFilesRecursive(inner);
         } else if (dir->d_type == 8) { // File
             if (isClassFile(dir->d_name)) {
-                printf("Found Class File %s\n", dir->d_name);
+                debugLog("Found Class File %s\n", dir->d_name);
             }
         }
     }

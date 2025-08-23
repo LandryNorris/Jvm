@@ -16,6 +16,7 @@
 #include "memory/primitive_array.h"
 #include "native.h"
 #include "utils/constantpoolhelper.h"
+#include "utils/log.h"
 
 // TODO(Landry): Find better place for this
 
@@ -143,8 +144,13 @@ int executeByNameUtf8(Executor* executor, const ClassFile* classFile, UTF8* meth
     if (method == nullptr) {
         char* methodNameString = utf82cstring(methodName);
         char* descriptorString = utf82cstring(descriptor);
-        printf("Unable to find method with name %s and type %s\n", methodNameString,
-               descriptorString);
+        if (methodNameString[0] == '<') {
+            traceLog("Unable to find method with name %s and type %s\n", methodNameString,
+                   descriptorString);
+        } else {
+            errorLog("Unable to find method with name %s and type %s\n", methodNameString,
+                   descriptorString);
+        }
         free(methodNameString);
         free(descriptorString);
 
@@ -190,6 +196,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
 
     while (1) {
         uint8_t instruction = *pc;
+        verboseLog("%s\n", instructionNames[instruction]);
         switch (instruction) {
             case INSTR_NOP:
                 break;

@@ -9,6 +9,7 @@
 
 #include "classloader/utf8utils.h"
 #include "memory/garbagecollector.h"
+#include "utils/log.h"
 
 int createObject(GarbageCollector* gc, ClassFile* classFile) {
     int index = allocateNew(gc, sizeof(ObjHeader) + classFile->size);
@@ -53,7 +54,7 @@ int getFieldIndex(ObjHeader* obj, char* field) {
 void setFieldValue32(ObjHeader* obj, char* field, int32_t value) {
     int fieldIndex = getFieldIndex(obj, field);
     if (fieldIndex == -1) {
-        printf("Field %s is not a valid field in the class\n", field);
+        errorLog("Field %s is not a valid field in the class\n", field);
         return;
     }
     int offset = obj->fields[fieldIndex]->offset;
@@ -63,7 +64,7 @@ void setFieldValue32(ObjHeader* obj, char* field, int32_t value) {
 int32_t getFieldValue32(ObjHeader* obj, char* field) {
     int fieldIndex = getFieldIndex(obj, field);
     if (fieldIndex == -1) {
-        printf("Field %s is not a valid field in the class\n", field);
+        errorLog("Field %s is not a valid field in the class\n", field);
         return 0;
     }
     int offset = obj->fields[fieldIndex]->offset;

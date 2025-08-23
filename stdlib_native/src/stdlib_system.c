@@ -8,9 +8,10 @@
 #include "memory/objheader.h"
 #include "memory/primitive_array.h"
 #include "synthetic/class_creator.h"
+#include "utils/log.h"
 
 void Java_java_lang_Printer_print() {
-    printf("System is printing!\n");
+    verboseLog("System is printing!\n");
 }
 
 void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
@@ -58,7 +59,7 @@ void Java_java_lang_System_setupPrinter() {
     const int printerObject = createObject(executor->gc, syntheticPrinter);
 
     setInt32StaticField(system, "out", printerObject);
-    printf("Found system\n");
+    verboseLog("Found system\n");
 }
 
 double Java_java_lang_Math_acos(double a) {

@@ -2,10 +2,11 @@
 #include <stdio.h>
 
 #include "classloader/classfileloader.h"
+#include "utils/log.h"
 
 int javaparser_main(int argc, char** argv) {
     if (argc < 2) {
-        printf("no class file given.\n");
+        errorLog("no class file given.\n");
         return EINVAL;
     }
 
