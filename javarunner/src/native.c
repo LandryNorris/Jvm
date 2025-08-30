@@ -50,7 +50,8 @@ Symbol* loadSymbol(const char* name) {
 void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* returnType) {
     // TODO(Landry): Parse Java descriptor to types.
     int typeIndex = 0;
-    for (char c = *descriptor; c != '\0'; c = *++descriptor) {
+    bool breakFromFor = false;
+    for (char c = *descriptor; c != '\0' && !breakFromFor; c = *++descriptor) {
         switch (c) {
             case 'B': {
                 types[typeIndex++] = &ffi_type_sint8;
@@ -97,6 +98,9 @@ void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* re
                         *returnType = ffi_type_void;
                     }
                     if (c == ';') {
+                        // We need to move back a character, since the loop
+                        // is about to increment, and we post-increment here
+                        descriptor--;
                         break;
                     }
                 }
@@ -104,10 +108,12 @@ void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* re
             }
             case ')': {
                 // time to parse return type
+                breakFromFor = true;
                 break;
             }
         }
     }
+    // TODO(Landry): Handle parsing return type
     *returnType = ffi_type_void;
 }
 
