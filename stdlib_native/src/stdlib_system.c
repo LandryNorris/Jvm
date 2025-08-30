@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -113,4 +114,32 @@ double Java_java_lang_Math_log1p(double a) {
 }
 double Java_java_lang_Math_random() {
     return (double)random() / (double) RAND_MAX;
+}
+
+int Java_java_io_File_openFile(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    FILE* fd = fopen(path, "a+");
+    if (fd == nullptr) {
+        traceLog("Failed to  open file at: %s, %d\n", path, errno);
+        free(path);
+        return 0;
+    }
+    free(path);
+    return fileno(fd);
+}
+
+int Java_java_io_File_getPermissions(int fd) {
+
 }
