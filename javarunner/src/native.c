@@ -47,74 +47,78 @@ Symbol* loadSymbol(const char* name) {
     return nullptr;
 }
 
-void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* returnType) {
-    // TODO(Landry): Parse Java descriptor to types.
-    int typeIndex = 0;
-    bool breakFromFor = false;
-    for (char c = *descriptor; c != '\0' && !breakFromFor; c = *++descriptor) {
+ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
+    for (char c = **descriptor; c != '\0'; c = *++*descriptor) {
         switch (c) {
             case 'B': {
-                types[typeIndex++] = &ffi_type_sint8;
-                break;
+                return &ffi_type_sint8;
             }
             case 'C': {
-                types[typeIndex++] = &ffi_type_sint8;
-                break;
+                return &ffi_type_sint16;
             }
             case 'D': {
-                types[typeIndex++] = &ffi_type_double;
-                break;
+                return &ffi_type_double;
             }
             case 'F': {
-                types[typeIndex++] = &ffi_type_float;
-                break;
+                return &ffi_type_float;
             }
             case 'I': {
-                types[typeIndex++] = &ffi_type_sint32;
-                break;
+                return &ffi_type_sint32;
             }
             case 'J': {
-                types[typeIndex++] = &ffi_type_sint64;
-                break;
+                return &ffi_type_sint64;
             }
             case 'S': {
-                types[typeIndex++] = &ffi_type_sint16;
-                break;
+                return &ffi_type_sint16;
             }
             case 'Z': {
-                types[typeIndex++] = &ffi_type_sint32;
-                break;
+                return &ffi_type_sint32;
             }
-            // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
-            // different?
+                // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
+                // different?
             case '[':
             case 'L': {
                 // parse type
-                types[typeIndex++] = &ffi_type_uint32;
+                ffi_type* type = &ffi_type_uint32;
                 char c;
-                while ((c = *descriptor++)) {
+                while ((c = *(*descriptor)++)) {
                     if (c == '\0') {
                         // error, end of string in type name
-                        *returnType = ffi_type_void;
+                        return &ffi_type_void;
                     }
                     if (c == ';') {
                         // We need to move back a character, since the loop
                         // is about to increment, and we post-increment here
-                        descriptor--;
-                        break;
+                        (*descriptor)--;
+                        return type;
                     }
                 }
-                break;
+                return type;
             }
             case ')': {
-                // time to parse return type
-                breakFromFor = true;
-                break;
+                // Not a valid type. Likely bug
+                return &ffi_type_void;
             }
         }
     }
-    // TODO(Landry): Handle parsing return type
-    *returnType = ffi_type_void;
+}
+
+void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* returnType) {
+    // TODO(Landry): Parse Java descriptor to types.
+    int typeIndex = 0;
+
+    while (descriptor && *descriptor != ')') {
+        ffi_type* type = parseSingleTypeFromDescriptor(&descriptor);
+        if (type != &ffi_type_void) {
+            types[typeIndex++] = type;
+        }
+    }
+
+    if (*descriptor == ')') {
+        descriptor++;
+        ffi_type* type = parseSingleTypeFromDescriptor(&descriptor);
+        *returnType = *type;
+    }
 }
 
 char* jniName(const ClassFile* classFile, const UTF8* methodName) {
@@ -193,4 +197,6 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
 
     uint64_t returnValue = 0;
     ffi_call(&callInterface, (void (*)()) symbolInfo->sym, &returnValue, argPointers);
+
+    // TODO(Landry): Return value
 }
