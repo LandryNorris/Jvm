@@ -1,6 +1,9 @@
 package java.io;
 
 public class File {
+    // TODO(Landry): Handle Windows
+    public static final String separator = "/";
+    public static final char pathSeparatorChar = '/';
     private int fileDescriptor = -1;
     private int permissions;
 
@@ -9,8 +12,7 @@ public class File {
     }
 
     public File(String parent, String child) {
-        // TODO(Landry): Use System.lineSeparator
-        this(parent + "/" + child);
+        this(parent + File.pathSeparatorChar + child);
     }
 
     public File(String pathname) {
