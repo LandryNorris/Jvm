@@ -74,6 +74,9 @@ ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
             case 'Z': {
                 return &ffi_type_sint32;
             }
+            case 'V': {
+                return &ffi_type_void;
+            }
                 // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
                 // different?
             case '[':
