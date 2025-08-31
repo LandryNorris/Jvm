@@ -169,3 +169,23 @@ int Java_java_io_File_existsInternal(uint32_t obj, uint32_t pathIndex) {
     free(path);
     return result;
 }
+
+int Java_java_io_File_createNewFileInternal(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    const FILE* file = fopen(path, "a+x");
+
+    free(path);
+    return file != NULL;
+}
