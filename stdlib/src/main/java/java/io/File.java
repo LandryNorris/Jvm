@@ -6,6 +6,7 @@ public class File {
     public static final char pathSeparatorChar = '/';
     private int fileDescriptor = -1;
     private int permissions;
+    private String pathname;
 
     public File(File parent, String child) {
         // TODO(Landry): Implement
@@ -16,15 +17,19 @@ public class File {
     }
 
     public File(String pathname) {
-        // TODO(Landry): Open file lazily when I have other methods
-        fileDescriptor = openFile(pathname);
+        this.pathname = pathname;
     }
 
     private native int openFile(String path);
     private native int getPermissions(int fd);
+    private native int existsInternal(String path);
 
     public static File[] listRoots() {
         // TODO(Landry): Detect OS and support Windows
         return new File[] { new File("/") };
+    }
+
+    public boolean exists() {
+        return existsInternal(pathname) != 0;
     }
 }

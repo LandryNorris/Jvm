@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../../javarunner/include/execution_engine/executor.h"
 #include "classloader/classloader.h"
@@ -142,4 +143,29 @@ int Java_java_io_File_openFile(uint32_t obj, uint32_t pathIndex) {
 
 int Java_java_io_File_getPermissions(int fd) {
 
+}
+
+int Java_java_io_File_existsInternal(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    int result = 0;
+    if (access(path, F_OK) == 0) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+
+    free(path);
+    return result;
 }
