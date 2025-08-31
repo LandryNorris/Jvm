@@ -198,5 +198,6 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
     uint64_t returnValue = 0;
     ffi_call(&callInterface, (void (*)()) symbolInfo->sym, &returnValue, argPointers);
 
-    // TODO(Landry): Return value
+    // TODO(Landry): Do I push this for void?
+    push32(&lastFrame->operandStack, (int32_t)returnValue);
 }
