@@ -35,7 +35,8 @@ Symbol* loadSymbol(const char* name) {
     for (int i = 0; i < numLoadedLibraries; i++) {
         const void* sym = dlsym(libraries[i].handle, name);
         if (sym != nullptr) {
-            symbols[numLoadedSymbols].name = name;
+            symbols[numLoadedSymbols].name = malloc(strlen(name) + 1);
+            strcpy((char*)symbols[numLoadedSymbols].name, name);
             symbols[numLoadedSymbols].sym = sym;
             numLoadedSymbols++;
             return &symbols[numLoadedSymbols - 1];
