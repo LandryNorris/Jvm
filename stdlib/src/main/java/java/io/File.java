@@ -42,4 +42,8 @@ public class File {
     public boolean delete() {
         return deleteInternal(pathname) != 0;
     }
+
+    public String getPath() {
+        return pathname;
+    }
 }

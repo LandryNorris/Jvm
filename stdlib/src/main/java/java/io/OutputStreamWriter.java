@@ -7,10 +7,14 @@ public abstract class OutputStreamWriter {
         this.out = out;
     }
 
-    void close() throws IOException {
+    public void write(String s) throws IOException {
+        out.write(s.getBytes());
+    }
+
+    public void close() throws IOException {
         out.close();
     }
-    void flush() throws IOException {
+    public void flush() throws IOException {
         out.flush();
     }
 }

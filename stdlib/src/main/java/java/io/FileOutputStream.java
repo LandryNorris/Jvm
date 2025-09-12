@@ -15,9 +15,16 @@ public class FileOutputStream extends OutputStream {
         file.createNewFile();
     }
 
-    private native void writeBytes(String path, byte[] bytes);
+    private native void writeBytesInternal(String path, byte[] bytes);
+    private native void writeByteInternal(String path, byte b);
+
     @Override
     public void write(int b) throws IOException {
+        writeByteInternal(file.getPath(), (byte) b);
+    }
 
+    @Override
+    void write(byte[] bytes) throws IOException {
+        writeBytesInternal(file.getPath(), bytes);
     }
 }
