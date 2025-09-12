@@ -18,9 +18,17 @@ add_jar(java_stdlib SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/StringBuilder.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Object.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Integer.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Exception.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/lang/Throwable.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/PrintStream.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/Serializable.java"
         "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/File.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/FileWriter.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/FileNotFoundException.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/FileOutputStream.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/IOException.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/OutputStream.java"
+        "${CMAKE_CURRENT_LIST_DIR}/src/main/java/java/io/OutputStreamWriter.java"
 )
 
 get_target_property(java_stdlib_CLASSDIR java_stdlib CLASSDIR)
