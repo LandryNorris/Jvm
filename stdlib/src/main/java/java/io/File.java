@@ -24,6 +24,7 @@ public class File {
     private native int getPermissions(int fd);
     private native int existsInternal(String path);
     private native int createNewFileInternal(String path);
+    private native int deleteInternal(String path);
 
     public static File[] listRoots() {
         // TODO(Landry): Detect OS and support Windows
@@ -36,5 +37,9 @@ public class File {
 
     public boolean createNewFile() {
         return createNewFileInternal(pathname) != 0;
+    }
+
+    public boolean delete() {
+        return deleteInternal(pathname) != 0;
     }
 }

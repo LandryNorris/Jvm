@@ -7,5 +7,7 @@ public class App {
         System.out.println("File exists? " + file.exists());
         boolean created = file.createNewFile();
         System.out.println("File was created new? " + created);
+        boolean deleted = file.delete();
+        System.out.println("File was deleted? " + deleted);
     }
 }
