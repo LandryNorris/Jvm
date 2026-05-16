@@ -214,7 +214,7 @@ int Java_java_io_File_deleteInternal(uint32_t obj, uint32_t pathIndex) {
     }
 }
 
-int Java_java_io_File_writeBytesInternal(uint32_t obj, uint32_t pathIndex, uint32_t bytesIndex) {
+int Java_java_io_FileOutputStream_writeBytesInternal(uint32_t obj, uint32_t pathIndex, uint32_t bytesIndex) {
     Executor* executor = getMainExecutor();
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
@@ -229,6 +229,9 @@ int Java_java_io_File_writeBytesInternal(uint32_t obj, uint32_t pathIndex, uint3
     path[arrayHeader->length] = 0;
 
     PrimitiveArray* bytesObj = getValue(executor->gc->memoryRegion, bytesIndex);
+    uint8_t* bytes = bytesObj->memory;
+
+    // TODO(Landry): I need the fd, not the name
 
     free(path);
 }

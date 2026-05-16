@@ -80,7 +80,30 @@ ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
             }
                 // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
                 // different?
-            case '[':
+            case '[': {
+                char arrayChar;
+                while ((arrayChar = *(*descriptor)++)) {
+                    if (arrayChar == '[') {
+                        continue;
+                    }
+                    // Check for valid primitive types
+                    if (arrayChar == 'B' || arrayChar == 'C' || arrayChar == 'D' || arrayChar == 'F' || arrayChar == 'I' || arrayChar == 'J' || arrayChar == 'S' || arrayChar == 'Z') {
+                        return &ffi_type_uint32;
+                    }
+                    if (arrayChar == 'L') {
+                        char typeChar;
+                        while ((typeChar = *(*descriptor)++)) {
+                            if (typeChar == '\0') {
+                                // error, end of string in type name
+                                return &ffi_type_void;
+                            }
+                            if (typeChar == ';') {
+                                return &ffi_type_uint32;
+                            }
+                        }
+                    }
+                }
+            }
             case 'L': {
                 // parse type
                 ffi_type* type = &ffi_type_uint32;
@@ -91,9 +114,6 @@ ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
                         return &ffi_type_void;
                     }
                     if (c == ';') {
-                        // We need to move back a character, since the loop
-                        // is about to increment, and we post-increment here
-                        (*descriptor)--;
                         return type;
                     }
                 }
@@ -161,16 +181,17 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
     StackFrame* lastFrame = peekFrame(frameStack);
     if (lastFrame) {
         int localVariableIndex = 0;
-        if (isVirtual) {
-            // the object reference is at the bottom of the stack, but
-            // needs to go at the start of local variables
-            localVariableIndex++;
-        }
         for (int j = 0; j < argc; j++) {
             args[localVariableIndex++] = pop32(&lastFrame->operandStack);
         }
         if (isVirtual) {
-            args[0] = pop32(&lastFrame->operandStack);
+            args[localVariableIndex++] = pop32(&lastFrame->operandStack);
+        }
+        // We now need to reverse the args
+        for (int i = 0; i < localVariableIndex / 2; i++) {
+            uint32_t temp = args[i];
+            args[i] = args[localVariableIndex - i - 1];
+            args[localVariableIndex - i - 1] = temp;
         }
     }
 
