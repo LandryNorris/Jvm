@@ -22,6 +22,8 @@ int executeByName(Executor* executor, const ClassFile* classFile, char* methodNa
                   FrameStack* frameStack, bool isVirtual);
 void freeExecutor(Executor* executor);
 
+ClassFile* getClassFileAndExecuteIfNew(Executor* e, const char* className);
+
 void setMainExecutor(Executor* executor);
 Executor* getMainExecutor();
 

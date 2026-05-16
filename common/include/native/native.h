@@ -1,7 +1,6 @@
 #ifndef NATIVE_H
 #define NATIVE_H
 
-#include "execution_engine/executor.h"
 #include "interpreter/stackframe.h"
 
 typedef struct {

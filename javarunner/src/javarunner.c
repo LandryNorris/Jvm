@@ -2,7 +2,7 @@
 #include <execution_engine/executor.h>
 #include <stdio.h>
 
-#include "stdlib_native.h"
+#include "../../common/include/native/stdlib_native.h"
 #include "utils/log.h"
 
 int main(int argc, char** argv) {

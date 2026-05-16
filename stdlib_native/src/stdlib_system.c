@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../javarunner/include/execution_engine/executor.h"
+#include "execution_engine/executor.h"
 #include "classloader/classloader.h"
 #include "memory/objheader.h"
 #include "memory/primitive_array.h"
@@ -19,7 +19,7 @@ void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) text);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
@@ -56,7 +56,7 @@ void Java_java_lang_System_setupPrinter() {
 
     ClassFile* system = getClassFile(executor->loader, "java/lang/System", &loadedFresh);
 
-    const int printerObject = createObject(executor->gc, syntheticPrinter);
+    const int printerObject = createObject(executor, executor->gc, syntheticPrinter);
 
     setInt32StaticField(system, "out", printerObject);
     verboseLog("Found system\n");
