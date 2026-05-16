@@ -8,14 +8,39 @@
 #include <string.h>
 
 #include "classloader/utf8utils.h"
+#include "execution_engine/executor.h"
 #include "memory/garbagecollector.h"
 #include "utils/log.h"
 
-int createObject(GarbageCollector* gc, ClassFile* classFile) {
+int getInstanceFieldCountOfClass(Executor* executor, ClassFile* classfile) {
+    int numFieldsTotal = classfile->fieldPool->size;
+    int numInstanceFields = 0;
+
+    for (int i = 0; i < numFieldsTotal; i++) {
+        if (!isFieldStatic(classfile->fieldPool->pool[i])) {
+            numInstanceFields++;
+        }
+    }
+    return numInstanceFields;
+}
+
+int getInstanceFieldCount(Executor* executor, ClassFile* classfile) {
+    const Class* superclass = classfile->superClass;
+    if (superclass == nullptr) {
+        return getInstanceFieldCountOfClass(executor, classfile);
+    }
+    char* superclassName = utf82cstring(superclass->name);
+    ClassFile* superclassFile = executor != nullptr ? getClassFileAndExecuteIfNew(executor, superclassName) : superclass->classFile;
+    free(superclassName);
+    return getInstanceFieldCountOfClass(executor, classfile) +
+        classfile->superClass != nullptr ? getInstanceFieldCount(executor, superclassFile) : 0;
+}
+
+int createObject(Executor* executor, GarbageCollector* gc, ClassFile* classFile) {
     int index = allocateNew(gc, sizeof(ObjHeader) + classFile->size);
     ObjHeader* header = getValue(gc->memoryRegion, index);
 
-    int fieldCount = classFile->fieldPool->size;
+    int fieldCount = getInstanceFieldCount(executor, classFile);
     header->class = classFile;
     header->size = classFile->size;
     // TODO(Landry): Account for static fields

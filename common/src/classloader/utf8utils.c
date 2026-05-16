@@ -9,7 +9,7 @@
 
 int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf8) {
     ClassFile* stringClass = getClassFile(loader, "java/lang/String", nullptr);
-    int index = createObject(gc, stringClass);
+    int index = createObject(nullptr, gc, stringClass);
     ObjHeader* header = getValue(gc->memoryRegion, index);
 
     // Create value array
