@@ -1,7 +1,6 @@
 
 file(GLOB RUNNER_SRCS
         "${CMAKE_CURRENT_LIST_DIR}/src/*.c"
-        "${CMAKE_CURRENT_LIST_DIR}/src/execution_engine/*.c"
 )
 
 add_executable(runner ${RUNNER_SRCS})

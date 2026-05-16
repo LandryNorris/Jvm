@@ -1,5 +1,5 @@
 
-#include "native.h"
+#include "native/native.h"
 
 #include <dlfcn.h>
 #include <ffi.h>

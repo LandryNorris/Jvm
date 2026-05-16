@@ -1,4 +1,4 @@
-#include "../../include/execution_engine/executor.h"
+#include "execution_engine/executor.h"
 
 #include <classloader/attributeloader.h>
 #include <classloader/classfile.h>
@@ -14,7 +14,7 @@
 #include "memory/memory.h"
 #include "memory/objheader.h"
 #include "memory/primitive_array.h"
-#include "native.h"
+#include "native/native.h"
 #include "utils/constantpoolhelper.h"
 #include "utils/log.h"
 
