@@ -122,7 +122,7 @@ int Java_java_io_File_openFile(uint32_t obj, uint32_t pathIndex) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
@@ -150,7 +150,7 @@ int Java_java_io_File_existsInternal(uint32_t obj, uint32_t pathIndex) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
@@ -175,7 +175,7 @@ int Java_java_io_File_createNewFileInternal(uint32_t obj, uint32_t pathIndex) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
@@ -195,7 +195,7 @@ int Java_java_io_File_deleteInternal(uint32_t obj, uint32_t pathIndex) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
@@ -219,7 +219,7 @@ int Java_java_io_File_writeBytesInternal(uint32_t obj, uint32_t pathIndex, uint3
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
