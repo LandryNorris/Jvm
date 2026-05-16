@@ -4,7 +4,7 @@ public class File {
     // TODO(Landry): Handle Windows
     public static final String separator = "/";
     public static final char pathSeparatorChar = '/';
-    private int fileDescriptor = -1;
+    int fileDescriptor = -1;
     private int permissions;
     private String pathname;
 
@@ -36,7 +36,8 @@ public class File {
     }
 
     public boolean createNewFile() {
-        return createNewFileInternal(pathname) != 0;
+        fileDescriptor = createNewFileInternal(pathname);
+        return fileDescriptor != -1;
     }
 
     public boolean delete() {

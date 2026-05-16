@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "execution_engine/executor.h"
 #include "classloader/classloader.h"
@@ -184,10 +185,10 @@ int Java_java_io_File_createNewFileInternal(uint32_t obj, uint32_t pathIndex) {
     memcpy(path, arrayHeader->memory, arrayHeader->length);
     path[arrayHeader->length] = 0;
 
-    const FILE* file = fopen(path, "a+x");
+    int fd = open(path, O_RDWR | O_CREAT | O_APPEND | O_EXCL, 0666);
 
     free(path);
-    return file != NULL;
+    return fd;
 }
 
 int Java_java_io_File_deleteInternal(uint32_t obj, uint32_t pathIndex) {
@@ -214,24 +215,11 @@ int Java_java_io_File_deleteInternal(uint32_t obj, uint32_t pathIndex) {
     }
 }
 
-int Java_java_io_FileOutputStream_writeBytesInternal(uint32_t obj, uint32_t pathIndex, uint32_t bytesIndex) {
+int Java_java_io_FileOutputStream_writeBytesInternal(uint32_t obj, uint32_t fd, uint32_t bytesIndex) {
     Executor* executor = getMainExecutor();
-    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
-
-    // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
-    int valueRef = 0;
-    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
-
-    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
-    char* path = malloc(arrayHeader->length+1); // remember null terminator
-    memcpy(path, arrayHeader->memory, arrayHeader->length);
-    path[arrayHeader->length] = 0;
 
     PrimitiveArray* bytesObj = getValue(executor->gc->memoryRegion, bytesIndex);
     uint8_t* bytes = bytesObj->memory;
 
-    // TODO(Landry): I need the fd, not the name
-
-    free(path);
+    write(fd, bytes, bytesObj->length);
 }

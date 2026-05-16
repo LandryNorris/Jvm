@@ -52,30 +52,39 @@ ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
     for (char c = **descriptor; c != '\0'; c = *++*descriptor) {
         switch (c) {
             case 'B': {
+                ++*descriptor;
                 return &ffi_type_sint8;
             }
             case 'C': {
+                ++*descriptor;
                 return &ffi_type_sint16;
             }
             case 'D': {
+                ++*descriptor;
                 return &ffi_type_double;
             }
             case 'F': {
+                ++*descriptor;
                 return &ffi_type_float;
             }
             case 'I': {
+                ++*descriptor;
                 return &ffi_type_sint32;
             }
             case 'J': {
+                ++*descriptor;
                 return &ffi_type_sint64;
             }
             case 'S': {
+                ++*descriptor;
                 return &ffi_type_sint16;
             }
             case 'Z': {
+                ++*descriptor;
                 return &ffi_type_sint32;
             }
             case 'V': {
+                ++*descriptor;
                 return &ffi_type_void;
             }
                 // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
