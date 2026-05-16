@@ -4,10 +4,10 @@ public class InheritanceApp {
 
         System.out.println("Printing bar fields");
         System.out.println(bar.barStringField);
-        System.out.println(bar.barFloatField);
+        System.out.println(Integer.valueOf(bar.barIntField));
 
         System.out.println("Printing foo fields of bar");
         System.out.println(bar.fooStringField);
-        System.out.println(bar.fooIntField);
+        System.out.println(Integer.valueOf(bar.fooIntField));
     }
 }
