@@ -17,3 +17,6 @@ add_library(common ${COMMON_SRCS})
 target_link_libraries(common m)
 
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+
+target_link_libraries(common dl)
+target_link_libraries(common PkgConfig::LIBFFI)
