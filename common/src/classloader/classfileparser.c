@@ -32,8 +32,6 @@ int initClassFile(const uint8_t* bytes, ClassFile* classPtr) {
     classPtr->methodPool = parseMethodPool(classPtr->constantPool, content);
     classPtr->attributePool = parseAttributes(classPtr->constantPool, content);
 
-    classPtr->size = getClassSize(classPtr->constantPool, classPtr->fieldPool);
-
     classPtr->thisClass =
         classPtr->constantPool->pool[classPtr->thisClassIndex - 1]->constant->class;
 
@@ -45,6 +43,7 @@ int initClassFile(const uint8_t* bytes, ClassFile* classPtr) {
     }
 
     classPtr->name = classPtr->thisClass->name;
+    classPtr->fieldLayout = nullptr;
 
     initializeStaticFields(classPtr);
     return 0;

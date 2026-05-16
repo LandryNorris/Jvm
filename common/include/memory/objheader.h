@@ -10,15 +10,8 @@
 #include "execution_engine/executor.h"
 
 typedef struct {
-    int offset;
-    char* name;
-} ObjField;
-
-typedef struct {
     ClassFile* class;
-    int size;
-    int fieldCount;
-    ObjField** fields;
+    FieldLayout* fieldLayout;
     uint8_t data[];
 } ObjHeader;
 

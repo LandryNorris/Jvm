@@ -89,6 +89,7 @@ ClassFile* createClassFile(const ClassCreationContext* context) {
 
     classFile->thisClass = clazz;
     classFile->name = clazz->name;
+    classFile->fieldLayout = nullptr;
 
     if (context->superclass != nullptr) {
         const Class* superclass =

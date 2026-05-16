@@ -19,7 +19,7 @@ void Java_java_lang_SyntheticPrinter_print(uint32_t obj, uint32_t text) {
     ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) text);
 
     // For Strings, the value is fields[0]
-    int valueOffset = stringObj->fields[0]->offset;
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
     int valueRef = 0;
     memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
 
