@@ -7,21 +7,15 @@
 
 #include "classloader/classfile.h"
 #include "garbagecollector.h"
-
-typedef struct {
-    int offset;
-    char* name;
-} ObjField;
+#include "execution_engine/executor.h"
 
 typedef struct {
     ClassFile* class;
-    int size;
-    int fieldCount;
-    ObjField** fields;
+    FieldLayout* fieldLayout;
     uint8_t data[];
 } ObjHeader;
 
-int createObject(GarbageCollector* gc, ClassFile* class);
+int createObject(Executor* executor, GarbageCollector* gc, ClassFile* class);
 void setFieldValue32(ObjHeader* obj, char* field, int32_t value);
 int32_t getFieldValue32(ObjHeader* obj, char* field);
 

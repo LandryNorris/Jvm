@@ -9,9 +9,19 @@
 #include "memory/static.h"
 #include "methodparser.h"
 
+typedef struct {
+    int offset;
+    char* name;
+} ObjField;
+
+typedef struct {
+    ObjField** fields;
+    int fieldCount;
+    int totalMemorySize;
+} FieldLayout;
+
 // we predefined the ClassFile in constantparser.h
 struct ClassFile {
-    int size;
     uint32_t magic;
     uint16_t minor;
     uint16_t major;
@@ -28,6 +38,7 @@ struct ClassFile {
     Class* superClass;
     UTF8* name;
     struct StaticFields* staticFields;
+    FieldLayout* fieldLayout;
 };
 
 int initClassFile(const uint8_t* bytes, ClassFile* classPtr);

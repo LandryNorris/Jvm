@@ -9,7 +9,7 @@
 
 int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf8) {
     ClassFile* stringClass = getClassFile(loader, "java/lang/String", nullptr);
-    int index = createObject(gc, stringClass);
+    int index = createObject(nullptr, gc, stringClass);
     ObjHeader* header = getValue(gc->memoryRegion, index);
 
     // Create value array
@@ -25,12 +25,12 @@ int utf82string(GarbageCollector* gc, const ClassLoader* loader, const UTF8* utf
     textLocation[j] = '\0'; // add null terminator
 
     // TODO(Landry): I think openjdk hardcodes the index. Maybe that makes sense here too?
-    for (int i = 0; i < header->fieldCount; i++) {
-        ObjField* field = header->fields[i];
+    for (int i = 0; i < header->fieldLayout->fieldCount; i++) {
+        ObjField* field = header->fieldLayout->fields[i];
 
         // Look for 'value' field
         if (strcmp(field->name, "value") == 0) {
-            ObjField* field = header->fields[i];
+            ObjField* field = header->fieldLayout->fields[i];
 
             memcpy(&header->data[field->offset], &arrayOffset, sizeof(int));
         }

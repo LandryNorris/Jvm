@@ -1,4 +1,4 @@
-#include "../../include/execution_engine/executor.h"
+#include "execution_engine/executor.h"
 
 #include <classloader/attributeloader.h>
 #include <classloader/classfile.h>
@@ -14,7 +14,7 @@
 #include "memory/memory.h"
 #include "memory/objheader.h"
 #include "memory/primitive_array.h"
-#include "native.h"
+#include "native/native.h"
 #include "utils/constantpoolhelper.h"
 #include "utils/log.h"
 
@@ -63,7 +63,7 @@ void freeExecutor(Executor* executor) {
     free(executor);
 }
 
-ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, const char* className) {
+ClassFile* getClassFileAndExecuteIfNew(Executor* e, const char* className) {
     ClassLoader* loader = e->loader;
 
     uint8_t loadedFresh = 0;
@@ -71,7 +71,7 @@ ClassFile* getClassFileAndExecuteIfNew(Executor* e, FrameStack* frameStack, cons
 
     if (loadedFresh) {
         // execute static method
-        initializeClass(e, result, frameStack);
+        initializeClass(e, result, e->mainFrameStack);
     }
     return result;
 }
@@ -385,8 +385,8 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 int index = high << 8 | low;
                 ConstantPoolInfo* constant = classFile->constantPool->pool[index - 1];
                 char* name = parseClass(constant->constant->class, classFile->constantPool);
-                ClassFile* file = getClassFileAndExecuteIfNew(executor, frameStack, name);
-                int obj = createObject(executor->gc, file);
+                ClassFile* file = getClassFileAndExecuteIfNew(executor, name);
+                int obj = createObject(executor, executor->gc, file);
                 push32(operandStack, obj);
                 break;
             }
@@ -497,7 +497,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 UTF8* containingClassName = field->class->name;
                 char* containingClassNameString = utf82cstring(containingClassName);
                 ClassFile* containingClassFile =
-                    getClassFileAndExecuteIfNew(executor, frameStack, containingClassNameString);
+                    getClassFileAndExecuteIfNew(executor, containingClassNameString);
 
                 char* fieldNameString = utf82cstring(nameUtf);
                 StaticField* staticField = getStaticField(containingClassFile, fieldNameString);
@@ -522,7 +522,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 UTF8* containingClassName = field->class->name;
                 char* containingClassNameString = utf82cstring(containingClassName);
                 ClassFile* containingClassFile =
-                    getClassFileAndExecuteIfNew(executor, frameStack, containingClassNameString);
+                    getClassFileAndExecuteIfNew(executor, containingClassNameString);
 
                 char* fieldNameString = utf82cstring(nameUtf);
                 StaticField* staticField = getStaticField(containingClassFile, fieldNameString);
@@ -644,7 +644,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 UTF8* otherClassUtf8 = methodRef->class->name;
                 char* otherClassString = utf82cstring(otherClassUtf8);
                 ClassFile* otherClassFile =
-                    getClassFileAndExecuteIfNew(executor, frameStack, otherClassString);
+                    getClassFileAndExecuteIfNew(executor, otherClassString);
                 free(otherClassString);
                 executeByNameUtf8(executor, otherClassFile, methodName, descriptor, frameStack,
                                   false, false);
@@ -666,7 +666,7 @@ void executeProgram(Executor* executor, Program* program, FrameStack* frameStack
                 ClassFile* classfileToExecute = class->classFile;
                 if (classfileToExecute == NULL) {
                     classfileToExecute =
-                        getClassFileAndExecuteIfNew(executor, frameStack, utf82cstring(className));
+                        getClassFileAndExecuteIfNew(executor, utf82cstring(className));
                 }
                 executeByNameUtf8(executor, classfileToExecute, methodName, descriptor, frameStack,
                                   true, false);
