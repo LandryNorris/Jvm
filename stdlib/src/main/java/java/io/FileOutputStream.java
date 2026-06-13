@@ -31,6 +31,6 @@ public class FileOutputStream extends OutputStream {
 
     @Override
     void close() throws IOException {
-        closeInternal();
+        closeInternal(file.fileDescriptor);
     }
 }
