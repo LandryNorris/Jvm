@@ -1,7 +1,10 @@
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "execution_engine/executor.h"
 #include "classloader/classloader.h"
@@ -113,4 +116,115 @@ double Java_java_lang_Math_log1p(double a) {
 }
 double Java_java_lang_Math_random() {
     return (double)random() / (double) RAND_MAX;
+}
+
+int Java_java_io_File_openFile(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    FILE* fd = fopen(path, "a+");
+    if (fd == nullptr) {
+        traceLog("Failed to  open file at: %s, %d\n", path, errno);
+        free(path);
+        return 0;
+    }
+    free(path);
+    return fileno(fd);
+}
+
+int Java_java_io_File_getPermissions(int fd) {
+
+}
+
+int Java_java_io_File_existsInternal(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    int result = 0;
+    if (access(path, F_OK) == 0) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+
+    free(path);
+    return result;
+}
+
+int Java_java_io_File_createNewFileInternal(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    int fd = open(path, O_RDWR | O_CREAT | O_APPEND | O_EXCL, 0666);
+
+    free(path);
+    return fd;
+}
+
+int Java_java_io_File_deleteInternal(uint32_t obj, uint32_t pathIndex) {
+    Executor* executor = getMainExecutor();
+    ObjHeader* stringObj = getValue(executor->gc->memoryRegion, (int) pathIndex);
+
+    // For Strings, the value is fields[0]
+    int valueOffset = stringObj->fieldLayout->fields[0]->offset;
+    int valueRef = 0;
+    memcpy(&valueRef, &stringObj->data[valueOffset], sizeof(int));
+
+    const PrimitiveArray* arrayHeader = getValue(executor->gc->memoryRegion, valueRef);
+    char* path = malloc(arrayHeader->length+1); // remember null terminator
+    memcpy(path, arrayHeader->memory, arrayHeader->length);
+    path[arrayHeader->length] = 0;
+
+    const int status = remove(path);
+    free(path);
+
+    if (status == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int Java_java_io_FileOutputStream_writeBytesInternal(uint32_t obj, uint32_t fd, uint32_t bytesIndex) {
+    Executor* executor = getMainExecutor();
+
+    PrimitiveArray* bytesObj = getValue(executor->gc->memoryRegion, bytesIndex);
+    uint8_t* bytes = bytesObj->memory;
+
+    write(fd, bytes, bytesObj->length);
+    return 0;
+}
+
+void Java_java_io_FileOutputStream_closeInternal(uint32_t obj, uint32_t fd) {
+    close(fd);
 }

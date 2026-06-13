@@ -92,6 +92,18 @@ MethodInfo* lookupMethodInDirectClass(const ClassFile* instanceClass, UTF8* name
     return nullptr;
 }
 
+MethodInfo* lookupMethod(const ClassFile* instanceClass, UTF8* name, UTF8* descriptor, const ClassFile** methodClassRef) {
+    MethodInfo* result = lookupMethodInDirectClass(instanceClass, name, descriptor);
+    if (result != nullptr) {
+        *methodClassRef = instanceClass;
+        return result;
+    }
+    if (instanceClass->superClass == nullptr || instanceClass->superClass->classFile == nullptr) {
+        return nullptr;
+    }
+    return lookupMethod(instanceClass->superClass->classFile, name, descriptor, methodClassRef);
+}
+
 int runMain(Executor* executor) {
     return executeByName(executor, executor->loader->mainClass, "main", executor->mainFrameStack,
                          false);
@@ -140,8 +152,10 @@ int execute(Executor* executor, MethodInfo* method, const ClassFile* classFile,
 
 int executeByNameUtf8(Executor* executor, const ClassFile* classFile, UTF8* methodName,
                       UTF8* descriptor, FrameStack* frameStack, bool isVirtual, bool isSpecial) {
-    MethodInfo* method = lookupMethodInDirectClass(classFile, methodName, descriptor);
-    if (method == nullptr) {
+    const ClassFile* methodClassfile = classFile;
+    // Walk from the specified class so we can find the method's shape and prove it exists
+    MethodInfo* baseMethod = lookupMethod(classFile, methodName, descriptor, &methodClassfile);
+    if (baseMethod == nullptr) {
         char* methodNameString = utf82cstring(methodName);
         char* descriptorString = utf82cstring(descriptor);
         if (methodNameString[0] == '<') {
@@ -156,23 +170,23 @@ int executeByNameUtf8(Executor* executor, const ClassFile* classFile, UTF8* meth
 
         return EINVAL;
     }
+    MethodInfo* method = baseMethod;
     if (isVirtual) {
         Stack32* operandStack = &peekFrame(frameStack)->operandStack;
-        int objRef = peek32(operandStack, method->argumentCount);
+        int objRef = peek32(operandStack, baseMethod->argumentCount);
         const ObjHeader* instance = getValue(executor->gc->memoryRegion, objRef);
 
         // TODO(Landry): I think this is right?
         if (!isSpecial) {
-            // TODO(Landry): Walk full class tree
+            // Re-walk the class tree from instance class to find overriding methods
             MethodInfo* overridingMethod =
-                lookupMethodInDirectClass(instance->class, methodName, descriptor);
+                lookupMethod(instance->class, methodName, descriptor, &methodClassfile);
             if (overridingMethod != nullptr) {
                 method = overridingMethod;
-                classFile = instance->class;
             }
         }
     }
-    return execute(executor, method, classFile, frameStack, isVirtual);
+    return execute(executor, method, methodClassfile, frameStack, isVirtual);
 }
 
 int executeByName(Executor* executor, const ClassFile* classFile, char* methodName,

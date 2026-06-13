@@ -50,4 +50,8 @@ public class String implements Serializable, Comparable<String>, CharSequence {
     public String toString() {
         return this;
     }
+
+    public byte[] getBytes() {
+        return value;
+    }
 }

@@ -35,7 +35,8 @@ Symbol* loadSymbol(const char* name) {
     for (int i = 0; i < numLoadedLibraries; i++) {
         const void* sym = dlsym(libraries[i].handle, name);
         if (sym != nullptr) {
-            symbols[numLoadedSymbols].name = name;
+            symbols[numLoadedSymbols].name = malloc(strlen(name) + 1);
+            strcpy((char*)symbols[numLoadedSymbols].name, name);
             symbols[numLoadedSymbols].sym = sym;
             numLoadedSymbols++;
             return &symbols[numLoadedSymbols - 1];
@@ -47,68 +48,110 @@ Symbol* loadSymbol(const char* name) {
     return nullptr;
 }
 
-void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* returnType) {
-    // TODO(Landry): Parse Java descriptor to types.
-    int typeIndex = 0;
-    for (char c = *descriptor; c != '\0'; c = *++descriptor) {
+ffi_type* parseSingleTypeFromDescriptor(const char** descriptor) {
+    for (char c = **descriptor; c != '\0'; c = *++*descriptor) {
         switch (c) {
             case 'B': {
-                types[typeIndex++] = &ffi_type_sint8;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint8;
             }
             case 'C': {
-                types[typeIndex++] = &ffi_type_sint8;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint16;
             }
             case 'D': {
-                types[typeIndex++] = &ffi_type_double;
-                break;
+                ++*descriptor;
+                return &ffi_type_double;
             }
             case 'F': {
-                types[typeIndex++] = &ffi_type_float;
-                break;
+                ++*descriptor;
+                return &ffi_type_float;
             }
             case 'I': {
-                types[typeIndex++] = &ffi_type_sint32;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint32;
             }
             case 'J': {
-                types[typeIndex++] = &ffi_type_sint64;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint64;
             }
             case 'S': {
-                types[typeIndex++] = &ffi_type_sint16;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint16;
             }
             case 'Z': {
-                types[typeIndex++] = &ffi_type_sint32;
-                break;
+                ++*descriptor;
+                return &ffi_type_sint32;
             }
-            // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
-            // different?
-            case '[':
-            case 'L': {
-                // parse type
-                types[typeIndex++] = &ffi_type_uint32;
-                char c;
-                while ((c = *descriptor++)) {
-                    if (c == '\0') {
-                        // error, end of string in type name
-                        *returnType = ffi_type_void;
+            case 'V': {
+                ++*descriptor;
+                return &ffi_type_void;
+            }
+                // TODO(Landry): I think arrays should treated like objects? Maybe primitives are
+                // different?
+            case '[': {
+                char arrayChar;
+                while ((arrayChar = *(*descriptor)++)) {
+                    if (arrayChar == '[') {
+                        continue;
                     }
-                    if (c == ';') {
-                        break;
+                    // Check for valid primitive types
+                    if (arrayChar == 'B' || arrayChar == 'C' || arrayChar == 'D' || arrayChar == 'F' || arrayChar == 'I' || arrayChar == 'J' || arrayChar == 'S' || arrayChar == 'Z') {
+                        return &ffi_type_uint32;
+                    }
+                    if (arrayChar == 'L') {
+                        char typeChar;
+                        while ((typeChar = *(*descriptor)++)) {
+                            if (typeChar == '\0') {
+                                // error, end of string in type name
+                                return &ffi_type_void;
+                            }
+                            if (typeChar == ';') {
+                                return &ffi_type_uint32;
+                            }
+                        }
                     }
                 }
-                break;
+            }
+            case 'L': {
+                // parse type
+                ffi_type* type = &ffi_type_uint32;
+                char c;
+                while ((c = *(*descriptor)++)) {
+                    if (c == '\0') {
+                        // error, end of string in type name
+                        return &ffi_type_void;
+                    }
+                    if (c == ';') {
+                        return type;
+                    }
+                }
+                return type;
             }
             case ')': {
-                // time to parse return type
-                break;
+                // Not a valid type. Likely bug
+                return &ffi_type_void;
             }
         }
     }
-    *returnType = ffi_type_void;
+}
+
+void parseDescriptorToFFI(const char* descriptor, ffi_type** types, ffi_type* returnType) {
+    // TODO(Landry): Parse Java descriptor to types.
+    int typeIndex = 0;
+
+    while (descriptor && *descriptor != ')') {
+        ffi_type* type = parseSingleTypeFromDescriptor(&descriptor);
+        if (type != &ffi_type_void) {
+            types[typeIndex++] = type;
+        }
+    }
+
+    if (*descriptor == ')') {
+        descriptor++;
+        ffi_type* type = parseSingleTypeFromDescriptor(&descriptor);
+        *returnType = *type;
+    }
 }
 
 char* jniName(const ClassFile* classFile, const UTF8* methodName) {
@@ -147,16 +190,17 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
     StackFrame* lastFrame = peekFrame(frameStack);
     if (lastFrame) {
         int localVariableIndex = 0;
-        if (isVirtual) {
-            // the object reference is at the bottom of the stack, but
-            // needs to go at the start of local variables
-            localVariableIndex++;
-        }
         for (int j = 0; j < argc; j++) {
             args[localVariableIndex++] = pop32(&lastFrame->operandStack);
         }
         if (isVirtual) {
-            args[0] = pop32(&lastFrame->operandStack);
+            args[localVariableIndex++] = pop32(&lastFrame->operandStack);
+        }
+        // We now need to reverse the args
+        for (int i = 0; i < localVariableIndex / 2; i++) {
+            uint32_t temp = args[i];
+            args[i] = args[localVariableIndex - i - 1];
+            args[localVariableIndex - i - 1] = temp;
         }
     }
 
@@ -187,4 +231,8 @@ void executeNativeMethod(const ClassFile* classFile, const int argc, const UTF8*
 
     uint64_t returnValue = 0;
     ffi_call(&callInterface, (void (*)()) symbolInfo->sym, &returnValue, argPointers);
+
+    if (returnType.type != ffi_type_void.type) {
+        push32(&lastFrame->operandStack, (int32_t)returnValue);
+    }
 }
