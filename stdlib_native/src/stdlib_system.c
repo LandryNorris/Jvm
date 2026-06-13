@@ -222,4 +222,9 @@ int Java_java_io_FileOutputStream_writeBytesInternal(uint32_t obj, uint32_t fd, 
     uint8_t* bytes = bytesObj->memory;
 
     write(fd, bytes, bytesObj->length);
+    return 0;
+}
+
+void Java_java_io_FileOutputStream_closeInternal(uint32_t obj, uint32_t fd) {
+    close(fd);
 }

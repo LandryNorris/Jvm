@@ -17,6 +17,7 @@ public class FileOutputStream extends OutputStream {
 
     private native void writeBytesInternal(int fd, byte[] bytes);
     private native void writeByteInternal(int fd, byte b);
+    private native void closeInternal(int fd);
 
     @Override
     public void write(int b) throws IOException {
@@ -26,5 +27,10 @@ public class FileOutputStream extends OutputStream {
     @Override
     void write(byte[] bytes) throws IOException {
         writeBytesInternal(file.fileDescriptor, bytes);
+    }
+
+    @Override
+    void close() throws IOException {
+        closeInternal();
     }
 }
